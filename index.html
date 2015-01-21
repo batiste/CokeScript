@@ -1,0 +1,240 @@
+<html>
+<head>
+<style>
+body, html {
+  font-weight:16px;
+  font-family: Helvetica neue, sans-serif;
+  padding:1em;
+}
+textarea {
+  width:100%;
+  height:400px;
+  font-size:14px;
+}
+div.col {
+  float:left;
+  width:45%;
+  margin-right:3%;
+  position:relative;
+}
+h1, h2, h3 {
+  margin: 0.4em 0;
+}
+.error {
+  padding:0 1em;
+  background: #fee;
+  position:absolute;
+  bottom:1;
+  left:1;
+  right:1;
+  margin:0;
+}
+button {
+  font-size:1.2em
+}
+</style>
+</head>
+<body>
+<h1>
+CokeScript<br>
+<span style="font-size:0.6em">Because Coffee is not enough</span>
+</h1>
+
+<p>CokeScript is a whitespace sensitive language that compile to JavaScript. CokeScript doesn't try to be too smart and is mainly syntactic sugar around common JavasScript annoyances. Features:</p>
+
+<ol>
+<li>Multiline strings</li>
+<li>Significant whitespace</li>
+<li>Shorter function declaration and lambda expression</li>
+<li>Function parameters can have a default and computed value</li>
+<li>Simple <strong>for</strong> loop syntax that works on Array or Object</li>
+<li>Sensible scoping rules unlike <a href="https://donatstudios.com/CoffeeScript-Madness">CoffeeScript</a></li>
+<li>Classes and inheritance</li>
+<li>Strict syntax rules that enfore a rigid coding style</li>
+<li>A quite good grammar parser that hints about what is wrong</li>
+</ol>
+
+<p>More info on the github page <a href="https://github.com/batiste/EPEG.js">https://github.com/batiste/EPEG.js</a></p>
+
+<div style="clear:both" id="egClass">
+<div class="col">
+<h2>Classes</h2>
+<textarea class="in">
+class Animal
+  
+  def constructor(name="unknown", diet="grass")
+    this.name = name
+    this.diet = diet
+  
+  def eat()
+    return this.name + " eat " + this.diet
+
+class Cats(Animal)
+  def constructor(name)
+    Animal.call(this, name, "meat")
+
+class Tiger(Cats)
+  def constructor(name)
+    Cats.call(this, name)
+
+tiger = Tiger("Wilson")
+tiger.eat()
+</textarea>
+
+<pre class="error" style=""></pre>
+
+</div>
+
+<div class="col">
+  <h2>JavaScript Output</h2>
+  <textarea class="code"></textarea>
+  <button class="evalButton">Eval</button>
+  <pre class="evalResult"></pre>
+</div>
+
+</div>
+
+
+
+
+<div style="clear:both" id="egScope">
+<div class="col">
+<h2>Scope</h2>
+<textarea class="in">
+a = "string 
+on multiple 
+lines"
+
+c = 1 + 1
+
+def testScope(b)
+  a = "does not erase the outer scope string"
+  b = "No var here because it's parameter of the function"
+  c := "Explicit assignment to parent scope variable with \":=\""
+  return a
+
+testScope()
+a + ", " + c
+</textarea>
+
+<pre class="error" style=""></pre>
+
+</div>
+
+
+<div class="col">
+  <h2>JavaScript Output</h2>
+  <textarea class="code"></textarea>
+  <button class="evalButton">Eval</button>
+  <pre class="evalResult"></pre>
+</div>
+
+</div>
+
+
+
+
+<div style="clear:both" id="egFunction">
+<div class="col">
+<h2>Functions and Loops</h2>
+<textarea class="in">
+memo = {}
+
+def fib(n)
+    if memo[n]
+      return memo[n]
+    if n < 2
+        return n
+    memo[n] = fib(n - 2) + fib(n - 1)
+    return memo[n]
+
+array = [1, 2, 3]
+fibo_square = array.map(def(i) fib(i * i))
+
+out = ""
+for key, value in memo
+   out += key + ":" + value + "; "
+
+out
+</textarea>
+
+<pre class="error" style=""></pre>
+
+</div>
+
+
+<div class="col">
+  <h2>JavaScript Output</h2>
+  <textarea class="code"></textarea>
+  <button class="evalButton">Eval</button>
+  <pre class="evalResult"></pre>
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h2>Grammar definition</h2>
+
+<pre id="grammarOut"></pre>
+
+<h2>Tokens definition</h2>
+
+<pre id="tokenOut"></pre>
+
+<script src='dist/cokescript.js'></script>
+<script>
+
+window.onload = function() {
+
+function initExample(dom) {
+  function dGet(cls){ return dom.getElementsByClassName(cls)[0]; }
+  var din = dGet('in');
+  //var dout = dGet('out');
+  var code = dGet('code');
+
+  dGet('evalButton').onclick = function() {
+    var result = eval(code.value);
+    dGet('evalResult').textContent = result;
+  };
+
+  din.onkeyup = function() {
+    outit();
+  };
+
+  function outit() {
+    try {
+      var result = cokescript.generateModule(din.value);
+      code.value = result.code;
+      //dout.value = JSON.stringify(result.ast, false, 2);
+      dGet("error").textContent = "";
+    } catch(e) {
+      dGet("error").textContent = String(e);
+      throw e;
+    }
+  }
+
+  outit();
+}
+
+var gOut = document.getElementById('grammarOut');
+gOut.textContent = JSON.stringify(cokescript.grammarDef, false, 2);
+var tOut = document.getElementById('tokenOut');
+tOut.textContent = JSON.stringify(cokescript.tokenDef, false, 2);
+
+initExample(document.getElementById('egClass'));
+initExample(document.getElementById('egFunction'));
+initExample(document.getElementById('egScope'));
+
+
+};
+
+</script>

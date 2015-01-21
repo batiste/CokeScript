@@ -1,0 +1,33 @@
+{
+  "name": "cokescript",
+  "version": "0.0.1",
+  "description": "CokeScript is a whitespace sensitive language that compile to JavaScript",
+  "main": "cokescript.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "language",
+    "javascript",
+    "compiler"
+  ],
+  "author": "Batiste Bieler",
+  "license": "BSD",
+  "dependencies": {
+    "EPEG": "~0.0.1",
+    "minimist": "~1.1.0"
+  },
+ "preferGlobal": "true",
+  "bin": {
+    "coke" : "lib/coke.js"
+  },
+  "devDependencies": {
+    "browserify": "~8.1.1",
+    "vinyl-source-stream": "~1.0.0",
+    "gulp-uglify": "~1.1.0",
+    "gulp-streamify": "0.0.5",
+    "gulp-jshint": "~1.9.0",
+    "jshint-stylish": "~1.0.0",
+    "epegjs": "0.0.1"
+  }
+}
