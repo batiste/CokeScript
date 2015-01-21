@@ -14,12 +14,12 @@
   "author": "Batiste Bieler",
   "license": "BSD",
   "dependencies": {
-    "EPEG": "~0.0.1",
-    "minimist": "~1.1.0"
+    "minimist": "~1.1.0",
+    "epegjs": "0.0.1"
   },
- "preferGlobal": "true",
+  "preferGlobal": "true",
   "bin": {
-    "coke" : "lib/coke.js"
+    "coke": "lib/coke.js"
   },
   "devDependencies": {
     "browserify": "~8.1.1",
