@@ -9,6 +9,15 @@ var forLoopCount = 1;
 var namespaces = [{}];
 var levelStack = [0];
 
+function currentNs() {
+  return namespaces[namespaces.length -1];
+}
+
+function newNs() {
+  namespaces.push({});
+  return namespaces[namespaces.length -1];
+}
+
 function resetGlobal() {
   namespaces = [{}];
   forLoopCount = 1;
@@ -118,8 +127,9 @@ function defDef(input) {
 }
 
 function commentDef(input) {
-  if(input.indexOf("//") === 0) {
-    var i = 2;
+  var m = input.match(/^\/\//) || input.match(/^#/);
+  if(m) {
+    var i = m[0].length;
     while(input.charAt(i)) {
       var ch = input.charAt(i);
       if(ch === '\n') {
@@ -218,7 +228,7 @@ var grammarDef = {
   ]},
 
   "ARRAY": {rules:[
-    "open_bra SPACE* c:COMMA_SEPARATED_EXPR? SPACE* close_bra dedent?",
+    "open_bra SPACE* c:COMMA_SEPARATED_EXPR? SPACE* close_bra",
   ]},
 
   "MEMBERS": {rules:[
@@ -227,7 +237,7 @@ var grammarDef = {
   ]},
 
   "OBJECT": {rules:[
-    "open_curly SPACE* MEMBERS? SPACE* close_curly dedent?",
+    "open_curly SPACE* MEMBERS? SPACE* close_curly",
   ]},
 
   "SPACE": {rules:["W", "indent", "dedent", "samedent"]},
@@ -324,9 +334,9 @@ var backend = {
         str += '\n' + sp() + name + '.prototype.' + func_name + ' = ' + generateCode(func_def);
       }
     }
-
-    namespaces.push({});
-    var ns = namespaces[namespaces.length -1];
+    var ns = currentNs();
+    ns[name] = true;
+    ns = newNs();
 
     var params = constructor && constructor.children[1];
     if(params) {
@@ -358,11 +368,12 @@ var backend = {
   },
   'FUNC_DEF': function(node) {
     var name = "";
-    namespaces.push({});
-    var ns = namespaces[namespaces.length -1];
+    var ns = currentNs();
     if(node.children[0]) {
       name = node.children[0].value;
+      ns[name] = true;
     }
+    ns = newNs();
     var str = "function " + name + "(";
     if(node.children[1]) {
       str += generateCode(node.children[1]);
@@ -381,7 +392,7 @@ var backend = {
   },
   'FUNC_DEF_PARAMS': function(node) {
     var str = "", i;
-    var ns = namespaces[namespaces.length -1];
+    var ns = currentNs();
     if(node.children[0].type === 'name') {
       ns[node.children[0].value] = true;
       if(node.children[1] && node.children[1].type === 'assign') {
@@ -398,8 +409,7 @@ var backend = {
   },
   'LAMBDA': function(node) {
     var name = "";
-    namespaces.push({});
-    var ns = namespaces[namespaces.length -1];
+    var ns = newNs();
     if(node.children[0]) {
       name = node.children[0].value;
     }
@@ -417,7 +427,7 @@ var backend = {
   'ASSIGN': function(node) {
     var prefix = "";
     var op = node.children.op.value;
-    var ns = namespaces[namespaces.length -1];
+    var ns = currentNs();
     if(node.children.left.children[0].type === 'name') {
       var ch = node.children.left.children[0];
       if(ns[ch.value] === undefined) {
@@ -475,7 +485,18 @@ var backend = {
     return ' else {'+generateCode(node.children[0])+ '\n'+sp()+'}';
   },
   'string': function(node) {
-    return node.value.replace(/\n/g, "\\\n");
+    var v = node.value;
+    v = v.replace(/\n/g, "\\\n");
+    // hacky string escaping with {}...
+    if(v.indexOf('{') > -1 && v.indexOf('}') > -1) {
+      v = v.split(/{/).map(function(i) {
+        var s = i.split(/}/);
+        if(s.length>1) {
+          return '" + ' + s[0] + ' + "' + s[1];
+        } else { return i; }
+      }).join("");
+    }
+    return v;
   },
 };
 
@@ -499,13 +520,23 @@ function generateCode(node, ns) {
   return str;
 }
 
-function generateModule(input) {
+function generateExports(keys) {
+  var str = '\nmodule.exports = {';
+  keys = keys || Object.keys(currentNs());
+  for(var i=0; i < keys.length; i++) {
+    str += '\n  ' + keys[i] + ': ' + keys[i] + ',';
+  }
+  return str + '\n}';
+}
+
+function generateModule(input, opts) {
   resetGlobal();
   var ast = gram.parse(input + "\n");
   if(!ast.complete) {
     throw ast.hint;
   }
-  return {ast:ast, code:generateCode(ast)};
+  var obj = {ast:ast, code:generateCode(ast), ns:currentNs()};
+  return obj;
 }
 
 var epegjs = require("epegjs");
@@ -516,6 +547,7 @@ module.exports = {
   grammarDef: grammarDef,
   tokenDef: tokenDef,
   generateModule: generateModule,
-  generateCode: generateCode
+  generateCode: generateCode,
+  generateExports: generateExports
 };
 

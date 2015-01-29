@@ -17,6 +17,7 @@
     "minimist": "~1.1.0",
     "epegjs": "0.0.1"
   },
+  "repository": "https://github.com/batiste/CokeScript",
   "preferGlobal": "true",
   "bin": {
     "coke": "lib/coke.js"

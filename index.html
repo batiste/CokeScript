@@ -43,13 +43,14 @@ CokeScript<br>
 <p>CokeScript is a whitespace sensitive language that compile to JavaScript. CokeScript doesn't try to be too smart and is mainly syntactic sugar around common JavasScript annoyances. Features:</p>
 
 <ol>
-<li>Multiline strings</li>
 <li>Significant whitespace</li>
+<li>String interpolation</li>
+<li>Multiline strings</li>
 <li>Shorter function declaration and lambda expression</li>
 <li>Function parameters can have a default and computed value</li>
 <li>Simple <strong>for</strong> loop syntax that works on Array or Object</li>
 <li>Sensible scoping rules unlike <a href="https://donatstudios.com/CoffeeScript-Madness">CoffeeScript</a></li>
-<li>Classes and inheritance</li>
+<li>Classes with "classical" inheritance</li>
 <li>Strict syntax rules that enfore a rigid coding style</li>
 <li>A quite good grammar parser that hints about what is wrong</li>
 </ol>
@@ -67,7 +68,7 @@ class Animal
     this.diet = diet
   
   def eat()
-    return this.name + " eat " + this.diet
+    return "{this.name} eat {this.diet}"
 
 class Cats(Animal)
   def constructor(name)
