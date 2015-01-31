@@ -36,6 +36,8 @@ CokeScript language, whitespace sensitive language that compile to JavaScript
 
 <p>More info on the github page <a href="https://github.com/batiste/CokeScript/">https://github.com/batiste/CokeScript/</a></p>
 
+<label><input type="checkbox" id="notrycatch"> No try catch</label>
+
 <div style="clear:both" id="egClass">
 <div class="col">
 <h2>Classes</h2>
@@ -133,7 +135,7 @@ fibo_square = array.map(def(i) fib(i * i))
 
 out = ""
 for key, value in memo
-   out += "{key}: {value}, "
+   out += "fib({key}) = {value}, "
 
 out
 </textarea>
@@ -152,10 +154,57 @@ out
 
 </div>
 
+
+
+
+
+
+<div style="clear:both" id="egDOM">
+<div class="col">
+<h2>Virual DOM support</h2>
+
+<p>First draf of a syntax that supports 
+<a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
+virtual-dom virtual-hyperscript</a> syntax.</p>
+
+<textarea class="in">
+
+links = {home: "Homepage"}
+
+virtualDom = DOM
+  <ul cls="nav"
+    for index, content in links
+      <li cls="cls{ index }"
+        =content
+
+
+</textarea>
+
+<pre class="error" style=""></pre>
+
+</div>
+
+
+<div class="col">
+  <h2>JavaScript Output</h2>
+  <textarea class="code"></textarea>
+  <button class="evalButton btn btn-default">Eval</button>
+  <pre class="evalResult"></pre>
+</div>
+
+</div>
+
+
+
 <script src='dist/cokescript.js'></script>
 <script>
 
 window.onload = function() {
+
+var notrycatch = false;
+document.getElementById('notrycatch').onclick = function(e) {
+  notrycatch = this.checked;
+}
 
 function initExample(dom) {
   function dGet(cls){ return dom.getElementsByClassName(cls)[0]; }
@@ -168,19 +217,26 @@ function initExample(dom) {
     dGet('evalResult').textContent = result;
   };
 
+
   din.onkeyup = function() {
     outit();
   };
 
   function outit() {
-    try {
+    if(notrycatch) {
       var result = cokescript.generateModule(din.value);
       code.value = result.code;
-      //dout.value = JSON.stringify(result.ast, false, 2);
       dGet("error").textContent = "";
-    } catch(e) {
-      dGet("error").textContent = String(e);
-      throw e;
+    } else {
+      try {
+        var result = cokescript.generateModule(din.value);
+        code.value = result.code;
+        //dout.value = JSON.stringify(result.ast, false, 2);
+        dGet("error").textContent = "";
+      } catch(e) {
+        dGet("error").textContent = String(e);
+        throw e;
+      }
     }
   }
 
@@ -190,6 +246,8 @@ function initExample(dom) {
 initExample(document.getElementById('egClass'));
 initExample(document.getElementById('egFunction'));
 initExample(document.getElementById('egScope'));
+initExample(document.getElementById('egDOM'));
+
 
 
 };

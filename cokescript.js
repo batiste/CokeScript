@@ -33,6 +33,8 @@ var tokenDef = [
   {key:"class", reg:/^class /},
   {key:"ret", reg:/^return/, verbose:"return"},
   {key:"if", reg:/^if /},
+  {key:"tag", reg:/^<[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
+  {key:"dom", reg:/^DOM/},
   {key:"elseif", reg:/^elseif /},
   {key:"else", reg:/^else/},
   {key:"for_loop", reg:/^for /, verbose:"for loop"},
@@ -167,7 +169,7 @@ function forLoop(params) {
 var grammarDef = {
   "START": {rules:["LINE* EOF"]},
   "LINE": {rules:["STATEMENT samedent+", "STATEMENT !dedent", "comment? samedent"], verbose:"new line"},
-  "STATEMENT": {rules:["ASSIGN", "IF", "FOR", "EXPR", "RETURN", "CLASS"]},
+  "STATEMENT": {rules:["ASSIGN", "IF", "FOR", "EXPR", "RETURN", "CLASS", "TAG", "DOM_ASSIGN"]},
   "BLOCK": {rules: ["indent LINE+ dedent"]},
   "CLASS_METHODS": {
       rules: ["samedent* f:FUNC_DEF samedent*"],
@@ -240,6 +242,31 @@ var grammarDef = {
     "open_curly SPACE* MEMBERS? SPACE* close_curly",
   ]},
 
+  "TAG_PARAMS": {rules:[
+      "p1:TAG_PARAMS W p2:TAG_PARAMS",
+      "p1:name assign e:EXPR",
+      "p1:name",
+    ],
+    verbose:"function parameters"
+  },
+
+  "TAG": {rules:[
+    "tag:tag W? tp:TAG_PARAMS? b:BLOCK?",
+  ],
+  hooks:[
+    function(p){
+      return {tag:p.tag, params:p.tp, block:p.b};
+    }]
+  },
+
+  "DOM": {rules:[
+    "dom BLOCK",
+  ]},
+
+  "DOM_ASSIGN": {rules:[
+    "assign EXPR",
+  ]},
+
   "SPACE": {rules:["W", "indent", "dedent", "samedent"]},
 
   "RETURN": {rules:["ret W EXPR", "ret"]},
@@ -264,7 +291,8 @@ var grammarDef = {
     "name",
     "PATH",
     "ARRAY",
-    "OBJECT"],
+    "OBJECT",
+    "DOM"],
     verbose:"expression"
   },
 };
@@ -276,8 +304,6 @@ function spacer(n) {
   }
   return out;
 }
-
-
 
 function generateParams(ps, ns) {
   var str = '';
@@ -306,6 +332,20 @@ function sp(mod) {
   return spacer(2 * depth);
 }
 
+var nc = 1;
+// children name
+function CN() {
+  return '__c' + nc;
+}
+function pushCN() {
+  nc++;
+  return '__c' + nc;
+}
+function popCN() {
+  nc--;
+  return '__c' + nc;
+}
+
 var backend = {
 
   'dedent': function(node) {
@@ -318,6 +358,34 @@ var backend = {
   },
   'samedent': function(node) {
     return '\n'+sp();
+  },
+  'DOM': function(node) {
+    var name = CN();
+    var str = 'function(){';
+    str += '\n' + sp(1) + 'var ' + name + ' = [];';
+    str += generateCode(node.children[1]);
+    str += '\n' + sp(1) + 'return '+name+';\n' + sp() + '}';
+    return str;
+  },
+  'DOM_ASSIGN': function(node) {
+    var name = CN();
+    return name+'.push(String(' + generateCode(node.children[1]) + '))';
+  },
+  'TAG': function(node) {
+    var str = '', i, params = "";
+    var name = node.children.tag.value.substring(1);
+    if(node.children.params) {
+      var params = generateCode(node.children.params);
+    }
+    var sub = '[]';
+    if(node.children.block) {
+      sub = pushCN();
+      str += 'var ' + CN() + ' = [];';
+      str += generateCode(node.children.block);
+      popCN();
+    }
+    str += '\n' + sp(1) + CN() + '.push(h("'+name+'", '+params+', '+sub+'))';
+    return str;
   },
   'CLASS': function(node) {
     var name = node.children.name.value, i;
@@ -349,7 +417,7 @@ var backend = {
     cons_str += '\n'+sp(1)+'if(!(this instanceof '+name+')){ return new '+name+'('+Object.keys(ns).join(',')+');}';
     for(var key in ns) {
       if(ns[key] !== true && ns[key] !== undefined) {
-        cons_str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+'='+generateCode(ns[key])+'};';
+        cons_str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+'};';
       }
     }
     if(body) {
@@ -381,7 +449,7 @@ var backend = {
     str += ') {';
     for(var key in ns) {
       if(ns[key] !== true && ns[key] !== undefined) {
-        str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+'='+generateCode(ns[key])+'};';
+        str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+'};';
       }
     }
     if(node.children[2]) {
@@ -439,7 +507,7 @@ var backend = {
         ns[ch.value] = true;
       }
     }
-    return prefix+generateCode(node.children.left) + op + generateCode(node.children.right);
+    return prefix+generateCode(node.children.left) + ' ' + op + ' ' + generateCode(node.children.right);
   },
   'STATEMENT': function(node) {
     return generateCode(node.children[0]) + ';';
@@ -470,7 +538,7 @@ var backend = {
       indexName = node.children[0].value;
     }
     var str = 'var '+keyArrayName+' = Object.keys('+node.children[2].value+');\n';
-    str += sp() + 'for(var '+keyIndexName+'=0; '+keyIndexName+' < '+keyArrayName+'.length; '+keyIndexName+'++ ) {\n';
+    str += sp() + 'for(var '+keyIndexName+' = 0; '+keyIndexName+' < '+keyArrayName+'.length; '+keyIndexName+'++ ) {\n';
     if(indexName) {
       str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName +'[' + keyIndexName + '];\n';
     }

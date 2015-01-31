@@ -51,5 +51,22 @@ describe("Test suite", function() {
     assert.equal(exe(code, {w:1, x:2, y:3}), "hello 1\nhello 2\nhello 3");
   });
 
+  it("If else elseif", function() {
+    var code = gen('if n == 0\n  1\nelseif n == 1\n  2\nelse\n  "other"\n');
+    assert.equal(exe(code, {n:0}), "1");
+    assert.equal(exe(code, {n:1}), "2");
+    assert.equal(exe(code, {n:"nop"}), "other");
+  });
+
+  it("For loop", function() {
+    var code = gen('for k, v in array\n  array[k] = v * v\narray');
+    assert.deepEqual(exe(code, {array:[1,2,3]}), [1,4,9]);
+  });
+
+  it("Class", function() {
+    var code = gen('class Test\n  def constructor()\n    this.a = 1\nb = Test()\nb.a');
+    assert.deepEqual(exe(code, {}), 1);
+  });
+
 });
 
