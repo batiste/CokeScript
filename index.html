@@ -163,20 +163,23 @@ out
 <div class="col">
 <h2>Virual DOM support</h2>
 
-<p>First draf of a syntax that supports 
+<p>First draft of a syntax that supports 
 <a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
-virtual-dom virtual-hyperscript</a> syntax.</p>
+virtual-dom</a> syntax.</p>
 
 <textarea class="in">
+menu = {home: "Homepage", products: "Products"}
 
-links = {home: "Homepage"}
-
-virtualDom = DOM
+DOM def generateVirtualDom(links)
   <ul cls="nav"
     for index, content in links
       <li cls="cls{ index }"
         =content
 
+vdom = generateVirtualDom(menu)[0]
+li = vdom.children[0]
+
+"{li.tagName} : {li.children[0].text}"
 
 </textarea>
 
@@ -197,9 +200,12 @@ virtualDom = DOM
 
 
 <script src='dist/cokescript.js'></script>
+<script src='dist/virtual-dom.js'></script>
 <script>
 
 window.onload = function() {
+
+window.h = virtual.h;
 
 var notrycatch = false;
 document.getElementById('notrycatch').onclick = function(e) {

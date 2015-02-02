@@ -265,7 +265,7 @@ var grammarDef = {
   },
 
   "DOM": {rules:[
-    "dom BLOCK",
+    "dom W FUNC_DEF",
   ]},
 
   "DOM_ASSIGN": {rules:[
@@ -365,10 +365,17 @@ var backend = {
     return '\n'+sp();
   },
   'DOM': function(node) {
-    var name = CN();
-    var str = 'function(){';
+    var name = CN(), params = "", func_name = "";
+    if(node.children[2].children[0]) {
+      func_name = " " + node.children[2].children[0].value;
+    }
+    if(node.children[2].children[1]) {
+      params = generateCode(node.children[2].children[1]);
+      // TODO default params
+    }
+    var str = 'function'+func_name+'('+params+'){';
     str += '\n' + sp(1) + 'var ' + name + ' = [];';
-    str += generateCode(node.children[1]);
+    str += generateCode(node.children[2].children[2]);
     str += '\n' + sp(1) + 'return '+name+';\n' + sp() + '}';
     return str;
   },
