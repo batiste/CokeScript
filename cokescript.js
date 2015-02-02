@@ -243,11 +243,16 @@ var grammarDef = {
   ]},
 
   "TAG_PARAMS": {rules:[
-      "p1:TAG_PARAMS W p2:TAG_PARAMS",
-      "p1:name assign e:EXPR",
-      "p1:name",
+      "left:TAG_PARAMS W right:TAG_PARAMS",
+      "n:name assign e:EXPR",
+      "n:name",
     ],
-    verbose:"function parameters"
+    hooks:[
+      function(p){ return {left:p.left, right:p.right};},
+      function(p){ return {n:p.n, e:p.e};},
+      function(p){ return {n:p.n};},
+    ],
+    verbose:"tag parameters"
   },
 
   "TAG": {rules:[
@@ -371,11 +376,21 @@ var backend = {
     var name = CN();
     return name+'.push(String(' + generateCode(node.children[1]) + '))';
   },
+  'TAG_PARAMS': function(node) {
+    if(node.children.left) {
+      return generateCode(node.children.left) + ', ' + generateCode(node.children.right);
+    }
+    if(node.children.e) {
+      return node.children.n.value + ':' + generateCode(node.children.e);
+    } else {
+      return node.children.n.value + ': true';
+    }
+  },
   'TAG': function(node) {
     var str = '', i, params = "";
     var name = node.children.tag.value.substring(1);
     if(node.children.params) {
-      var params = generateCode(node.children.params);
+      var params = '{' + generateCode(node.children.params) + '}';
     }
     var sub = '[]';
     if(node.children.block) {
