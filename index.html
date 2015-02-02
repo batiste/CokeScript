@@ -41,7 +41,7 @@ CokeScript language, whitespace sensitive language that compile to JavaScript
 <div style="clear:both" id="egClass">
 <div class="col">
 <h2>Classes</h2>
-<textarea class="in">
+<textarea class="in form-control">
 class Animal
   
   def constructor(name="unknown", diet="grass")
@@ -69,7 +69,7 @@ tiger.eat()
 
 <div class="col">
   <h2>JavaScript Output</h2>
-  <textarea class="code"></textarea>
+  <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-default">Eval</button>
   <pre class="evalResult"></pre>
 </div>
@@ -82,7 +82,7 @@ tiger.eat()
 <div style="clear:both" id="egScope">
 <div class="col">
 <h2>Scope</h2>
-<textarea class="in">
+<textarea class="in form-control">
 a = "string 
 on multiple 
 lines"
@@ -99,14 +99,14 @@ testScope()
 "{a} , {c}"
 </textarea>
 
-<pre class="error" style=""></pre>
+<pre class="error alert alert-danger" style=""></pre>
 
 </div>
 
 
 <div class="col">
   <h2>JavaScript Output</h2>
-  <textarea class="code"></textarea>
+  <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-default">Eval</button>
   <pre class="evalResult"></pre>
 </div>
@@ -119,7 +119,7 @@ testScope()
 <div style="clear:both" id="egFunction">
 <div class="col">
 <h2>Functions and Loops</h2>
-<textarea class="in">
+<textarea class="in form-control">
 memo = {}
 
 def fib(n)
@@ -140,14 +140,14 @@ for key, value in memo
 out
 </textarea>
 
-<pre class="error" style=""></pre>
+<pre class="error alert alert-danger" style=""></pre>
 
 </div>
 
 
 <div class="col">
   <h2>JavaScript Output</h2>
-  <textarea class="code"></textarea>
+  <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-default">Eval</button>
   <pre class="evalResult"></pre>
 </div>
@@ -163,11 +163,11 @@ out
 <div class="col">
 <h2>Virual DOM support</h2>
 
-<p>First draft of a syntax that supports 
+<p>First draft of a syntax that support the
 <a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
 virtual-dom</a> syntax.</p>
 
-<textarea class="in">
+<textarea class="in form-control">
 menu = {home: "Homepage", products: "Products"}
 
 DOM def generateVirtualDom(links)
@@ -183,14 +183,14 @@ li = vdom.children[0]
 
 </textarea>
 
-<pre class="error" style=""></pre>
+<pre class="error alert alert-danger" style=""></pre>
 
 </div>
 
 
 <div class="col">
   <h2>JavaScript Output</h2>
-  <textarea class="code"></textarea>
+  <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-default">Eval</button>
   <pre class="evalResult"></pre>
 </div>

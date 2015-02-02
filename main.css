@@ -1,7 +1,7 @@
 body, html {
   padding:1em;
 }
-textarea {
+textarea, textarea.form-control {
   width:100%;
   height:400px;
   font-size:14px;
