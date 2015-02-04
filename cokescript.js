@@ -597,6 +597,9 @@ var backend = {
     }
     return v;
   },
+  'comment': function(node) {
+    return node.value.replace(/^#/g, "//");
+  },
 };
 
 function generateCode(node, ns) {

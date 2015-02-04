@@ -14,7 +14,7 @@ CokeScript language, whitespace sensitive language that compile to JavaScript
 <div class="jumbotron">
       <div class="container">
         <h1>CokeScript</h1>
-        <p>Because Coffee is not enough.</p>
+        <p>Because Coffee is not enough. <a href="https://github.com/batiste/CokeScript/" class="btn btn-lg btn-info">Github</a></p>
       </div>
     </div>
 
@@ -32,11 +32,12 @@ CokeScript language, whitespace sensitive language that compile to JavaScript
 <li>Classes with "classical" inheritance</li>
 <li>Opiniated syntax rules that enfore a rigid coding style</li>
 <li>A quite good grammar parser that hints about what is wrong</li>
+<li><a href="#egDOM">Virtual Dom support</a> directly within the language</li>
 </ol>
 
 <p>More info on the github page <a href="https://github.com/batiste/CokeScript/">https://github.com/batiste/CokeScript/</a></p>
 
-<label><input type="checkbox" id="notrycatch"> No try catch</label>
+<label><input type="checkbox" id="notrycatch"> Do not catch errors in the example.</label>
 
 <div style="clear:both" id="egClass">
 <div class="col">
@@ -70,7 +71,7 @@ tiger.eat()
 <div class="col">
   <h2>JavaScript Output</h2>
   <textarea class="code form-control"></textarea>
-  <button class="evalButton btn btn-default">Eval</button>
+  <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 </div>
 
@@ -107,7 +108,7 @@ testScope()
 <div class="col">
   <h2>JavaScript Output</h2>
   <textarea class="code form-control"></textarea>
-  <button class="evalButton btn btn-default">Eval</button>
+  <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 </div>
 
@@ -148,7 +149,7 @@ out
 <div class="col">
   <h2>JavaScript Output</h2>
   <textarea class="code form-control"></textarea>
-  <button class="evalButton btn btn-default">Eval</button>
+  <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 </div>
 
@@ -170,6 +171,8 @@ virtual-dom</a> syntax.</p>
 <textarea class="in form-control">
 menu = {home: "Homepage", products: "Products"}
 
+# a function declared with the "dom" keyword
+# automatically return an array of DOM elements
 dom generateVirtualDom(links)
   <ul cls="nav"
     for index, content in links
@@ -192,7 +195,7 @@ document.getElementById("domOut").appendChild(rootNode)
 <div class="col">
   <h2>JavaScript Output</h2>
   <textarea class="code form-control"></textarea>
-  <button class="evalButton btn btn-default">Eval</button>
+  <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 
   <div id="domOut"></div>

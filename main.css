@@ -1,5 +1,6 @@
 body, html {
-  padding:1em;
+  padding:2em;
+  padding-bottom: 30em;
 }
 textarea, textarea.form-control {
   width:100%;
@@ -24,5 +25,9 @@ h1, h2, h3 {
   margin:0;
 }
 button {
-  font-size:1.2em
+  font-size:1.2em;
+  margin: 0.5em 0;
+}
+pre {
+    margin: 0.5em 0;
 }
