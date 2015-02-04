@@ -173,7 +173,7 @@ menu = {home: "Homepage", products: "Products"}
 dom generateVirtualDom(links)
   <ul cls="nav"
     for index, content in links
-      <li cls="cls{ index }"
+      <li className="cls{ index }"
         =content
 
 vdom = h("div", generateVirtualDom(menu))
