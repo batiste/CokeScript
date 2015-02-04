@@ -183,8 +183,8 @@ var grammarDef = {
   },
   "CLASS": {
     rules: [
-      "class n:name open_par p:name close_par indent m:CLASS_METHODS* dedent",
-      "class n:name indent m:CLASS_METHODS* dedent"
+      "class n:name open_par p:name close_par indent m:CLASS_METHODS+ dedent",
+      "class n:name indent m:CLASS_METHODS+ dedent"
     ],
     hooks: [
       function(p){ return {name:p.n, methods:p.m, parent:p.p}; },
@@ -418,7 +418,7 @@ var backend = {
     var constructor = null;
     for(i=0;i<funcs.length; i++) {
       var func_def = funcs[i].children;
-      var func_name = func_def.children.name;
+      var func_name = func_def.children.fn.value;
       if(func_name === 'constructor') {
         constructor = func_def;
       } else {
@@ -429,13 +429,13 @@ var backend = {
     ns[name] = true;
     ns = newNs();
 
-    var params = constructor && constructor.children[1];
+    var params = constructor && constructor.children.params;
     if(params) {
       params = generateCode(params);
     } else {
       params = '';
     }
-    var body = constructor && constructor.children[2];
+    var body = constructor && constructor.children.block;
     var cons_str = 'var ' + name + ' = function ' + name + '('+ params + ') {';
     cons_str += '\n'+sp(1)+'if(!(this instanceof '+name+')){ return new '+name+'('+Object.keys(ns).join(',')+');}';
     for(var key in ns) {
