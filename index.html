@@ -170,16 +170,17 @@ virtual-dom</a> syntax.</p>
 <textarea class="in form-control">
 menu = {home: "Homepage", products: "Products"}
 
-DOM def generateVirtualDom(links)
+dom generateVirtualDom(links)
   <ul cls="nav"
     for index, content in links
       <li cls="cls{ index }"
         =content
 
-vdom = generateVirtualDom(menu)[0]
-li = vdom.children[0]
+vdom = h("div", generateVirtualDom(menu))
 
-"{li.tagName} : {li.children[0].text}"
+rootNode = createElement(vdom)
+document.getElementById("domOut").appendChild(rootNode)
+
 
 </textarea>
 
@@ -193,6 +194,8 @@ li = vdom.children[0]
   <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-default">Eval</button>
   <pre class="evalResult"></pre>
+
+  <div id="domOut"></div>
 </div>
 
 </div>
@@ -206,11 +209,15 @@ li = vdom.children[0]
 window.onload = function() {
 
 window.h = virtual.h;
+window.createElement = virtual.create;
 
-var notrycatch = false;
-document.getElementById('notrycatch').onclick = function(e) {
+var elTC = document.getElementById('notrycatch');
+var notrycatch = localStorage.getItem("notrycatch") == "true";
+elTC.checked = notrycatch;
+elTC.onclick = function(e) {
   notrycatch = this.checked;
-}
+  localStorage.setItem('notrycatch', notrycatch);
+};
 
 function initExample(dom) {
   function dGet(cls){ return dom.getElementsByClassName(cls)[0]; }

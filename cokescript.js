@@ -34,7 +34,7 @@ var tokenDef = [
   {key:"ret", reg:/^return/, verbose:"return"},
   {key:"if", reg:/^if /},
   {key:"tag", reg:/^<[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
-  {key:"dom", reg:/^DOM/},
+  {key:"dom", reg:/^DOM:/},
   {key:"elseif", reg:/^elseif /},
   {key:"else", reg:/^else/},
   {key:"for_loop", reg:/^for /, verbose:"for loop"},
@@ -126,6 +126,12 @@ function defDef(input) {
   if(input.indexOf("def ") === 0) {
     return "def";
   }
+  //if(input.indexOf("dom(") === 0) {
+  //  return "dom";
+  //}
+  if(input.indexOf("dom ") === 0) {
+    return "dom";
+  }
 }
 
 function commentDef(input) {
@@ -143,7 +149,7 @@ function commentDef(input) {
 }
 
 function f_def(params) {
-  return [params.fn, params.p, params.b];
+  return {def:params.fd, fn:params.fn, params:params.p, block:params.b};
 }
 
 function lambda_def(params) {
@@ -199,8 +205,8 @@ var grammarDef = {
     hooks: [lambda_def, lambda_def]
   },
   "FUNC_DEF": {rules:[
-      "function_def open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
-      "function_def W fn:name open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
+      "fd:function_def open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
+      "fd:function_def W fn:name open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
     ],
     hooks: [f_def, f_def],
     verbose:"function definition"
@@ -264,10 +270,6 @@ var grammarDef = {
     }]
   },
 
-  "DOM": {rules:[
-    "dom W FUNC_DEF",
-  ]},
-
   "DOM_ASSIGN": {rules:[
     "assign EXPR",
   ]},
@@ -296,8 +298,7 @@ var grammarDef = {
     "name",
     "PATH",
     "ARRAY",
-    "OBJECT",
-    "DOM"],
+    "OBJECT"],
     verbose:"expression"
   },
 };
@@ -417,7 +418,7 @@ var backend = {
     var constructor = null;
     for(i=0;i<funcs.length; i++) {
       var func_def = funcs[i].children;
-      var func_name = func_def.children[0].value;
+      var func_name = func_def.children.name;
       if(func_name === 'constructor') {
         constructor = func_def;
       } else {
@@ -459,14 +460,14 @@ var backend = {
   'FUNC_DEF': function(node) {
     var name = "";
     var ns = currentNs();
-    if(node.children[0]) {
-      name = node.children[0].value;
+    if(node.children.fn) {
+      name = node.children.fn.value;
       ns[name] = true;
     }
     ns = newNs();
     var str = "function " + name + "(";
-    if(node.children[1]) {
-      str += generateCode(node.children[1]);
+    if(node.children.params) {
+      str += generateCode(node.children.params);
     }
     str += ') {';
     for(var key in ns) {
@@ -474,10 +475,18 @@ var backend = {
         str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+'};';
       }
     }
-    if(node.children[2]) {
-      str += generateCode(node.children[2]);
+    if(node.children.def.value === 'dom') {
+      str += '\n'+sp(1) + 'var ' + CN() + ' = [];';
+    }
+
+    if(node.children.block) {
+      str += generateCode(node.children.block);
     }
     namespaces.pop();
+
+    if(node.children.def.value === 'dom') {
+      str += '\n'+sp(1) + 'return ' + CN() + ';';
+    }
     return str + '\n'+sp()+'}';
   },
   'FUNC_DEF_PARAMS': function(node) {
