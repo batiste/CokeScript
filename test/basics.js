@@ -48,8 +48,7 @@ describe("CokeScript features test suite", function() {
 
   it("Multiline string", function() {
     var code = gen('a = "hello\nhello"\na');
-    debugger
-    assert.equal(exe(code), "hello\nhello", code);
+    assert.equal(exe(code), "hello\nhello");
   });
 
   it("Multiline interpolated string", function() {
@@ -72,6 +71,11 @@ describe("CokeScript features test suite", function() {
   it("Class", function() {
     var code = gen('class Test\n  def constructor()\n    this.a = 1\nb = Test()\nb.a');
     assert.deepEqual(exe(code, {}), 1);
+  });
+
+  it("Invalid syntax", function() {
+    var t = function test() { gen('a=1'); }
+    assert.throws(t, Error);
   });
 
 });

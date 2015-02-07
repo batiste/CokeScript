@@ -635,7 +635,7 @@ function generateModule(input, opts) {
   resetGlobal();
   var ast = gram.parse(input + "\n");
   if(!ast.complete) {
-    throw ast.hint;
+    throw new Error(ast.hint);
   }
   var obj = {ast:ast, code:generateCode(ast), ns:currentNs()};
   return obj;
