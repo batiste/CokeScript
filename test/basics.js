@@ -6,14 +6,14 @@ function gen(source) {
   return cokescript.generateModule(source).code.trim();
 }
 function exe(js, context) {
-  try { 
+  try {
     return vm.runInNewContext(js, context);
   } catch(e) {
     throw 'JS error\n' + js;
   }
 }
 
-describe("Test suite", function() {
+describe("CokeScript features test suite", function() {
 
   it("Simple function", function() {
     var code = gen("def test() 1");
@@ -44,6 +44,12 @@ describe("Test suite", function() {
   it("Return an object", function() {
     var code = gen('def test(a=1, b, c="test")\n  return {a:a, b:b, c:c}\ntest(undefined, 3)\n');
     assert.deepEqual(exe(code), {a:1, b:3, c:"test"});
+  });
+
+  it("Multiline string", function() {
+    var code = gen('a = "hello\nhello"\na');
+    debugger
+    assert.equal(exe(code), "hello\nhello", code);
   });
 
   it("Multiline interpolated string", function() {

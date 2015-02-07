@@ -1,6 +1,7 @@
 body, html {
   padding:2em;
   padding-bottom: 30em;
+  font-size: 16px;
 }
 textarea, textarea.form-control {
   width:100%;

@@ -585,7 +585,7 @@ var backend = {
   },
   'string': function(node) {
     var v = node.value;
-    v = v.replace(/\n/g, "\\\n");
+    v = v.replace(/\n/g, "\\n");
     // hacky string escaping with {}...
     if(v.indexOf('{') > -1 && v.indexOf('}') > -1) {
       v = v.split(/{/).map(function(i) {
