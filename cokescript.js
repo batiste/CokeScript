@@ -395,11 +395,12 @@ var backend = {
     }
   },
   'TAG': function(node) {
-    var str = '', i, params = "";
+    var str = '', i, params = "{";
     var name = node.children.tag.value.substring(1);
     if(node.children.params) {
-      var params = '{' + generateCode(node.children.params) + '}';
+      params += generateCode(node.children.params);
     }
+    params += '}';
     var sub = '[]';
     if(node.children.block) {
       sub = pushCN();
