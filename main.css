@@ -32,3 +32,8 @@ button {
 pre {
     margin: 0.5em 0;
 }
+
+.percent {
+  font-size: 0.7em;
+  color:#999;
+}

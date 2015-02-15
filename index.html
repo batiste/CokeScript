@@ -70,7 +70,7 @@ tiger.eat()
 </div>
 
 <div class="col">
-  <h2>JavaScript Output</h2>
+  <h2>JavaScript Output <span class="percent"></span></h2>
   <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
@@ -107,7 +107,7 @@ testScope()
 
 
 <div class="col">
-  <h2>JavaScript Output</h2>
+  <h2>JavaScript Output <span class="percent"></span></h2>
   <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
@@ -148,7 +148,7 @@ out
 
 
 <div class="col">
-  <h2>JavaScript Output</h2>
+  <h2>JavaScript Output <span class="percent"></span></h2>
   <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
@@ -204,7 +204,7 @@ virtual.patch(real_dom, patches)
 
 
 <div class="col">
-  <h2>JavaScript Output</h2>
+  <h2>JavaScript Output <span class="percent"></span></h2>
   <textarea class="code form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
@@ -258,7 +258,9 @@ function initExample(dom) {
       try {
         var result = cokescript.generateModule(din.value);
         code.value = result.code;
+        var percent = Math.round((result.code.length / din.value.length) * 100);
         //dout.value = JSON.stringify(result.ast, false, 2);
+        dGet("percent").textContent = '(' + percent + '% of original)';
         dGet("error").textContent = "";
       } catch(e) {
         dGet("error").textContent = String(e);
