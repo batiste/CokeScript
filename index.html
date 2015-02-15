@@ -167,7 +167,8 @@ out
 
 <p>First draft of a syntax that support the
 <a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
-virtual-dom</a> syntax.</p>
+virtual-dom</a> syntax.<br>
+</p>
 
 <textarea class="in form-control">
 menu = {home: "Homepage", products: "Products"}
@@ -180,11 +181,20 @@ dom generateVirtualDom(links)
       <li className="cls{ index }">
         =content
 
-vdom = h("div", generateVirtualDom(menu))
+virtual_dom = h("div", generateVirtualDom(menu))
 
-rootNode = virtual.create(vdom)
-document.getElementById("domOut").appendChild(rootNode)
+real_dom = virtual.create(virtual_dom)
+target = document.getElementById("domOut")
+target.innerHTML = ""
+target.appendChild(real_dom)
 
+# let's modify the menu
+menu = {home: "Homepage", products: "Products", contacts: "Contacts"}
+new_virtual_dom = h("div", generateVirtualDom(menu))
+
+patches = virtual.diff(virtual_dom, new_virtual_dom)
+
+virtual.patch(real_dom, patches)
 
 </textarea>
 
