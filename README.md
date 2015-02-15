@@ -6,6 +6,32 @@ Demo http://batiste.info/CokeScript
 
 CokeScript use EPEG.js https://github.com/batiste/EPEG.js/
 
+## API
+
+### Import CokeScript
+
+    <script src='dist/cokescript.js'></script>
+
+or
+
+    var cokescript = require('cokescript');
+
+## Usage
+
+### cokescript.generateModule(input)
+
+Return object of form
+
+    {
+        ast:  Abstract syntax trees,
+        code: JavaScript code,
+        ns:   Namespace of the module
+    }
+
+### cokescript.generateExports(keys)
+
+Return a Node module export statement with the keys provided. If none are provided
+the module level keys of the last compiled module will be used.
 
 ## Command line tool
 
