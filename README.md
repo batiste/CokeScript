@@ -30,7 +30,7 @@ Return object of form
 
 ### cokescript.generateExports(keys)
 
-Return a Node module export statement with the keys provided. If none are provided
+Return a commonJs module export statement with the keys provided. If none are provided
 the module level keys of the last compiled module will be used.
 
 ## Command line tool
