@@ -7,8 +7,7 @@ How does it compare against CoffeScript:
   - Scoping is not broken (https://donatstudios.com/CoffeeScript-Madness)
   - Multiline string don't necessitate backslashes
   - Virtual Dom support within the language
-  - The source code is simpler and shorter
-  - The language is simpler
+  - The source code of the language is way shorter
 
 Demo http://batiste.info/CokeScript
 
