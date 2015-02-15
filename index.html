@@ -163,7 +163,7 @@ out
 
 <div style="clear:both" id="egDOM">
 <div class="col">
-<h2>Virual DOM support</h2>
+<h2>Virtual DOM support</h2>
 
 <p>First draft of a syntax that support the
 <a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
@@ -175,14 +175,14 @@ menu = {home: "Homepage", products: "Products"}
 # a function declared with the "dom" keyword
 # automatically return an array of DOM elements
 dom generateVirtualDom(links)
-  <ul cls="nav"
+  <ul className="nav">
     for index, content in links
-      <li className="cls{ index }"
+      <li className="cls{ index }">
         =content
 
 vdom = h("div", generateVirtualDom(menu))
 
-rootNode = createElement(vdom)
+rootNode = virtual.create(vdom)
 document.getElementById("domOut").appendChild(rootNode)
 
 
@@ -213,7 +213,7 @@ document.getElementById("domOut").appendChild(rootNode)
 window.onload = function() {
 
 window.h = virtual.h;
-window.createElement = virtual.create;
+window.virtual = virtual;
 
 var elTC = document.getElementById('notrycatch');
 var notrycatch = localStorage.getItem("notrycatch") == "true";

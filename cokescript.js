@@ -34,6 +34,7 @@ var tokenDef = [
   {key:"ret", reg:/^return/, verbose:"return"},
   {key:"if", reg:/^if /},
   {key:"tag", reg:/^<[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
+  {key:">", reg:/^>/},
   {key:"dom", reg:/^DOM:/},
   {key:"elseif", reg:/^elseif /},
   {key:"else", reg:/^else/},
@@ -262,7 +263,7 @@ var grammarDef = {
   },
 
   "TAG": {rules:[
-    "tag:tag W? tp:TAG_PARAMS? b:BLOCK?",
+    "tag:tag W? tp:TAG_PARAMS? end:>? b:BLOCK?",
   ],
   hooks:[
     function(p){
@@ -281,6 +282,7 @@ var grammarDef = {
     "math_operators",
     "W binary_operators W EXPR",
     "W comparison W EXPR",
+    "W > W EXPR",
     "dot EXPR",
     "open_bra EXPR close_bra",
     ],
