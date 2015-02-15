@@ -78,5 +78,23 @@ describe("CokeScript features test suite", function() {
     assert.throws(t, Error);
   });
 
+  it("Invalid token", function() {
+    var t = function test() { gen('a = 1;'); }
+    assert.throws(t, Error);
+  });
+
+  it("Comments", function() {
+    var code = gen('# nothing\n// nop\n1');
+    assert.equal(exe(code, {}), 1, code);
+  });
+
+  it("DOM", function() {
+    var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls{item}">\n      =item\nmakeDom([1,2,3])');
+    var context = {
+      h: function(n, p, c){ return {n:n, p:p, c:c}; }
+    };
+    assert.deepEqual(exe(code, context)[0], {"n":"li","c":["1"], p:{className:"cls1"}});
+  });
+
 });
 

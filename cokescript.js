@@ -313,26 +313,6 @@ function spacer(n) {
   return out;
 }
 
-function generateParams(ps, ns) {
-  var str = '';
-  if(ps){
-    var params = ps.children;
-    if(params) {
-      params.map(function(p) {
-        if(p.type == 'name') {
-          ns[p.value] = true;
-        }
-        if(p.children) {
-          str += generateParams(p, ns);
-        } else {
-          str += p.value;
-        }
-      });
-    }
-  }
-  return str;
-}
-
 function sp(mod) {
   if(mod) {
     return spacer(2 * (depth+mod));
@@ -366,21 +346,6 @@ var backend = {
   },
   'samedent': function(node) {
     return '\n'+sp();
-  },
-  'DOM': function(node) {
-    var name = CN(), params = "", func_name = "";
-    if(node.children[2].children[0]) {
-      func_name = " " + node.children[2].children[0].value;
-    }
-    if(node.children[2].children[1]) {
-      params = generateCode(node.children[2].children[1]);
-      // TODO default params
-    }
-    var str = 'function'+func_name+'('+params+'){';
-    str += '\n' + sp(1) + 'var ' + name + ' = [];';
-    str += generateCode(node.children[2].children[2]);
-    str += '\n' + sp(1) + 'return '+name+';\n' + sp() + '}';
-    return str;
   },
   'DOM_ASSIGN': function(node) {
     var name = CN();
