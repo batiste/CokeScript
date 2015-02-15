@@ -1,6 +1,6 @@
 # CokeScript
 
-CokeScript is a whitespace sensitive language that compile to JavaScript. This project is still pretty a toy language stage because it lack support for many important features like regular expression.
+CokeScript is a whitespace sensitive language that compile to JavaScript. This project is still at toy language because it lack support for many important features like regular expression.
 
 How does it compare against CoffeScript:
 
