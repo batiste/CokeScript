@@ -88,6 +88,11 @@ describe("CokeScript features test suite", function() {
     assert.equal(exe(code, {}), 1, code);
   });
 
+  it("Function as value", function() {
+    var code = gen('test(def toto()\n  1\n)\n');
+    assert.equal(code, "test(function toto() { 1; }");
+  });
+
   it("DOM", function() {
     var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls{item}">\n      =item\nmakeDom([1,2,3])');
     var context = {
