@@ -88,17 +88,18 @@ describe("CokeScript features test suite", function() {
     assert.equal(exe(code, {}), 1, code);
   });
 
-  it("Function as value", function() {
-    var code = gen('test(def toto()\n  1\n)\n');
-    assert.equal(code, "test(function toto() { 1; }");
-  });
-
   it("DOM", function() {
     var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls{item}">\n      =item\nmakeDom([1,2,3])');
     var context = {
       h: function(n, p, c){ return {n:n, p:p, c:c}; }
     };
     assert.deepEqual(exe(code, context)[0], {"n":"li","c":["1"], p:{className:"cls1"}});
+  });
+
+  it("Function call accept function def", function(){
+    var code = gen("test(1, def toto()\n  return 42\n, 1)");
+    context = {"test":function(a,b,c){return b();}};
+    assert.equal(exe(code, context), 42);
   });
 
 });

@@ -222,7 +222,8 @@ var grammarDef = {
       return {left:p.left, op:p.op, right:p.right};
     }]
   },
-  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma W EXPR", "EXPR"]},
+  "W_OR_SAMEDENT": {rules:["W", "samedent"]},
+  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma W_OR_SAMEDENT EXPR samedent?", "EXPR samedent?"]},
   "FUNC_CALL": {rules:["name open_par FUNC_CALL_PARAMS? close_par"]},
 
   "FOR": {rules:[
