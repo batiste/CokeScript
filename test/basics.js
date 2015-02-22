@@ -111,5 +111,13 @@ describe("CokeScript features test suite", function() {
     assert.equal(exe(code, {}), true);
   });
 
+  it("Regular expression", function(){
+    var code = gen('"abc".match(/abc/)');
+    assert.equal(exe(code, {})[0], "abc");
+    code = gen('"a\/bc".match(/a\\\/bc/)');
+    assert.equal(exe(code, {})[0], "a\/bc");
+
+  });
+
 });
 

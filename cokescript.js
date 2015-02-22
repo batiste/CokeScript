@@ -41,6 +41,7 @@ var tokenDef = [
   {key:"for_loop", reg:/^for /, verbose:"for loop"},
   {key:"in", reg:/^in /},
   {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_]{0,29}/}, // 30 chars max
+  {key:"regexp", func:regExpDef, verbose:"regular epression"},
   {key:"math_operators", reg:/^(\+\+|\-\-)/, verbose:"math operator"},
   {key:"binary_operators", reg:/^(\&\&|\|\||\&|\||<<|\>\>)/, verbose:"binary operator"},
   {key:"comparison", reg:/^(<=|>=|<|>|!=|==)/},
@@ -61,7 +62,7 @@ var tokenDef = [
   {key:"indent", func:dent('indent')},
   //newline: /^(\r?\n|$)/,
   {key:"W", reg:/^[ ]/, verbose:"single whitespace"},
-  {key:"string", func:stringDef}
+  {key:"string", func:stringDef},
 ];
 
 function currentLevel() {
@@ -113,6 +114,21 @@ function stringDef(input) {
       if(ch === '\\') {
         i++;
       } else if(ch === '"') {
+        return input.slice(0, i+1);
+      }
+      i++;
+    }
+  }
+}
+
+function regExpDef(input) {
+  if(input.charAt(0) === '/') {
+    var i = 1;
+    while(input.charAt(i)) {
+      var ch = input.charAt(i);
+      if(ch === '\\') {
+        i++;
+      } else if(ch === '/') {
         return input.slice(0, i+1);
       }
       i++;
@@ -294,6 +310,7 @@ var grammarDef = {
     "FUNC_DEF",
     "LAMBDA",
     "number",
+    "regexp",
     "open_par EXPR close_par",
     "string",
     "name",
