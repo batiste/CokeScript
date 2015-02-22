@@ -238,16 +238,16 @@ var grammarDef = {
   ]},
 
   "ARRAY": {rules:[
-    "open_bra SPACE* c:COMMA_SEPARATED_EXPR? W_OR_SAMEDENT? close_bra",
+    "open_bra c:COMMA_SEPARATED_EXPR? close_bra",
   ]},
 
   "MEMBERS": {rules:[
-    "name colon W_OR_SAMEDENT? EXPR comma W_OR_SAMEDENT? MEMBERS",
-    "name colon W_OR_SAMEDENT? EXPR"
+    "name colon W EXPR comma W_OR_SAMEDENT? MEMBERS",
+    "name colon W EXPR"
   ]},
 
   "OBJECT": {rules:[
-    "open_curly W_OR_SAMEDENT? MEMBERS? W_OR_SAMEDENT? close_curly",
+    "open_curly MEMBERS? close_curly",
   ]},
 
   "TAG_PARAMS": {rules:[
@@ -275,8 +275,6 @@ var grammarDef = {
   "DOM_ASSIGN": {rules:[
     "assign EXPR",
   ]},
-
-  "SPACE": {rules:["W", "indent", "dedent", "samedent"]},
 
   "RETURN": {rules:["ret W EXPR", "ret"]},
   "RIGHT_EXPR": {rules: [

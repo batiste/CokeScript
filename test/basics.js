@@ -42,7 +42,7 @@ describe("CokeScript features test suite", function() {
   });
 
   it("Return an object", function() {
-    var code = gen('def test(a=1, b, c="test")\n  return {a:a, b:b, c:c}\ntest(undefined, 3)\n');
+    var code = gen('def test(a=1, b, c="test")\n  return {a: a, b: b, c: c}\ntest(undefined, 3)\n');
     assert.deepEqual(exe(code), {a:1, b:3, c:"test"});
   });
 
