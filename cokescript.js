@@ -43,7 +43,7 @@ var tokenDef = [
   {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_]{0,29}/}, // 30 chars max
   {key:"math_operators", reg:/^(\+\+|\-\-)/, verbose:"math operator"},
   {key:"binary_operators", reg:/^(\&\&|\|\||\&|\||<<|\>\>)/, verbose:"binary operator"},
-  {key:"comparison", reg:/^(<=|>=|<|>|===|!=|==)/},
+  {key:"comparison", reg:/^(<=|>=|<|>|!=|==)/},
   {key:"assign", reg:/^(\+=|-=|=|:=)/},
   {key:"number", reg:/^[0-9]+\.?[0-9]*/}, // only positive for now
   {key:"comma", reg:/^\,/},
@@ -222,7 +222,7 @@ var grammarDef = {
       return {left:p.left, op:p.op, right:p.right};
     }]
   },
-  "W_OR_SAMEDENT": {rules:["W", "samedent"]},
+  "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma W_OR_SAMEDENT EXPR samedent?", "EXPR samedent?"]},
   "FUNC_CALL": {rules:["name open_par FUNC_CALL_PARAMS? close_par"]},
 
@@ -233,21 +233,21 @@ var grammarDef = {
   },
 
   "COMMA_SEPARATED_EXPR": {rules:[
-    "EXPR comma SPACE* COMMA_SEPARATED_EXPR",
+    "EXPR comma W_OR_SAMEDENT COMMA_SEPARATED_EXPR",
     "EXPR"
   ]},
 
   "ARRAY": {rules:[
-    "open_bra SPACE* c:COMMA_SEPARATED_EXPR? SPACE* close_bra",
+    "open_bra SPACE* c:COMMA_SEPARATED_EXPR? W_OR_SAMEDENT? close_bra",
   ]},
 
   "MEMBERS": {rules:[
-    "name colon SPACE* EXPR comma SPACE* MEMBERS",
-    "name colon SPACE* EXPR"
+    "name colon W_OR_SAMEDENT? EXPR comma W_OR_SAMEDENT? MEMBERS",
+    "name colon W_OR_SAMEDENT? EXPR"
   ]},
 
   "OBJECT": {rules:[
-    "open_curly SPACE* MEMBERS? SPACE* close_curly",
+    "open_curly W_OR_SAMEDENT? MEMBERS? W_OR_SAMEDENT? close_curly",
   ]},
 
   "TAG_PARAMS": {rules:[
@@ -569,6 +569,15 @@ var backend = {
   'comment': function(node) {
     return node.value.replace(/^#/g, "//");
   },
+  'comparison': function(node) {
+    if(node.value == '==') {
+      return '===';
+    }
+    if(node.value == '!=') {
+      return '!==';
+    }
+    return node.value;
+  }
 };
 
 function generateCode(node, ns) {

@@ -89,7 +89,7 @@ describe("CokeScript features test suite", function() {
   });
 
   it("DOM", function() {
-    var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls{item}">\n      =item\nmakeDom([1,2,3])');
+    var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls{item}">\n      =item\nmakeDom([1, 2, 3])');
     var context = {
       h: function(n, p, c){ return {n:n, p:p, c:c}; }
     };
@@ -100,6 +100,15 @@ describe("CokeScript features test suite", function() {
     var code = gen("test(1, def toto()\n  return 42\n, 1)");
     context = {"test":function(a,b,c){return b();}};
     assert.equal(exe(code, context), 42);
+  });
+
+  it("Strict comparison", function(){
+    var code = gen('23 == "23"');
+    assert.equal(exe(code, {}), false);
+    code = gen('23 == 23');
+    assert.equal(exe(code, {}), true);
+    code = gen('23 != "23"');
+    assert.equal(exe(code, {}), true);
   });
 
 });
