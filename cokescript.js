@@ -28,11 +28,15 @@ function resetGlobal() {
 // token are matched in order of declaration
 // TODO: add functions
 var tokenDef = [
+  {key:"string", func:stringDef},
   {key:"comment", func:commentDef},
   {key:"function_def", func: defDef, verbose:"function definition"},
   {key:"class", reg:/^class /},
   {key:"ret", reg:/^return/, verbose:"return"},
   {key:"if", reg:/^if /},
+  {key:"try", reg:/^try/},
+  {key:"catch", reg:/^catch/},
+  {key:"throw", reg:/^throw/},
   {key:"tag", reg:/^<[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
   {key:">", reg:/^>/},
   {key:"dom", reg:/^DOM:/},
@@ -62,7 +66,6 @@ var tokenDef = [
   {key:"indent", func:dent('indent')},
   //newline: /^(\r?\n|$)/,
   {key:"W", reg:/^[ ]/, verbose:"single whitespace"},
-  {key:"string", func:stringDef},
 ];
 
 function currentLevel() {
@@ -107,13 +110,13 @@ function dent(dentType) {
 }
 
 function stringDef(input) {
-  if(input.charAt(0) === '"') {
+  if(input.charAt(0) === '"' || input.charAt(0) === '}') {
     var i = 1;
     while(input.charAt(i)) {
       var ch = input.charAt(i);
       if(ch === '\\') {
         i++;
-      } else if(ch === '"') {
+      } else if(ch === '"' || ch === '{') {
         return input.slice(0, i+1);
       }
       i++;
@@ -192,8 +195,8 @@ function forLoop(params) {
 var grammarDef = {
   "START": {rules:["LINE* EOF"]},
   "LINE": {rules:["STATEMENT samedent+", "STATEMENT !dedent", "comment? samedent"], verbose:"new line"},
-  "STATEMENT": {rules:["ASSIGN", "IF", "FOR", "EXPR", "RETURN", "CLASS", "TAG", "DOM_ASSIGN"]},
   "BLOCK": {rules: ["indent LINE+ dedent"]},
+  "STATEMENT": {rules:["ASSIGN", "IF", "FOR", "EXPR", "RETURN", "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   "CLASS_METHODS": {
       rules: ["samedent* f:FUNC_DEF samedent*"],
       hooks: [ function(p){ return p.f; }]
@@ -255,6 +258,7 @@ var grammarDef = {
 
   "ARRAY": {rules:[
     "open_bra c:COMMA_SEPARATED_EXPR? close_bra",
+    "open_bra indent c:COMMA_SEPARATED_EXPR? dedent samedent close_bra",
   ]},
 
   "MEMBERS": {rules:[
@@ -264,6 +268,7 @@ var grammarDef = {
 
   "OBJECT": {rules:[
     "open_curly MEMBERS? close_curly",
+    "open_curly indent MEMBERS? dedent samedent close_curly",
   ]},
 
   "TAG_PARAMS": {rules:[
@@ -292,6 +297,23 @@ var grammarDef = {
     "assign EXPR",
   ]},
 
+  "TRY_CATCH": {
+    rules:[
+      "try b1:BLOCK samedent? catch open_par err:name? close_par b2:BLOCK",
+    ],
+    hooks:[function(p){ return p; }],
+  },
+  "THROW": {rules:[
+    "throw W EXPR",
+  ]},
+
+  "STRING_EXPRESSION": {rules: [
+    "s1:string e:EXPR s2:STRING_EXPRESSION",
+    "s1:string e:EXPR s2:string",
+    ],
+    hooks:[function(p){ return p; }, function(p){ p.final=true; return p; }],
+  },
+
   "RETURN": {rules:["ret W EXPR", "ret"]},
   "RIGHT_EXPR": {rules: [
     "math_operators",
@@ -305,6 +327,7 @@ var grammarDef = {
   },
   "EXPR": {rules: [
     "MATH",
+    "STRING_EXPRESSION",
     "EXPR RIGHT_EXPR",
     "FUNC_CALL",
     "FUNC_DEF",
@@ -567,19 +590,30 @@ var backend = {
   'ELSE': function(node) {
     return ' else {'+generateCode(node.children[0])+ '\n'+sp()+'}';
   },
+  'TRY_CATCH': function(node) {
+    var str = "try {";
+    str += generateCode(node.children.b1);
+    str += '\n'+sp()+"} catch("+generateCode(node.children.err)+") {";
+    str += generateCode(node.children.b2);
+    return str+'\n'+sp()+"}";
+  },
   'string': function(node) {
     var v = node.value;
-    v = v.replace(/\n/g, "\\n");
-    // hacky string escaping with {}...
-    if(v.indexOf('{') > -1 && v.indexOf('}') > -1) {
-      v = v.split(/{/).map(function(i) {
-        var s = i.split(/}/);
-        if(s.length>1) {
-          return '" + ' + s[0] + ' + "' + s[1];
-        } else { return i; }
-      }).join("");
+    if(v.charAt(0) === '}') {
+      v = '"' + v.substr(1, v.length - 1);
     }
+    if(v.charAt(v.length - 1) === '{') {
+      v = v.substr(0, v.length - 1) + '"';
+    }
+    v = v.replace(/\n/g, "\\n");
     return v;
+  },
+  'STRING_EXPRESSION': function(node) {
+    var c = node.children;
+    var str = generateCode(c.s1) +
+      ' + ' + generateCode(c.e) +
+      ' + ' + generateCode(c.s2);
+    return str;
   },
   'comment': function(node) {
     return node.value.replace(/^#/g, "//");

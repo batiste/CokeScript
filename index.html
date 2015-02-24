@@ -3,20 +3,18 @@
 <title>
 CokeScript language, whitespace sensitive language that compile to JavaScript
 </title>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<!-- Optional theme -->
-<link rel="stylesheet" href="css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="css/reboot.css">
 <link rel="stylesheet" href="css/main.css">
+
 </head>
-<body>
+<body class="grid typography">
 
 <div class="jumbotron">
-      <div class="container">
-        <h1>CokeScript</h1>
-        <p>Because Coffee is not enough. <a href="https://github.com/batiste/CokeScript/" class="btn btn-lg btn-info">Github</a></p>
-      </div>
-    </div>
+  <div class="container">
+    <h1>CokeScript</h1>
+    <p>When CoffeeScript is not enough. <a href="https://github.com/batiste/CokeScript/" class="btn btn-lg btn-info">Github</a></p>
+  </div>
+</div>
 
 
 <p>CokeScript is a whitespace sensitive language that compile to JavaScript. CokeScript doesn't try to be too smart and is mainly syntactic sugar around common JavasScript annoyances. Features:</p>
@@ -40,9 +38,13 @@ CokeScript language, whitespace sensitive language that compile to JavaScript
 
 <label><input type="checkbox" id="notrycatch"> Do not catch errors in the example.</label>
 
-<div style="clear:both" id="egClass">
-<div class="col">
+<div class="pad-1 first-row">
+
+<div id="egClass" class="row">
+
+<div class="col-6">
 <h2>Classes</h2>
+<div style="position:relative">
 <textarea class="in form-control">
 class Animal
   
@@ -64,14 +66,14 @@ class Tiger(Cats)
 tiger = Tiger("Wilson")
 tiger.eat()
 </textarea>
-
 <pre class="error alert alert-danger" style=""></pre>
+</div>
 
 </div>
 
-<div class="col">
+<div class="col-6">
   <h2>JavaScript Output <span class="percent"></span></h2>
-  <textarea class="code form-control"></textarea>
+  <textarea class="code-output form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 </div>
@@ -81,8 +83,8 @@ tiger.eat()
 
 
 
-<div style="clear:both" id="egScope">
-<div class="col">
+<div id="egScope" class="row">
+<div class="col-6">
 <h2>Scope</h2>
 <textarea class="in form-control">
 a = "string 
@@ -106,9 +108,9 @@ testScope()
 </div>
 
 
-<div class="col">
+<div class="col-6">
   <h2>JavaScript Output <span class="percent"></span></h2>
-  <textarea class="code form-control"></textarea>
+  <textarea class="code-output form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 </div>
@@ -118,8 +120,8 @@ testScope()
 
 
 
-<div style="clear:both" id="egFunction">
-<div class="col">
+<div id="egFunction" class="row">
+<div class="col-6">
 <h2>Functions and Loops</h2>
 <textarea class="in form-control">
 memo = {}
@@ -147,9 +149,9 @@ out
 </div>
 
 
-<div class="col">
+<div class="col-6">
   <h2>JavaScript Output <span class="percent"></span></h2>
-  <textarea class="code form-control"></textarea>
+  <textarea class="code-output form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 </div>
@@ -161,15 +163,23 @@ out
 
 
 
-<div style="clear:both" id="egDOM">
-<div class="col">
-<h2>Virtual DOM support</h2>
+<div id="egDOM" class="row">
+<div class="row">
+  <div class="col-6">
+  <h2>Virtual DOM support</h2>
 
-<p>CokeScript support the
-<a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
-virtual-dom</a> library for React-Like features.<br>
-</p>
+  <p>CokeScript support the
+  <a href="https://github.com/Matt-Esch/virtual-dom#example---creating-a-vtree-using-virtual-hyperscript">
+  virtual-dom</a> library for React-Like features.<br>
+  </p>
+  </div>
 
+  <div class="col-6">
+  <h2>JavaScript Output <span class="percent"></span></h2>
+  </div>
+</div>
+
+<div class="col-6">
 <textarea class="in form-control">
 menu = {home: "Homepage", products: "Products"}
 
@@ -203,13 +213,15 @@ virtual.patch(real_dom, patches)
 </div>
 
 
-<div class="col">
-  <h2>JavaScript Output <span class="percent"></span></h2>
-  <textarea class="code form-control"></textarea>
+<div class="col-6">
+
+  <textarea class="code-output form-control"></textarea>
   <button class="evalButton btn btn-primary">Eval</button>
   <pre class="evalResult"></pre>
 
   <div id="domOut"></div>
+</div>
+
 </div>
 
 </div>
@@ -237,7 +249,7 @@ function initExample(dom) {
   function dGet(cls){ return dom.getElementsByClassName(cls)[0]; }
   var din = dGet('in');
   //var dout = dGet('out');
-  var code = dGet('code');
+  var code = dGet('code-output');
 
   dGet('evalButton').onclick = function() {
     var result = eval(code.value);
