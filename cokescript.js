@@ -38,10 +38,9 @@ var tokenDef = [
   {key:"if", reg:/^if /},
   {key:"try", reg:/^try/},
   {key:"catch", reg:/^catch/},
-  {key:"throw", reg:/^throw/},
+  {key:"throw", reg:/^throw /},
   {key:"tag", reg:/^<[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
   {key:">", reg:/^>/},
-  {key:"dom", reg:/^DOM:/},
   {key:"elseif", reg:/^elseif /},
   {key:"else", reg:/^else/},
   {key:"for_loop", reg:/^for /, verbose:"for loop"},
@@ -331,7 +330,7 @@ var grammarDef = {
     hooks:[function(p){ return p; }],
   },
   "THROW": {rules:[
-    "throw W EXPR",
+    "throw EXPR",
   ]},
 
   "RETURN": {rules:["ret W EXPR", "ret"]},
@@ -624,13 +623,6 @@ var backend = {
       throw new Error(ast.hint);
     }
     return generateStringCode(ast);
-  },
-  'STRING_EXPRESSION': function(node) {
-    var c = node.children;
-    var str = generateCode(c.s1) +
-      ' + ' + generateCode(c.e) +
-      ' + ' + generateCode(c.s2);
-    return str;
   },
   'comment': function(node) {
     return node.value.replace(/^#/g, "//");
