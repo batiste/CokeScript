@@ -53,7 +53,7 @@ class Animal
     this.diet = diet
   
   def eat()
-    return "{this.name} eat {this.diet}"
+    return "#{this.name} eat #{this.diet}"
 
 class Cats(Animal)
   def constructor(name)
@@ -100,7 +100,7 @@ def testScope(b)
   return a
 
 testScope()
-"{a} , {c}"
+"#{a} , #{c}"
 </textarea>
 
 <pre class="error alert alert-danger" style=""></pre>
@@ -139,7 +139,7 @@ fibo_square = array.map(def(i) fib(i * i))
 
 out = ""
 for key, value in memo
-   out += "fib({key}) = {value}, "
+   out += "fib(#{key}) = #{value}, "
 
 out
 </textarea>
@@ -188,7 +188,7 @@ menu = {home: "Homepage", products: "Products"}
 dom generateVirtualDom(links)
   <ul className="nav">
     for index, content in links
-      <li className="cls{ index }">
+      <li className="cls#{ index }">
         =content
 
 virtual_dom = h("div", generateVirtualDom(menu))

@@ -32,8 +32,12 @@ describe("CokeScript features test suite", function() {
   });
 
   it("String interpolation", function() {
-    var code = gen('def test(alpha, beta) "hello {alpha} world {beta}"\ntest(1, 2)');
+    var code = gen('def test(alpha, beta) "hello #{alpha} world #{beta}"\ntest(1, 2)');
     assert.equal(exe(code), "hello 1 world 2");
+    var code = gen('"something #{toto.tata} someting"');
+    assert.equal(exe(code, {toto:{tata:42}}), "something 42 someting");
+    var code = gen('"something #{toto.tata someting"');
+    assert.equal(exe(code), "something #{toto.tata someting");
   });
 
   it("Return an array", function() {
@@ -52,7 +56,7 @@ describe("CokeScript features test suite", function() {
   });
 
   it("Multiline interpolated string", function() {
-    var code = gen('a = "hello {w}\nhello {x}\nhello {y}"\na');
+    var code = gen('a = "hello #{w}\nhello #{x}\nhello #{y}"\na');
     assert.equal(exe(code, {w:1, x:2, y:3}), "hello 1\nhello 2\nhello 3");
   });
 
@@ -89,7 +93,7 @@ describe("CokeScript features test suite", function() {
   });
 
   it("DOM", function() {
-    var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls{item}">\n      =item\nmakeDom([1, 2, 3])');
+    var code = gen('dom makeDom(list)\n  for item in list\n    <li className="cls#{item}">\n      =item\nmakeDom([1, 2, 3])');
     var context = {
       h: function(n, p, c){ return {n:n, p:p, c:c}; }
     };

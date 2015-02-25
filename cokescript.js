@@ -4,6 +4,8 @@
 */
 "use strict";
 
+var epegjs = require("epegjs");
+
 var depth = 0;
 var forLoopCount = 1;
 var namespaces = [{}];
@@ -68,6 +70,40 @@ var tokenDef = [
   {key:"W", reg:/^[ ]/, verbose:"single whitespace"},
 ];
 
+var strInterpolationTokenDef = [
+  {key:"start", reg:/^#{/},
+  {key:"end", reg:/^}/},
+  {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
+  {key:"dot", reg:/^\./},
+  {key:"char", reg:/^./},
+];
+
+var strInterpolationGrammarDef = {
+  "START": {rules:["EL* EOF"]},
+  "EL": {rules:["VAR", "char", "name", "start", "end", "dot"]},
+  "VAR": {rules:["start NAME end"]},
+  "NAME": {rules:["name dot NAME", "name"]},
+};
+
+var strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
+
+function generateStringCode(node) {
+  if(node.type === 'VAR') {
+    return '" + ' + generateStringCode(node.children[1]) + ' + "';
+  }
+  if(node.value !== undefined) {
+    return node.value;
+  }
+  var str = "", i;
+  if(!node.children) {
+    return '';
+  }
+  for(i=0;i<node.children.length; i++) {
+    str += generateStringCode(node.children[i]);
+  }
+  return str;
+}
+
 function currentLevel() {
   return levelStack[levelStack.length - 1];
 }
@@ -86,12 +122,6 @@ function indentType(l) {
 
 function dent(dentType) {
   return function _dent(input) {
-
-    //var blank_line = input.match(/^\n[ ]*\n/);
-    //if(blank_line && dentType === "samedent") {
-    //  return input.match(/^\n[ ]*/)[0];
-    //}
-
     var m = input.match(/^\n[ ]*/);
     if(m) {
       var indent = m[0].length - 1;
@@ -110,13 +140,13 @@ function dent(dentType) {
 }
 
 function stringDef(input) {
-  if(input.charAt(0) === '"' || input.charAt(0) === '}') {
+  if(input.charAt(0) === '"') {
     var i = 1;
     while(input.charAt(i)) {
       var ch = input.charAt(i);
       if(ch === '\\') {
         i++;
-      } else if(ch === '"' || ch === '{') {
+      } else if(ch === '"') {
         return input.slice(0, i+1);
       }
       i++;
@@ -146,9 +176,6 @@ function defDef(input) {
   if(input.indexOf("def ") === 0) {
     return "def";
   }
-  //if(input.indexOf("dom(") === 0) {
-  //  return "dom";
-  //}
   if(input.indexOf("dom ") === 0) {
     return "dom";
   }
@@ -307,13 +334,6 @@ var grammarDef = {
     "throw W EXPR",
   ]},
 
-  "STRING_EXPRESSION": {rules: [
-    "s1:string e:EXPR s2:STRING_EXPRESSION",
-    "s1:string e:EXPR s2:string",
-    ],
-    hooks:[function(p){ return p; }, function(p){ p.final=true; return p; }],
-  },
-
   "RETURN": {rules:["ret W EXPR", "ret"]},
   "RIGHT_EXPR": {rules: [
     "math_operators",
@@ -327,7 +347,7 @@ var grammarDef = {
   },
   "EXPR": {rules: [
     "MATH",
-    "STRING_EXPRESSION",
+    "OBJECT",
     "EXPR RIGHT_EXPR",
     "FUNC_CALL",
     "FUNC_DEF",
@@ -338,8 +358,7 @@ var grammarDef = {
     "string",
     "name",
     "PATH",
-    "ARRAY",
-    "OBJECT"],
+    "ARRAY"],
     verbose:"expression"
   },
 };
@@ -599,14 +618,12 @@ var backend = {
   },
   'string': function(node) {
     var v = node.value;
-    if(v.charAt(0) === '}') {
-      v = '"' + v.substr(1, v.length - 1);
-    }
-    if(v.charAt(v.length - 1) === '{') {
-      v = v.substr(0, v.length - 1) + '"';
-    }
     v = v.replace(/\n/g, "\\n");
-    return v;
+    var ast = strGram.parse(v);
+    if(!ast.complete) {
+      throw new Error(ast.hint);
+    }
+    return generateStringCode(ast);
   },
   'STRING_EXPRESSION': function(node) {
     var c = node.children;
@@ -668,12 +685,13 @@ function generateModule(input, opts) {
   return obj;
 }
 
-var epegjs = require("epegjs");
 var gram = epegjs.compileGrammar(grammarDef, tokenDef);
 
 module.exports = {
   grammar: gram,
+  strGrammar: strGram,
   grammarDef: grammarDef,
+  epegjs:epegjs,
   tokenDef: tokenDef,
   generateModule: generateModule,
   generateCode: generateCode,

@@ -1,0 +1,178 @@
+/**
+ * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)
+ * http://cssreset.com
+ */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.typography {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.25;
+}
+.typography h1 {
+  font-size: 2.5rem;
+}
+.typography h2 {
+  font-size: 2rem;
+}
+.typography h3 {
+  font-size: 1.5rem;
+}
+.typography h4 {
+  font-size: 1rem;
+}
+.typography p,
+.typography blockquote,
+.typography pre,
+.typography ul,
+.typography ol {
+  margin: 0 0 1rem 0;
+}
+.typography ul,
+.typography ol {
+  margin-left: 2em;
+}
+.typography h1,
+.typography h2,
+.typography h3,
+.typography h4,
+.typography h5,
+.typography h6 {
+  margin: 0 0 1rem 0;
+}
+.container-960 {
+  max-width: 960px;
+  margin: 0 auto;
+}
+.grid .row {
+  overflow: auto;
+  width: auto;
+}
+.grid .col-1 {
+  width: 8.33333333%;
+}
+.grid .col-2 {
+  width: 16.66666667%;
+}
+.grid .col-3 {
+  width: 25%;
+}
+.grid .col-4 {
+  width: 33.33333333%;
+}
+.grid .col-5 {
+  width: 41.66666667%;
+}
+.grid .col-6 {
+  width: 50%;
+}
+.grid .col-7 {
+  width: 58.33333333%;
+}
+.grid .col-8 {
+  width: 66.66666667%;
+}
+.grid .col-9 {
+  width: 75%;
+}
+.grid .col-10 {
+  width: 83.33333333%;
+}
+.grid .col-11 {
+  width: 91.66666667%;
+}
+.grid .col-12 {
+  width: 100%;
+}
+.grid .pad-0_5[class^='col-'],
+.grid .pad-0_5 [class^='col-'] {
+  border-left: 0.5em solid transparent;
+  border-right: 0.5em solid transparent;
+}
+.grid .pad-0_5 .first-row,
+.grid .pad-0_5.first-row {
+  margin-left: -0.5em;
+  margin-right: -0.5em;
+}
+.grid .pad-1[class^='col-'],
+.grid .pad-1 [class^='col-'] {
+  border-left: 1em solid transparent;
+  border-right: 1em solid transparent;
+}
+.grid .pad-1 .first-row,
+.grid .pad-1.first-row {
+  margin-left: -1em;
+  margin-right: -1em;
+}
+.grid .pad-1_5[class^='col-'],
+.grid .pad-1_5 [class^='col-'] {
+  border-left: 1.5em solid transparent;
+  border-right: 1.5em solid transparent;
+}
+.grid .pad-1_5 .first-row,
+.grid .pad-1_5.first-row {
+  margin-left: -1.5em;
+  margin-right: -1.5em;
+}
+.grid .pad-2[class^='col-'],
+.grid .pad-2 [class^='col-'] {
+  border-left: 2.5em solid transparent;
+  border-right: 2.5em solid transparent;
+}
+.grid .pad-2 .first-row,
+.grid .pad-2.first-row {
+  margin-left: -2.5em;
+  margin-right: -2.5em;
+}
+.grid [class^='col-'] {
+  float: left;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+@media (max-width: 650px) {
+  .grid [class^=col-] {
+    float: none;
+    width: auto;
+  }
+}
