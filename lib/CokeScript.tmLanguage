@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>fileTypes</key>
+	<array>
+		<string>coke</string>
+	</array>
+	<key>name</key>
+	<string>CokeScrpit</string>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>match</key>
+			<string>def|dom|if|else|elseif|for|in |class |try|catch|throw |return|undefined|false|true|null</string>
+			<key>name</key>
+			<string>keyword.other.cokescript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\=\=|\&lt;\=|\&gt;\=|\=|\&lt;|\&gt;|\+|\-</string>
+			<key>name</key>
+			<string>keyword.other.compare.cokescript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\.|\,</string>
+			<key>name</key>
+			<string>punctuation.definition.string.cokescript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>[0-9]+\.?[0-9]*</string>
+			<key>name</key>
+			<string>constant.numeric.cokescript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>[a-zA-Z][a-zA-Z_]*\(</string>
+			<key>name</key>
+			<string>support.function.misc.cokescript</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>\"</string>
+			<key>end</key>
+			<string>[^\\]\"</string>
+			<key>name</key>
+			<string>string.cokescript</string>
+		</dict>
+	</array>
+	<key>scopeName</key>
+	<string>source.cokescript</string>
+	<key>uuid</key>
+	<string>80bb5c88-4a96-45ed-af77-18a15627612f</string>
+</dict>
+</plist>
