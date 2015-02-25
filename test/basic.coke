@@ -11,7 +11,7 @@ def exe(js, context)
   catch(e)
     throw "JS error\n" + js
 
-describe("CokeScript features test suite", def()
+describe("CokeScript features test suite", def
   
   it("Simple function", def()
     code = gen("def test() 1")
@@ -19,8 +19,8 @@ describe("CokeScript features test suite", def()
     assert.equal(exe(code), undefined)
   )
   
-  it("Function call", def()
-    def test()
+  it("Function call", def
+    def test
       return 1
     assert.equal(test(), 1)
   )
@@ -30,7 +30,7 @@ describe("CokeScript features test suite", def()
     assert.equal(exe(code), 4)
   )
   
-  it("String interpolation", def()
+  it("String interpolation", def
     def test(alpha, beta)
       return "hello #{alpha} world #{beta}"
     assert.equal(test(1, 2), "hello 1 world 2")

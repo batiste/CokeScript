@@ -175,6 +175,9 @@ function defDef(input) {
   if(input.indexOf("def ") === 0) {
     return "def";
   }
+  if(input.indexOf("def\n") === 0) {
+    return "def";
+  }
   if(input.indexOf("dom ") === 0) {
     return "dom";
   }
@@ -253,8 +256,10 @@ var grammarDef = {
   "FUNC_DEF": {rules:[
       "fd:function_def open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
       "fd:function_def W fn:name open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
+      "fd:function_def W fn:name b:BLOCK",
+      "fd:function_def b:BLOCK",
     ],
-    hooks: [f_def, f_def],
+    hooks: [f_def, f_def, f_def, f_def],
     verbose:"function definition"
   },
   "ELSE_IF": {rules:["samedent elseif e:EXPR b:BLOCK"], hooks:[else_if_def]},
