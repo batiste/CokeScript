@@ -9,6 +9,7 @@ var stylish = require("jshint-stylish");
 var jshint = require("gulp-jshint");
 var istanbul = require('gulp-istanbul');
 var mocha = require('gulp-mocha');
+var shell = require('gulp-shell');
 
 gulp.task("build", function() {
   return browserify("./cokescript.js", {
@@ -43,6 +44,7 @@ gulp.task("default", function() {
 
 gulp.task("test", ['build'], function() {
   gulp.src(['dist/cokescript.js'])
+    .pipe(shell("lib/coke.js -g test/*.coke -w"))
     .pipe(istanbul()) // Covering files
     .pipe(istanbul.hookRequire()) // Force `require` to return covered files
     .on('finish', function () {

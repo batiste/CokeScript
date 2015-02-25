@@ -20,8 +20,9 @@ describe("CokeScript features test suite", def()
   )
   
   it("Function call", def()
-    code = gen("\ndef test() 1\ntest()")
-    assert.equal(exe(code), 1)
+    def test()
+      return 1
+    assert.equal(test(), 1)
   )
   
   it("Function addition", def()

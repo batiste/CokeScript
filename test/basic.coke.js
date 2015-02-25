@@ -24,8 +24,10 @@ describe("CokeScript features test suite", function () {
   );
   
   it("Function call", function () {
-    var code = gen("\ndef test() 1\ntest()");
-    assert.equal(exe(code), 1);
+    function test() {
+      return 1;
+    };
+    assert.equal(test(), 1);
   }
   );
   
