@@ -126,8 +126,10 @@ testScope()
 <textarea class="in form-control">
 memo = {}
 
+exist = def(n) memo[n] != undefined
+
 def fib(n)
-    if memo[n]
+    if exist(n)
       return memo[n]
     if n < 2
         return n

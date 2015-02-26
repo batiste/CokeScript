@@ -44,7 +44,7 @@ gulp.task("default", function() {
 
 gulp.task("test", ['build'], function() {
   gulp.src(['dist/cokescript.js'])
-    .pipe(shell("lib/coke.js -g test/*.coke -w"))
+    .pipe(shell("lib/coke.js --glob test/*.coke --convert"))
     .pipe(istanbul()) // Covering files
     .pipe(istanbul.hookRequire()) // Force `require` to return covered files
     .on('finish', function () {

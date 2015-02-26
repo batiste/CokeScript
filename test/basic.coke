@@ -11,31 +11,49 @@ def exe(js, context)
   catch(e)
     throw "JS error\n" + js
 
-describe("CokeScript features test suite", def
+describe("CokeScript features test suite", def()
   
   it("Simple function", def()
     code = gen("def test() 1")
     assert.equal(code, "function test() { return 1; };")
     assert.equal(exe(code), undefined)
   )
-  
-  it("Function call", def
+
+  it("Function call", def()
     def test
       return 1
     assert.equal(test(), 1)
   )
-  
+
+  it("Lambda", def
+    assert.equal((def 1 + 1)(), 2)
+  )
+
   it("Function addition", def()
     code = gen("def test() 1 + 3\ntest()")
     assert.equal(exe(code), 4)
   )
   
-  it("String interpolation", def
+  it("Function params indentation", def
+    def test(a, b, c, d, e)
+      return a + b + c + d + e
+    
+    assert.equal(test(1,
+        2, 3,
+        4,
+      5),
+    15)
+  )
+  
+  it("String interpolation", def()
     def test(alpha, beta)
       return "hello #{alpha} world #{beta}"
     assert.equal(test(1, 2), "hello 1 world 2")
     toto = {tata: 42}
     assert.equal("something #{toto.tata} something", "something 42 something")
+    
+    code = gen("\"\#{test}\"") # for coverage
+    assert.equal(exe(code, {test: 42}), "42")
   )
   
   it("Return an array", def()
@@ -101,8 +119,15 @@ hello #{y}"
   )
   
   it("Comments", def()
-    code = gen("# nothing\n// nop\n1")
-    assert.equal(exe(code, {}), 1, code)
+    code = gen("# nothing\n1 # nothing")
+    assert.equal(exe(code, {}), 1)
+  )
+  
+  it("Array syntax on several lines", def()
+    code = gen("[1, 2, 3]")
+    assert.deepEqual(exe(code), [1, 2, 3])
+    code = gen("[\n  1,\n  2,\n  3]")
+    assert.deepEqual(exe(code), [1, 2, 3])
   )
   
   it("DOM", def()

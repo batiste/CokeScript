@@ -24,7 +24,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\.|\,</string>
+			<string>\.|\,|\:</string>
 			<key>name</key>
 			<string>punctuation.definition.string.cokescript</string>
 		</dict>
@@ -36,9 +36,28 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>[a-zA-Z][a-zA-Z_]*\(</string>
+			<string>\#[^\n]*</string>
 			<key>name</key>
-			<string>support.function.misc.cokescript</string>
+			<string>comment.cokescript</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>support.function.misc.cokescript</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>parens</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>([a-zA-Z][a-zA-Z_]*)(?:\()</string>
+			<key>name</key>
+			<string>func.call.cokescript</string>
 		</dict>
 		<dict>
 			<key>begin</key>

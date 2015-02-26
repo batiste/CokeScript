@@ -69,8 +69,18 @@ var tokenDef = [
   {key:"W", reg:/^[ ]/, verbose:"single whitespace"},
 ];
 
+function startStr(input, stream) {
+  var last = stream[stream.length-1];
+  if(last && last.value === '\\') {
+    return;
+  }
+  if(input.match(/^#{/)) {
+    return '#{';
+  }
+}
+
 var strInterpolationTokenDef = [
-  {key:"start", reg:/^#{/},
+  {key:"start", func:startStr},
   {key:"end", reg:/^}/},
   {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
   {key:"dot", reg:/^\./},
@@ -121,9 +131,11 @@ function indentType(l) {
 
 function dent(dentType) {
   return function _dent(input) {
-    var m = input.match(/^\n[ ]*/);
+    // empty line is a samedent
+    var m = input.match(/^\n[\s]*/);
     if(m) {
-      var indent = m[0].length - 1;
+      var lines = m[0].split("\n");
+      var indent = lines[lines.length - 1].length;
       if(indentType(indent) === dentType) {
         if(dentType == 'dedent') {
           levelStack.pop();
@@ -184,7 +196,7 @@ function defDef(input) {
 }
 
 function commentDef(input) {
-  var m = input.match(/^\/\//) || input.match(/^#/);
+  var m = input.match(/^#/);
   if(m) {
     var i = m[0].length;
     while(input.charAt(i)) {
@@ -202,7 +214,7 @@ function f_def(params) {
 }
 
 function lambda_def(params) {
-  return [params.fn, params.p, params.b];
+  return {fn:params.fn, params:params.p, block:params.b};
 }
 
 function else_def(params) {
@@ -223,7 +235,8 @@ function forLoop(params) {
 
 var grammarDef = {
   "START": {rules:["LINE* EOF"]},
-  "LINE": {rules:["STATEMENT samedent+", "STATEMENT !dedent", "comment? samedent"], verbose:"new line"},
+  "ELC": {rules:["W* comment"], verbose:"comment"},
+  "LINE": {rules:["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", "ELC? samedent", "ELC !dedent"], verbose:"new line"},
   "BLOCK": {rules: ["indent LINE+ dedent"]},
   "STATEMENT": {rules:["ASSIGN", "IF", "FOR", "EXPR", "RETURN", "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   "CLASS_METHODS": {
@@ -250,8 +263,9 @@ var grammarDef = {
   "LAMBDA": {rules:[
       "function_def open_par p:FUNC_DEF_PARAMS? close_par W b:EXPR",
       "function_def W fn:name open_par p:FUNC_DEF_PARAMS? close_par W b:EXPR",
+      "function_def W b:EXPR",
     ],
-    hooks: [lambda_def, lambda_def]
+    hooks: [lambda_def, lambda_def, lambda_def]
   },
   "FUNC_DEF": {rules:[
       "fd:function_def open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
@@ -273,8 +287,14 @@ var grammarDef = {
     }]
   },
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
-  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma W_OR_SAMEDENT EXPR samedent?", "EXPR samedent?"]},
-  "FUNC_CALL": {rules:["name open_par FUNC_CALL_PARAMS? close_par"]},
+  "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
+  "ANY_SPACE": {rules:["W", "samedent", "indent", "dedent"], verbose: "any space"},
+  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma ANY_SPACE+ EXPR ANY_SPACE*", "EXPR ANY_SPACE*"]},
+  "FUNC_CALL": {rules:[
+    "open_par FUNC_CALL_PARAMS? close_par",
+    "open_par indent FUNC_CALL_PARAMS? dedent samedent close_par",
+    "open_par indent FUNC_CALL_PARAMS? close_par dedent"
+  ]},
 
   "FOR": {rules:[
     "for_loop k:name comma W v:name W in a:name b:BLOCK",
@@ -290,6 +310,7 @@ var grammarDef = {
   "ARRAY": {rules:[
     "open_bra c:COMMA_SEPARATED_EXPR? close_bra",
     "open_bra indent c:COMMA_SEPARATED_EXPR? dedent samedent close_bra",
+    "open_bra indent c:COMMA_SEPARATED_EXPR? close_bra dedent",
   ]},
 
   "MEMBERS": {rules:[
@@ -300,6 +321,7 @@ var grammarDef = {
   "OBJECT": {rules:[
     "open_curly MEMBERS? close_curly",
     "open_curly indent MEMBERS? dedent samedent close_curly",
+    "open_curly indent MEMBERS? close_curly dedent",
   ]},
 
   "TAG_PARAMS": {rules:[
@@ -346,15 +368,16 @@ var grammarDef = {
     "W > W EXPR",
     "dot EXPR",
     "open_bra EXPR close_bra",
+    "FUNC_CALL"
     ],
     verbose:"expression"
   },
   "EXPR": {rules: [
     "MATH",
     "OBJECT",
+    "FUNC_DEF",
     "EXPR RIGHT_EXPR",
     "FUNC_CALL",
-    "FUNC_DEF",
     "LAMBDA",
     "number",
     "regexp",
@@ -539,16 +562,16 @@ var backend = {
   'LAMBDA': function(node) {
     var name = "";
     var ns = newNs();
-    if(node.children[0]) {
-      name = node.children[0].value;
+    if(node.children.fn) {
+      name = node.children.fn.value;
     }
     var str = "function " + name + "(";
-    if(node.children[1]) {
-      str += generateCode(node.children[1], ns);
+    if(node.children.params) {
+      str += generateCode(node.children.params, ns);
     }
     str += ') { return ';
-    if(node.children[2]) {
-      str += generateCode(node.children[2], ns);
+    if(node.children.block) {
+      str += generateCode(node.children.block, ns);
     }
     namespaces.pop();
     return str + "; }";
@@ -591,8 +614,8 @@ var backend = {
     return str;
   },
   'FOR': function(node) {
-    var keyIndexName = "_index"+forLoopCount;
-    var keyArrayName = "_keys"+forLoopCount;
+    var keyIndexName = "_index" + forLoopCount;
+    var keyArrayName = "_keys" + forLoopCount;
     forLoopCount++;
     var indexName = false;
     if(node.children[0]) {
