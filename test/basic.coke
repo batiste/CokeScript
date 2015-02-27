@@ -175,6 +175,21 @@ test(1, def toto()
       a: 1, b: 2,
     c: 5}
   )
+
+  it("While loop", def()
+    n = 5
+    while n > 0
+      n = n - 1
+    assert.equal(n, 0)
+  )
+
+  it("For loop", def()
+    array = [1, 2, 3]
+    array2 = []
+    for index, value in array
+      array2[index] = value * value
+    assert.deepEqual(array2, [1, 4, 9])
+  )
   
   it("Strict comparison", def()
     code = gen("23 == \"23\"")

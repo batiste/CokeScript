@@ -36,6 +36,7 @@ var tokenDef = [
   {key:"class", reg:/^class /},
   {key:"ret", reg:/^return/, verbose:"return"},
   {key:"if", reg:/^if /},
+  {key:"while", reg:/^while /},
   {key:"try", reg:/^try/},
   {key:"catch", reg:/^catch/},
   {key:"throw", reg:/^throw /},
@@ -236,9 +237,11 @@ function forLoop(params) {
 var grammarDef = {
   "START": {rules:["LINE* EOF"]},
   "ELC": {rules:["W* comment"], verbose:"comment"},
-  "LINE": {rules:["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", "ELC? samedent", "ELC !dedent"], verbose:"new line"},
+  "LINE": {rules:["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", 
+    "ELC? samedent", "ELC !dedent"], verbose:"new line"},
   "BLOCK": {rules: ["indent LINE+ dedent"]},
-  "STATEMENT": {rules:["ASSIGN", "IF", "FOR", "EXPR", "RETURN", "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
+  "STATEMENT": {rules:["ASSIGN", "IF", "WHILE", "FOR", "EXPR", "RETURN", 
+    "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   "CLASS_METHODS": {
       rules: ["samedent* f:FUNC_DEF samedent*"],
       hooks: [ function(p){ return p.f; }]
@@ -279,6 +282,7 @@ var grammarDef = {
   "ELSE_IF": {rules:["samedent elseif e:EXPR b:BLOCK"], hooks:[else_if_def]},
   "ELSE": {rules:["samedent else b:BLOCK"], hooks:[else_def]},
   "IF": {rules:["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks:[if_def]},
+  "WHILE": {rules:["while e:EXPR b:BLOCK"], hooks:[if_def]},
   "MATH": {rules:["e1:EXPR W op:math W e2:EXPR"]},
   "PATH": {rules:["PATH dot name", "PATH open_bra number close_bra", "name"]},
   "ASSIGN": {rules:["left:EXPR W op:assign W right:EXPR"], hooks:[
@@ -612,6 +616,9 @@ var backend = {
       str += generateCode(node.children[3]);
     }
     return str;
+  },
+  'WHILE': function(node) {
+    return 'while('+generateCode(node.children[0]) + '){' + generateCode(node.children[1]) + '\n'+sp()+'}';
   },
   'FOR': function(node) {
     var keyIndexName = "_index" + forLoopCount;

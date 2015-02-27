@@ -185,6 +185,26 @@ describe("CokeScript features test suite", function () {
     c: 5};
   }
   );
+  it("While loop", function () {
+    var n = 5;
+    while(n > 0){
+      n = n - 1;
+    };
+    assert.equal(n, 0);
+  }
+  );
+  it("For loop", function () {
+    var array = [1, 2, 3];
+    var array2 = [];
+    var _keys2 = Object.keys(array);
+    for(var _index2 = 0; _index2 < _keys2.length; _index2++ ) {
+      var index = _keys2[_index2];
+      var value = array[_keys2[_index2]];
+      array2[index] = value * value;
+    };
+    assert.deepEqual(array2, [1, 4, 9]);
+  }
+  );
   it("Strict comparison", function () {
     var code = gen("23 == \"23\"");
     assert.equal(exe(code, {}), false);
