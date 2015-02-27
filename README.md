@@ -9,6 +9,8 @@ How does it compare against CoffeScript:
   - Virtual Dom support within the language
   - The source code of the language is way shorter
 
+![Style matters](https://raw.githubusercontent.com/batiste/CokeScript/master/css/eg-coke.png)
+
 Demo http://batiste.info/CokeScript
 
 CokeScript use EPEG.js https://github.com/batiste/EPEG.js/
