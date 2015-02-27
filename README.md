@@ -45,10 +45,13 @@ the module level keys of the last compiled module will be used.
 ## Command line tool
 
     $ lib/coke.js
-
     Usage of the coke command
-      coke <file name> <file name 2> ...
+    
+      coke <filename> <filename N> <options>
+    
     Options
-      -c or --commonjs  generate a commonJs module
-      -o or --output    write the output to a file
+      -m or --commonjs  generate a commonJs module
+      -o or --output    write the output to a single file
       -e or --execute   execute the generated javascript
+      -g or --glob      select all files matched by a glob expression
+      -c or --convert   convert each input file to JavaScript
