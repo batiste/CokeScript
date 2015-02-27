@@ -163,6 +163,28 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, context), 42);
   }
   );
+  it("Array and whitspace", function () {
+    var a = [
+      1, 2,
+      5
+    ];
+    a = [
+      1];
+    a = [1,
+      2, 3,
+    2];
+  }
+  );
+  it("Object and whitspace", function () {
+    var o = {
+      a: 1, b: 2,
+      c: 5
+    };
+    o = {c: 2,
+      a: 1, b: 2,
+    c: 5};
+  }
+  );
   it("Strict comparison", function () {
     var code = gen("23 == \"23\"");
     assert.equal(exe(code, {}), false);

@@ -303,7 +303,7 @@ var grammarDef = {
   },
 
   "COMMA_SEPARATED_EXPR": {rules:[
-    "EXPR comma W_OR_SAMEDENT COMMA_SEPARATED_EXPR",
+    "EXPR comma ANY_SPACE+ COMMA_SEPARATED_EXPR",
     "EXPR"
   ]},
 

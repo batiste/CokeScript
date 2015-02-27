@@ -34,7 +34,7 @@ describe("CokeScript features test suite", def()
     assert.equal(exe(code), 4)
   )
   
-  it("Function params indentation", def
+  it("Function params indentation", def()
     def test(a, b, c, d, e)
       return a + b + c + d + e
     
@@ -152,6 +152,28 @@ test(1, def toto()
 , 1)")
     context = {test: def(a, b, c) b()}
     assert.equal(exe(code, context), 42)
+  )
+
+  it("Array and whitspace", def()
+    a = [
+      1, 2,
+      5
+    ]
+    a = [
+      1]
+    a = [1,
+      2, 3,
+    2]
+  )
+
+  it("Object and whitspace", def()
+    o = {
+      a: 1, b: 2,
+      c: 5
+    }
+    o = {c: 2,
+      a: 1, b: 2,
+    c: 5}
   )
   
   it("Strict comparison", def()
