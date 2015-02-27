@@ -289,7 +289,7 @@ var grammarDef = {
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
   "ANY_SPACE": {rules:["W", "samedent", "indent", "dedent"], verbose: "any space"},
-  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma ANY_SPACE+ EXPR ANY_SPACE*", "EXPR ANY_SPACE*"]},
+  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma ANY_SPACE+ EXPR ANY_SPACE*", "EXPR"]},
   "FUNC_CALL": {rules:[
     "open_par FUNC_CALL_PARAMS? close_par",
     "open_par indent FUNC_CALL_PARAMS? dedent samedent close_par",
@@ -314,7 +314,7 @@ var grammarDef = {
   ]},
 
   "MEMBERS": {rules:[
-    "name colon W EXPR comma W_OR_SAMEDENT? MEMBERS",
+    "name colon W EXPR comma ANY_SPACE+ MEMBERS",
     "name colon W EXPR"
   ]},
 
@@ -377,7 +377,7 @@ var grammarDef = {
     "OBJECT",
     "FUNC_DEF",
     "EXPR RIGHT_EXPR",
-    "FUNC_CALL",
+    //"FUNC_CALL",
     "LAMBDA",
     "number",
     "regexp",

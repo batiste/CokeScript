@@ -148,7 +148,13 @@ describe("CokeScript features test suite", function () {
       };
       return __c1;
     };
-    assert.deepEqual(makeDom([1, 2, 3])[0], {n: "li", c: ["1"], p: {className: "cls1"}});
+    assert.deepEqual(makeDom([1, 2, 3])[0], 
+      {
+        n: "li",
+        c: ["1"], 
+        p: {className: "cls1"}
+      }
+    );
   }
   );
   it("Function call accept function def", function () {
