@@ -40,13 +40,13 @@ var tokenDef = [
   {key:"try", reg:/^try/},
   {key:"catch", reg:/^catch/},
   {key:"throw", reg:/^throw /},
-  {key:"tag", reg:/^<[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
+  {key:"tag", reg:/^<[a-zA-Z][0-9a-zA-Z]{0,29}/},
   {key:">", reg:/^>/},
   {key:"elseif", reg:/^elseif /},
   {key:"else", reg:/^else/},
   {key:"for_loop", reg:/^for /, verbose:"for loop"},
   {key:"in", reg:/^in /},
-  {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_]{0,29}/}, // 30 chars max
+  {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_$]{0,29}/}, // 30 chars max
   {key:"regexp", func:regExpDef, verbose:"regular epression"},
   {key:"math_operators", reg:/^(\+\+|\-\-)/, verbose:"math operator"},
   {key:"binary_operators", reg:/^(\&\&|\|\||\&|\||<<|\>\>)/, verbose:"binary operator"},
@@ -231,7 +231,7 @@ function if_def(params) {
 }
 
 function forLoop(params) {
-  return [params.k, params.v, params.a, params.b];
+  return params;
 }
 
 var grammarDef = {
@@ -301,21 +301,23 @@ var grammarDef = {
     //"open_par indent FUNC_CALL_PARAMS? close_par dedent"
   ]},
 
+  "TYPE": {rules:["name colon"]},
+
   "FOR": {rules:[
-    "for_loop k:name comma W v:name W in a:name b:BLOCK",
-    "for_loop v:name W in a:name b:BLOCK"],
+    "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
+    "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
     hooks: [forLoop, forLoop]
   },
 
   "COMMA_SEPARATED_EXPR": {rules:[
-    "EXPR samedent? comma ANY_SPACE+ COMMA_SEPARATED_EXPR",
-    "EXPR"
+    "EXPR comma ANY_SPACE+ COMMA_SEPARATED_EXPR ANY_SPACE*",
+    "EXPR ANY_SPACE*"
   ]},
 
   "ARRAY": {rules:[
-    "open_bra c:COMMA_SEPARATED_EXPR? close_bra",
-    "open_bra indent c:COMMA_SEPARATED_EXPR? dedent samedent close_bra",
-    "open_bra indent c:COMMA_SEPARATED_EXPR? close_bra dedent",
+    "open_bra ANY_SPACE* c:COMMA_SEPARATED_EXPR? ANY_SPACE* close_bra",
+    //"open_bra indent c:COMMA_SEPARATED_EXPR? dedent samedent close_bra",
+    //"open_bra indent c:COMMA_SEPARATED_EXPR? close_bra dedent",
   ]},
 
   "MEMBERS": {rules:[
@@ -624,16 +626,16 @@ var backend = {
     var keyArrayName = "_keys" + forLoopCount;
     forLoopCount++;
     var indexName = false;
-    if(node.children[0]) {
-      indexName = node.children[0].value;
+    if(node.children.k) {
+      indexName = node.children.k.value;
     }
-    var str = 'var '+keyArrayName+' = Object.keys('+node.children[2].value+');\n';
+    var str = 'var '+keyArrayName+' = Object.keys('+node.children.a.value+');\n';
     str += sp() + 'for(var '+keyIndexName+' = 0; '+keyIndexName+' < '+keyArrayName+'.length; '+keyIndexName+'++ ) {\n';
     if(indexName) {
       str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName +'[' + keyIndexName + '];\n';
     }
-    str += sp(1) + 'var ' + node.children[1].value + ' = ' + node.children[2].value + '[' + keyArrayName +'[' + keyIndexName + ']];';
-    str += generateCode(node.children[3]) +'\n'+sp()+'}';
+    str += sp(1) + 'var ' + node.children.v.value + ' = ' + node.children.a.value + '[' + keyArrayName +'[' + keyIndexName + ']];';
+    str += generateCode(node.children.b) +'\n'+sp()+'}';
     return str;
   },
   'ELSE_IF': function(node) {

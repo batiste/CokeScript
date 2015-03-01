@@ -134,7 +134,7 @@ describe("CokeScript features test suite", function () {
   it("Array syntax on several lines", function () {
     var code = gen("[1, 2, 3]");
     assert.deepEqual(exe(code), [1, 2, 3]);
-    code = gen("[\n  1,\n  2,\n  3]");
+    code = gen("[\n  1,\n  2,\n  3\n]");
     assert.deepEqual(exe(code), [1, 2, 3]);
   }
   );
@@ -175,19 +175,25 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 44);
   }
   );
-  it("Array and whitspace", function () {
+  it("Array and whitespace", function () {
     var a = [
       1, 2,
       5
     ];
+    assert.deepEqual(a, [1, 2, 5]);
     a = [
-      1];
+      1
+    ];
+    assert.deepEqual(a, [1]);
     a = [1,
       2, 3,
-    2];
+    4];
+    assert.deepEqual(a, [1, 2, 3, 4]);
     a = [1, 3,
-      2];
-    }
+      2
+    ];
+    assert.deepEqual(a, [1, 3, 2]);
+  }
   );
   it("Object and whitspace", function () {
     var o = {
