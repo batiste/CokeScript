@@ -171,7 +171,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 42);
     code = gen("\na = {\n  a: def test()\n    return 43\n}\na.a()");
     assert.equal(exe(code), 43);
-    code = gen("\na = {\n  a: def test()\n    return 44\n  , b: 1\n}\na.a()");
+    code = gen("\na = {\n    a: def test()\n      return 44\n    , c: 1\n}\na.a()");
     assert.equal(exe(code), 44);
   }
   );
@@ -185,7 +185,9 @@ describe("CokeScript features test suite", function () {
     a = [1,
       2, 3,
     2];
-  }
+    a = [1, 3,
+      2];
+    }
   );
   it("Object and whitspace", function () {
     var o = {

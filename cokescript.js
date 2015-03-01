@@ -308,7 +308,7 @@ var grammarDef = {
   },
 
   "COMMA_SEPARATED_EXPR": {rules:[
-    "EXPR comma ANY_SPACE+ COMMA_SEPARATED_EXPR",
+    "EXPR samedent? comma ANY_SPACE+ COMMA_SEPARATED_EXPR",
     "EXPR"
   ]},
 
@@ -319,7 +319,7 @@ var grammarDef = {
   ]},
 
   "MEMBERS": {rules:[
-    "name colon W EXPR comma ANY_SPACE* MEMBERS ANY_SPACE*",
+    "name colon W EXPR samedent? comma ANY_SPACE+ MEMBERS ANY_SPACE*",
     "name colon W EXPR ANY_SPACE*"
   ]},
 

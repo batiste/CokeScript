@@ -174,9 +174,9 @@ a.a()")
     assert.equal(exe(code), 43)
     code = gen("
 a = {
-  a: def test()
-    return 44
-  , b: 1
+    a: def test()
+      return 44
+    , c: 1
 }
 a.a()")
     assert.equal(exe(code), 44)
@@ -192,6 +192,9 @@ a.a()")
     a = [1,
       2, 3,
     2]
+    a = [1, 3,
+      2]
+    
   )
 
   it("Object and whitspace", def()
