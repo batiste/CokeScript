@@ -7,16 +7,13 @@ uuid: 80bb5c88-4a96-45ed-af77-18a15627612f
 
 patterns:
 - name: keyword.other.cokescript
-  match: def|dom|if|else|elseif|for|in |class |try|catch|throw |return|undefined|false|true|null
+  match: def|dom|if|else|elseif|for|in |class |try|catch|throw |return|undefined|false|true|while |null
 
 - name: keyword.other.compare.cokescript
   match: \=\=|\<\=|\>\=|\=|\<|\>|\+|\-
 
 - name: punctuation.definition.string.cokescript
   match: '\.|\,|\:'
-
-- name: constant.numeric.cokescript
-  match: '[0-9]+\.?[0-9]*'
 
 - name: comment.cokescript
   match: '\#[^\n]*'
@@ -26,6 +23,12 @@ patterns:
   captures:
     '1': {name: support.function.misc.cokescript}
     '2': {name: parens}
+
+- name: name.cokescript
+  match: '[a-zA-Z][a-zA-Z_0-9]*'
+
+- name: constant.numeric.cokescript
+  match: '[0-9]+\.?[0-9]*'
 
 - name: string.cokescript
   begin: \"

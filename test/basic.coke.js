@@ -8,13 +8,16 @@ function exe(js,context) {
   try {
     return vm.runInNewContext(js, context);
   } catch(e) {
-    throw "JS error\n" + js;
+    throw "JS error\n" + js + "";
   };
 };
 describe("CokeScript features test suite", function () {
   it("Simple function", function () {
     var code = gen("def test() 1");
     assert.equal(code, "function test() { return 1; };");
+    assert.equal(exe(code), undefined);
+    code = gen("def test()\n  1");
+    assert.equal(code, "function test() {\n  1;\n};");
     assert.equal(exe(code), undefined);
   }
   );
@@ -161,6 +164,15 @@ describe("CokeScript features test suite", function () {
     var code = gen("\ntest(1, def toto()\n  return 42\n, 1)");
     var context = {test: function (a,b,c) { return b(); }};
     assert.equal(exe(code, context), 42);
+  }
+  );
+  it("Object function def", function () {
+    var code = gen("\na = {a: def test()\n  return 42\n}\na.a()");
+    assert.equal(exe(code), 42);
+    code = gen("\na = {\n  a: def test()\n    return 43\n}\na.a()");
+    assert.equal(exe(code), 43);
+    code = gen("\na = {\n  a: def test()\n    return 44\n  , b: 1\n}\na.a()");
+    assert.equal(exe(code), 44);
   }
   );
   it("Array and whitspace", function () {

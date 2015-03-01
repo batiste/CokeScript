@@ -9,13 +9,17 @@ def exe(js, context)
   try
     return vm.runInNewContext(js, context)
   catch(e)
-    throw "JS error\n" + js
+    throw "JS error\n#{js}"
 
 describe("CokeScript features test suite", def()
   
   it("Simple function", def()
     code = gen("def test() 1")
     assert.equal(code, "function test() { return 1; };")
+    assert.equal(exe(code), undefined)
+    code = gen("def test()
+  1")
+    assert.equal(code, "function test() {\n  1;\n};")
     assert.equal(exe(code), undefined)
   )
 
@@ -152,6 +156,30 @@ test(1, def toto()
 , 1)")
     context = {test: def(a, b, c) b()}
     assert.equal(exe(code, context), 42)
+  )
+
+  it("Object function def", def()
+    code = gen("
+a = {a: def test()
+  return 42
+}
+a.a()")
+    assert.equal(exe(code), 42)
+    code = gen("
+a = {
+  a: def test()
+    return 43
+}
+a.a()")
+    assert.equal(exe(code), 43)
+    code = gen("
+a = {
+  a: def test()
+    return 44
+  , b: 1
+}
+a.a()")
+    assert.equal(exe(code), 44)
   )
 
   it("Array and whitspace", def()

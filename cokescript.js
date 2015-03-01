@@ -293,11 +293,12 @@ var grammarDef = {
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
   "ANY_SPACE": {rules:["W", "samedent", "indent", "dedent"], verbose: "any space"},
-  "FUNC_CALL_PARAMS": {rules:["FUNC_CALL_PARAMS comma ANY_SPACE+ EXPR ANY_SPACE*", "EXPR"]},
+  // TODO: why ANY_SPACE* here?
+  "FUNC_CALL_PARAMS": {rules:["EXPR comma ANY_SPACE+ FUNC_CALL_PARAMS ANY_SPACE*", "EXPR ANY_SPACE*"]},
   "FUNC_CALL": {rules:[
     "open_par FUNC_CALL_PARAMS? close_par",
-    "open_par indent FUNC_CALL_PARAMS? dedent samedent close_par",
-    "open_par indent FUNC_CALL_PARAMS? close_par dedent"
+    //"open_par indent FUNC_CALL_PARAMS? dedent samedent close_par",
+    //"open_par indent FUNC_CALL_PARAMS? close_par dedent"
   ]},
 
   "FOR": {rules:[
@@ -318,14 +319,12 @@ var grammarDef = {
   ]},
 
   "MEMBERS": {rules:[
-    "name colon W EXPR comma ANY_SPACE+ MEMBERS",
-    "name colon W EXPR"
+    "name colon W EXPR comma ANY_SPACE* MEMBERS ANY_SPACE*",
+    "name colon W EXPR ANY_SPACE*"
   ]},
 
   "OBJECT": {rules:[
-    "open_curly MEMBERS? close_curly",
-    "open_curly indent MEMBERS? dedent samedent close_curly",
-    "open_curly indent MEMBERS? close_curly dedent",
+    "open_curly indent? MEMBERS? close_curly",
   ]},
 
   "TAG_PARAMS": {rules:[
