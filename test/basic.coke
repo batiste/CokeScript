@@ -21,6 +21,9 @@ describe("CokeScript features test suite", def()
   1")
     assert.equal(code, "function test() {\n  1;\n};")
     assert.equal(exe(code), undefined)
+
+    code = gen("def test(a=41 + 1)\n  return a\ntest()")
+    assert.equal(exe(code), 42)
   )
 
   it("Function call", def()
@@ -90,16 +93,16 @@ hello #{y}"
   )
   
   it("If else elseif", def()
-    def test_if(a)
-      if a == 0
-        return 1
-      elseif a == 10
-        return 20
-      else
-        return 42
-    assert.equal(test_if(0), 1)
-    assert.equal(test_if(10), 20)
-    assert.equal(test_if(20), 42)
+    code = gen("
+if a == 0
+  1
+elseif a == 10
+  20
+else
+  42")
+    assert.equal(exe(code, {a: 0}), 1)
+    assert.equal(exe(code, {a: 10}), 20)
+    assert.equal(exe(code, {a: 100}), 42)
   )
   
   it("For loop", def()
@@ -108,7 +111,26 @@ hello #{y}"
   )
   
   it("Class", def()
-    code = gen("class Test\n  def constructor()\n    this.a = 1\nb = Test()\nb.a")
+    code = gen("
+class Test(Array)
+    def constructor(a=10, b)
+        this.a = b
+
+b = Test(1, 20)
+b.a")
+    assert.deepEqual(exe(code), 20)
+
+    code = gen("
+class Test
+
+  def constructor()
+    this.a = 1
+
+  def other()
+    1
+
+b = Test()
+b.a")
     assert.deepEqual(exe(code, {}), 1)
   )
   
@@ -134,6 +156,15 @@ hello #{y}"
     assert.deepEqual(exe(code), [1, 2, 3])
   )
   
+  it("DOM gen", def()
+    code = gen("dom makeDom(list)
+      for item in list
+        <input enabled>
+        <li className=\"cls\#{item}\" dummy=\"1\">
+          =item")
+
+  )
+
   it("DOM", def()
     def h(n, p, c) {n: n, p: p, c: c}
     dom makeDom(list)
@@ -226,6 +257,15 @@ a.a()")
       array2[index] = value * value
     assert.deepEqual(array2, [1, 4, 9])
   )
+
+  it("Try catch", def()
+    code = gen("
+try
+  wrong()
+catch(e)
+  42")
+    assert.equal(exe(code), 42)
+  )
   
   it("Strict comparison", def()
     code = gen("23 == \"23\"")
@@ -242,4 +282,14 @@ a.a()")
     code = gen("\"a\/bc\".match(/a\\\/bc/)")
     assert.equal(exe(code, {})[0], "a\/bc")
   )
+
+  it("If expression", def()
+    code = gen("2 if 1 else 3")
+    assert.equal(exe(code), 2)
+    code = gen("2 if 0 else 3")
+    assert.equal(exe(code), 3)
+    code = gen("a = 2 if 0 else 3\na")
+    assert.equal(exe(code), 3)
+  )
+
 )

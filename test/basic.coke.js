@@ -19,6 +19,8 @@ describe("CokeScript features test suite", function () {
     code = gen("def test()\n  1");
     assert.equal(code, "function test() {\n  1;\n};");
     assert.equal(exe(code), undefined);
+    code = gen("def test(a=41 + 1)\n  return a\ntest()");
+    assert.equal(exe(code), 42);
   }
   );
   it("Function call", function () {
@@ -92,18 +94,10 @@ describe("CokeScript features test suite", function () {
   }
   );
   it("If else elseif", function () {
-    function test_if(a) {
-      if(a === 0){
-        return 1;
-      } else if(a === 10) {
-        return 20;
-      } else {
-        return 42;
-      };
-    };
-    assert.equal(test_if(0), 1);
-    assert.equal(test_if(10), 20);
-    assert.equal(test_if(20), 42);
+    var code = gen("\nif a == 0\n  1\nelseif a == 10\n  20\nelse\n  42");
+    assert.equal(exe(code, {a: 0}), 1);
+    assert.equal(exe(code, {a: 10}), 20);
+    assert.equal(exe(code, {a: 100}), 42);
   }
   );
   it("For loop", function () {
@@ -112,7 +106,9 @@ describe("CokeScript features test suite", function () {
   }
   );
   it("Class", function () {
-    var code = gen("class Test\n  def constructor()\n    this.a = 1\nb = Test()\nb.a");
+    var code = gen("\nclass Test(Array)\n    def constructor(a=10, b)\n        this.a = b\n\nb = Test(1, 20)\nb.a");
+    assert.deepEqual(exe(code), 20);
+    code = gen("\nclass Test\n\n  def constructor()\n    this.a = 1\n\n  def other()\n    1\n\nb = Test()\nb.a");
     assert.deepEqual(exe(code, {}), 1);
   }
   );
@@ -136,6 +132,10 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(exe(code), [1, 2, 3]);
     code = gen("[\n  1,\n  2,\n  3\n]");
     assert.deepEqual(exe(code), [1, 2, 3]);
+  }
+  );
+  it("DOM gen", function () {
+    var code = gen("dom makeDom(list)\n      for item in list\n        <input enabled>\n        <li className=\"cls\#{item}\" dummy=\"1\">\n          =item");
   }
   );
   it("DOM", function () {
@@ -225,6 +225,11 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(array2, [1, 4, 9]);
   }
   );
+  it("Try catch", function () {
+    var code = gen("\ntry\n  wrong()\ncatch(e)\n  42");
+    assert.equal(exe(code), 42);
+  }
+  );
   it("Strict comparison", function () {
     var code = gen("23 == \"23\"");
     assert.equal(exe(code, {}), false);
@@ -239,6 +244,15 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, {})[0], "abc");
     code = gen("\"a\/bc\".match(/a\\\/bc/)");
     assert.equal(exe(code, {})[0], "a\/bc");
+  }
+  );
+  it("If expression", function () {
+    var code = gen("2 if 1 else 3");
+    assert.equal(exe(code), 2);
+    code = gen("2 if 0 else 3");
+    assert.equal(exe(code), 3);
+    code = gen("a = 2 if 0 else 3\na");
+    assert.equal(exe(code), 3);
   }
   );
 }

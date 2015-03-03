@@ -210,27 +210,7 @@ function commentDef(input) {
   }
 }
 
-function f_def(params) {
-  return {def:params.fd, fn:params.fn, params:params.p, block:params.b};
-}
-
-function lambda_def(params) {
-  return {fn:params.fn, params:params.p, block:params.b};
-}
-
-function else_def(params) {
-  return [params.b];
-}
-
-function else_if_def(params) {
-  return [params.e, params.b];
-}
-
-function if_def(params) {
-  return [params.e, params.b, params.elif, params.el];
-}
-
-function forLoop(params) {
+function reflect(params) {
   return params;
 }
 
@@ -240,7 +220,7 @@ var grammarDef = {
   "LINE": {rules:["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", 
     "ELC? samedent", "ELC !dedent"], verbose:"new line"},
   "BLOCK": {rules: ["indent LINE+ dedent"]},
-  "STATEMENT": {rules:["ASSIGN", "IF", "WHILE", "FOR", "EXPR", "RETURN", 
+  "STATEMENT": {rules:["ASSIGN", "EXPR", "IF", "WHILE", "FOR", "RETURN", 
     "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   "CLASS_METHODS": {
       rules: ["samedent* f:FUNC_DEF samedent*"],
@@ -264,32 +244,30 @@ var grammarDef = {
     verbose:"function parameters"
   },
   "LAMBDA": {rules:[
-      "function_def open_par p:FUNC_DEF_PARAMS? close_par W b:EXPR",
-      "function_def W fn:name open_par p:FUNC_DEF_PARAMS? close_par W b:EXPR",
-      "function_def W b:EXPR",
+      "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
+      "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
+      "fd:function_def W block:EXPR",
     ],
-    hooks: [lambda_def, lambda_def, lambda_def]
+    hooks: [reflect, reflect, reflect]
   },
   "FUNC_DEF": {rules:[
-      "fd:function_def open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
-      "fd:function_def W fn:name open_par p:FUNC_DEF_PARAMS? close_par b:BLOCK",
-      "fd:function_def W fn:name b:BLOCK",
-      "fd:function_def b:BLOCK",
+      "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par block:BLOCK",
+      "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par block:BLOCK",
+      "fd:function_def W fn:name block:BLOCK",
+      "fd:function_def block:BLOCK",
     ],
-    hooks: [f_def, f_def, f_def, f_def],
+    hooks: [reflect, reflect, reflect, reflect],
     verbose:"function definition"
   },
-  "ELSE_IF": {rules:["samedent elseif e:EXPR b:BLOCK"], hooks:[else_if_def]},
-  "ELSE": {rules:["samedent else b:BLOCK"], hooks:[else_def]},
-  "IF": {rules:["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks:[if_def]},
-  "WHILE": {rules:["while e:EXPR b:BLOCK"], hooks:[if_def]},
+  "ELSE_IF": {rules:["samedent elseif e:EXPR b:BLOCK"], hooks:[reflect]},
+  "ELSE": {rules:["samedent else b:BLOCK"], hooks:[reflect]},
+  "IF": {rules:["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks:[reflect]},
+  "ELSE_EXPR": {rules:["W else W b:EXPR"], hooks:[reflect]},
+  "IF_EXPR": {rules:["e:EXPR W if test:EXPR el:ELSE_EXPR?"], hooks:[reflect]},
+  "WHILE": {rules:["while e:EXPR b:BLOCK"], hooks:[reflect]},
   "MATH": {rules:["e1:EXPR W op:math W e2:EXPR"]},
   "PATH": {rules:["PATH dot name", "PATH open_bra number close_bra", "name"]},
-  "ASSIGN": {rules:["left:EXPR W op:assign W right:EXPR"], hooks:[
-    function(p){
-      return {left:p.left, op:p.op, right:p.right};
-    }]
-  },
+  "ASSIGN": {rules:["left:EXPR W op:assign W right:EXPR"], hooks:[reflect]},
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
   "ANY_SPACE": {rules:["W", "samedent", "indent", "dedent"], verbose: "any space"},
@@ -306,7 +284,7 @@ var grammarDef = {
   "FOR": {rules:[
     "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
     "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
-    hooks: [forLoop, forLoop]
+    hooks: [reflect, reflect]
   },
 
   "COMMA_SEPARATED_EXPR": {rules:[
@@ -334,21 +312,14 @@ var grammarDef = {
       "n:name assign e:EXPR",
       "n:name",
     ],
-    hooks:[
-      function(p){ return {left:p.left, right:p.right};},
-      function(p){ return {n:p.n, e:p.e};},
-      function(p){ return {n:p.n};},
-    ],
+    hooks:[reflect, reflect, reflect],
     verbose:"tag parameters"
   },
 
   "TAG": {rules:[
-    "tag:tag W? tp:TAG_PARAMS? end:>? b:BLOCK?",
+    "tag:tag W? params:TAG_PARAMS? end:>? block:BLOCK?",
   ],
-  hooks:[
-    function(p){
-      return {tag:p.tag, params:p.tp, block:p.b};
-    }]
+  hooks:[reflect]
   },
 
   "DOM_ASSIGN": {rules:[
@@ -359,8 +330,9 @@ var grammarDef = {
     rules:[
       "try b1:BLOCK samedent? catch open_par err:name? close_par b2:BLOCK",
     ],
-    hooks:[function(p){ return p; }],
+    hooks:[reflect],
   },
+
   "THROW": {rules:[
     "throw EXPR",
   ]},
@@ -377,7 +349,9 @@ var grammarDef = {
     ],
     verbose:"expression"
   },
+
   "EXPR": {rules: [
+    "IF_EXPR",
     "MATH",
     "OBJECT",
     "FUNC_DEF",
@@ -515,9 +489,33 @@ var backend = {
     namespaces.pop();
     return cons_str + str;
   },
-  'FUNC_DEF': function(node) {
+  'LAMBDA': function(node) {
+    var name = "";
+    var ns = newNs();
+    if(node.children.fn) {
+      name = node.children.fn.value;
+      ns[name] = true;
+    }
+    var str = "function " + name + "(";
+    if(node.children.params) {
+      str += generateCode(node.children.params, ns);
+    }
+    str += ') {';
+    for(var key in ns) {
+      if(ns[key] !== true && ns[key] !== undefined) {
+        str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+'};';
+      }
+    }
+    if(node.children.block) {
+      str += ' return ' + generateCode(node.children.block, ns);
+    }
+    namespaces.pop();
+    return str + "; }";
+  },
+  'FUNC_DEF': function func_gen(node) {
     var name = "";
     var ns = currentNs();
+    var is_dom = node.children.fd.value === 'dom';
     if(node.children.fn) {
       name = node.children.fn.value;
       ns[name] = true;
@@ -533,7 +531,7 @@ var backend = {
         str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+'};';
       }
     }
-    if(node.children.def.value === 'dom') {
+    if(is_dom) {
       str += '\n'+sp(1) + 'var ' + CN() + ' = [];';
     }
 
@@ -542,7 +540,7 @@ var backend = {
     }
     namespaces.pop();
 
-    if(node.children.def.value === 'dom') {
+    if(is_dom) {
       str += '\n'+sp(1) + 'return ' + CN() + ';';
     }
     return str + '\n'+sp()+'}';
@@ -563,23 +561,6 @@ var backend = {
       }
     }
     return str;
-  },
-  'LAMBDA': function(node) {
-    var name = "";
-    var ns = newNs();
-    if(node.children.fn) {
-      name = node.children.fn.value;
-    }
-    var str = "function " + name + "(";
-    if(node.children.params) {
-      str += generateCode(node.children.params, ns);
-    }
-    str += ') { return ';
-    if(node.children.block) {
-      str += generateCode(node.children.block, ns);
-    }
-    namespaces.pop();
-    return str + "; }";
   },
   'ASSIGN': function(node) {
     var prefix = "";
@@ -603,23 +584,37 @@ var backend = {
   },
   'IF': function(node) {
     var str = '';
-    str = 'if('+generateCode(node.children[0]) + '){' + generateCode(node.children[1]) + '\n'+sp()+'}';
-    if(node.children[2]) {
-      if(Array.isArray(node.children[2])) {
-        for (var i = 0; i < node.children[2].length; i++) {
-          str += generateCode(node.children[2][i]);
+    str = 'if('+generateCode(node.children.e) + '){' + generateCode(node.children.b) + '\n'+sp()+'}';
+    var elif = node.children.elif;
+    if(elif) {
+      if(Array.isArray(elif)) {
+        for (var i = 0; i < elif.length; i++) {
+          str += generateCode(elif[i]);
         }
       } else {
-        str += generateCode(node.children[2]);
+        str += generateCode(elif);
       }
     }
-    if(node.children[3]) {
-      str += generateCode(node.children[3]);
+    if(node.children.el) {
+      str += generateCode(node.children.el);
     }
     return str;
   },
+  'IF_EXPR': function(node) {
+    var str = '';
+    str = generateCode(node.children.test) + ' ? ' + generateCode(node.children.e) + ' : ';
+    if(node.children.el) {
+      str += generateCode(node.children.el);
+    } else {
+      str += 'undefined';
+    }
+    return str;
+  },
+  'ELSE_EXPR': function(node) {
+    return generateCode(node.children.b);
+  },
   'WHILE': function(node) {
-    return 'while('+generateCode(node.children[0]) + '){' + generateCode(node.children[1]) + '\n'+sp()+'}';
+    return 'while('+generateCode(node.children.e) + '){' + generateCode(node.children.b) + '\n'+sp()+'}';
   },
   'FOR': function(node) {
     var keyIndexName = "_index" + forLoopCount;
@@ -639,10 +634,10 @@ var backend = {
     return str;
   },
   'ELSE_IF': function(node) {
-    return ' else if('+generateCode(node.children[0])+') {'+generateCode(node.children[1])+ '\n'+sp()+'}';
+    return ' else if('+generateCode(node.children.e)+') {'+generateCode(node.children.b)+ '\n'+sp()+'}';
   },
   'ELSE': function(node) {
-    return ' else {'+generateCode(node.children[0])+ '\n'+sp()+'}';
+    return ' else {'+generateCode(node.children.b)+ '\n'+sp()+'}';
   },
   'TRY_CATCH': function(node) {
     var str = "try {";
