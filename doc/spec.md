@@ -1,6 +1,6 @@
 # CokeScript Language Specification
 
-You can assume CokeScript is JavaScript with a Python like syntax. Some elements from ruby might appear as well.
+You can assume CokeScript is JavaScript with a Python like syntax. Some elements from Ruby might appear as well.
 
 ## Language basics
 
