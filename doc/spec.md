@@ -1,5 +1,7 @@
 # CokeScript Language Specification
 
+You can assume CokeScript is JavaScript with a Python like syntax. Some elements from ruby might appear as well.
+
 ## Language basics
 
 ### Variable and scoping
@@ -23,8 +25,8 @@ function test() {
 };
 ```
 
-CokeScript motion of scope is by function. You can assign explicitly to a higher scope
-by using the eplicit assign :=
+CokeScript notion of scope is by function. You can assign explicitly to a higher scope
+by using an eplicit assign `:=`.
 
 ```python
 a = 2
