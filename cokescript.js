@@ -40,6 +40,7 @@ var tokenDef = [
   {key:"try", reg:/^try/},
   {key:"catch", reg:/^catch/},
   {key:"throw", reg:/^throw /},
+  {key:"new", reg:/^new /},
   {key:"tag", reg:/^<[a-zA-Z][0-9a-zA-Z]{0,29}/},
   {key:">", reg:/^>/},
   {key:"elseif", reg:/^elseif /},
@@ -174,7 +175,12 @@ function regExpDef(input) {
       if(ch === '\\') {
         i++;
       } else if(ch === '/') {
-        return input.slice(0, i+1);
+        i++;
+        // modifiers
+        while("igm".indexOf(input.charAt(i)) !== -1) {
+          i++;
+        }
+        return input.slice(0, i);
       }
       i++;
     }
@@ -361,6 +367,7 @@ var grammarDef = {
     "number",
     "regexp",
     "open_par EXPR close_par",
+    "new EXPR",
     "string",
     "name",
     "PATH",

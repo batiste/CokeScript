@@ -244,6 +244,8 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, {})[0], "abc");
     code = gen("\"a\/bc\".match(/a\\\/bc/)");
     assert.equal(exe(code, {})[0], "a\/bc");
+    code = gen("\"Abc\ndef\".match(/abc/mig)");
+    assert.equal(exe(code, {})[0], "Abc");
   }
   );
   it("If expression", function () {
@@ -253,6 +255,12 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 3);
     code = gen("a = 2 if 0 else 3\na");
     assert.equal(exe(code), 3);
+  }
+  );
+  it("New object", function () {
+    var code = gen("new Number(42)");
+    assert.equal(exe(code), 42);
+    code = gen("throw new Error(42)");
   }
   );
 }
