@@ -120,11 +120,25 @@ Are identical to JavaScript
 "Abc".match(/abc/i)
 ```
 
+### Classes
+
+```python
+class Animal()
+  
+  def constructor(name)
+    this.name = name
+
+class Tiger(Animal)
+
+  def eat()
+    return "Meat"
+```
+
 ## Virtual DOM
 
 By adding 2 keywords and a special function declared with `dom` CokeScript
 can generate virtual DOM objects using the [virtual-dom library](https://github.com/Matt-Esch/virtual-dom).
-This quite useful and be used like (JSX from React)[http://facebook.github.io/react/docs/jsx-in-depth.html] to create
+This quite useful and be used like [JSX from React](http://facebook.github.io/react/docs/jsx-in-depth.html) to create
 HTML components that can be updated with DOM diff.
 
 ```python
