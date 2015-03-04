@@ -7,13 +7,11 @@ How does it compare against CoffeScript:
   - Scoping is not broken (https://donatstudios.com/CoffeeScript-Madness)
   - Multiline string don't necessitate backslashes
   - Virtual Dom support within the language
-  - The source code of the language is way shorter
+  - The source code of the language is rather simple and short
+  - [Language specification](/doc/spec.md)
+  - [Interactive demo](http://batiste.info/CokeScript)
 
 ![Style matters](https://raw.githubusercontent.com/batiste/CokeScript/master/css/eg-coke.png)
-
-Demo http://batiste.info/CokeScript
-
-CokeScript use EPEG.js https://github.com/batiste/EPEG.js/
 
 ## API
 
@@ -32,9 +30,9 @@ or
 Return object of form
 
     {
-        ast:  Abstract syntax trees,
-        code: JavaScript code,
-        ns:   Namespace of the module
+      ast:  Abstract syntax trees,
+      code: JavaScript code,
+      ns:   Namespace of the module
     }
 
 ### cokescript.generateExports(keys)
@@ -55,3 +53,7 @@ the module level keys of the last compiled module will be used.
       -e or --execute   execute the generated javascript
       -g or --glob      select all files matched by a glob expression
       -c or --convert   convert each input file to JavaScript
+      
+### Grammar parser
+
+CokeScript use EPEG.js https://github.com/batiste/EPEG.js/
