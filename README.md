@@ -2,7 +2,7 @@
 
 CokeScript is a whitespace sensitive language inspired by Python and Ruby that compile to JavaScript. This project is still at it's infancy and no significant program has been written with it.
 
-How does it compare against CoffeScript:
+How does it compare against CoffeeScript:
 
   - Scoping is not broken (https://donatstudios.com/CoffeeScript-Madness)
   - Multiline string don't necessitate backslashes
