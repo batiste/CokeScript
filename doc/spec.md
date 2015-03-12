@@ -62,9 +62,9 @@ def lambda_name(a, b) a + b
 def(a, b) a + b
 ```
 
-### Unpacking
+### Assignement Unpacking
 
-Both Objects and Arrays are iterable using the same type of loop.
+Assignement can unpack positionnal values
 
 ```python
 def test()
