@@ -15,11 +15,11 @@ describe("CokeScript features test suite", def()
   
   it("Simple function", def()
     code = gen("def test() 1")
-    assert.equal(code, "function test() { return 1; };")
+    assert.equal(code, "function test() { return 1; }")
     assert.equal(exe(code), undefined)
     code = gen("def test()
   1")
-    assert.equal(code, "function test() {\n  1;\n};")
+    assert.equal(code, "function test() {\n  1;\n}")
     assert.equal(exe(code), undefined)
 
     code = gen("def test(a=41 + 1)\n  return a\ntest()")

@@ -3,21 +3,21 @@ var assert = require("assert");
 var vm = require("vm");
 function gen(source) {
   return cokescript.generateModule(source).code.trim();
-};
+}
 function exe(js,context) {
   try {
     return vm.runInNewContext(js, context);
   } catch(e) {
     throw "JS error\n" + js + "";
-  };
-};
+  }
+}
 describe("CokeScript features test suite", function () {
   it("Simple function", function () {
     var code = gen("def test() 1");
-    assert.equal(code, "function test() { return 1; };");
+    assert.equal(code, "function test() { return 1; }");
     assert.equal(exe(code), undefined);
     code = gen("def test()\n  1");
-    assert.equal(code, "function test() {\n  1;\n};");
+    assert.equal(code, "function test() {\n  1;\n}");
     assert.equal(exe(code), undefined);
     code = gen("def test(a=41 + 1)\n  return a\ntest()");
     assert.equal(exe(code), 42);
@@ -26,7 +26,7 @@ describe("CokeScript features test suite", function () {
   it("Function call", function () {
     function test() {
       return 1;
-    };
+    }
     assert.equal(test(), 1);
   }
   );
@@ -42,7 +42,7 @@ describe("CokeScript features test suite", function () {
   it("Function params indentation", function () {
     function test(a,b,c,d,e) {
       return a + b + c + d + e;
-    };
+    }
     assert.equal(test(1,
       2, 3,
       4,
@@ -53,7 +53,7 @@ describe("CokeScript features test suite", function () {
   it("String interpolation", function () {
     function test(alpha,beta) {
       return "hello " + alpha + " world " + beta + "";
-    };
+    }
     assert.equal(test(1, 2), "hello 1 world 2");
     var toto = {tata: 42};
     assert.equal("something " + toto.tata + " something", "something 42 something");
@@ -63,19 +63,19 @@ describe("CokeScript features test suite", function () {
   );
   it("Return an array", function () {
     function test(a,b,c) {
-      if(a === undefined) {a = 1};
-      if(c === undefined) {c = "test"};
+      if(a === undefined) {a = 1;}
+      if(c === undefined) {c = "test";}
       return [a, b, c];
-    };
+    }
     assert.deepEqual(test(undefined, 3), [1, 3, "test"]);
   }
   );
   it("Return an object", function () {
     function test(a,b,c) {
-      if(a === undefined) {a = 1};
-      if(c === undefined) {c = "test"};
+      if(a === undefined) {a = 1;}
+      if(c === undefined) {c = "test";}
       return {a: a, b: b, c: c};
-    };
+    }
     test(undefined, 3);
     assert.deepEqual(test(undefined, 3), {a: 1, b: 3, c: "test"});
   }
@@ -139,7 +139,7 @@ describe("CokeScript features test suite", function () {
   }
   );
   it("DOM", function () {
-    function h(n,p,c) { return {n: n, p: p, c: c}; };
+    function h(n,p,c) { return {n: n, p: p, c: c}; }
     function makeDom(list) {
       var __c1 = [];
       var _keys1 = Object.keys(list);
@@ -148,9 +148,9 @@ describe("CokeScript features test suite", function () {
         var __c2 = [];
           __c2.push(String(item));
           __c1.push(h("li", {className:"cls" + item + ""}, __c2));
-      };
+      }
       return __c1;
-    };
+    }
     assert.deepEqual(makeDom([1, 2, 3])[0], 
       {
         n: "li",
@@ -209,7 +209,7 @@ describe("CokeScript features test suite", function () {
     var n = 5;
     while(n > 0){
       n = n - 1;
-    };
+    }
     assert.equal(n, 0);
   }
   );
@@ -221,7 +221,7 @@ describe("CokeScript features test suite", function () {
       var index = _keys2[_index2];
       var value = array[_keys2[_index2]];
       array2[index] = value * value;
-    };
+    }
     assert.deepEqual(array2, [1, 4, 9]);
   }
   );

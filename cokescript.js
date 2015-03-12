@@ -553,7 +553,7 @@ var backend = {
     str += ') {';
     for(var key in ns) {
       if(ns[key] !== true && ns[key] !== undefined) {
-        str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+'};';
+        str += '\n'+sp(1)+'if('+key+' === undefined) {'+key+' = '+generateCode(ns[key])+';}';
       }
     }
     if(is_dom) {
@@ -628,6 +628,13 @@ var backend = {
     return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code;
   },
   'STATEMENT': function(node) {
+    var e = node.children[0].children[0];
+    if(node.children[0].type === 'FOR' || 
+       node.children[0].type === 'TRY_CATCH' || 
+       node.children[0].type === 'WHILE' || 
+       e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA')) {
+      return generateCode(node.children[0]);
+    }
     return generateCode(node.children[0]) + ';';
   },
   'IF': function(node) {
