@@ -268,5 +268,10 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 3);
   }
   );
+  it("Return comma separated", function () {
+    var code = gen("\ndef test\n  return 1, 1 + 1, 3\n\na, b, c = test()\na + b + c");
+    assert.equal(exe(code), 6);
+  }
+  );
 }
 );
