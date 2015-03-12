@@ -62,6 +62,28 @@ def lambda_name(a, b) a + b
 def(a, b) a + b
 ```
 
+### Unpacking
+
+Both Objects and Arrays are iterable using the same type of loop.
+
+```python
+def test()
+  return 1, 1 + 1, 2
+
+a, b, c = test()
+```
+
+Generates
+
+```javascript
+function test() {
+  return [1, 1 + 1, 2];
+};
+var __unpack1 = test();
+var a = __unpack1[0];
+var b = __unpack1[1];
+```
+
 ### Loops
 
 Both Objects and Arrays are iterable using the same type of loop.
