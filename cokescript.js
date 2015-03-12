@@ -8,6 +8,7 @@ var epegjs = require("epegjs");
 
 var depth = 0;
 var forLoopCount = 1;
+var unpacking = 0;
 var namespaces = [{}];
 var levelStack = [0];
 
@@ -25,6 +26,7 @@ function resetGlobal() {
   forLoopCount = 1;
   levelStack = [0];
   depth = 0;
+  unpacking = 0;
 }
 
 // token are matched in order of declaration
@@ -273,7 +275,10 @@ var grammarDef = {
   "WHILE": {rules:["while e:EXPR b:BLOCK"], hooks:[reflect]},
   "MATH": {rules:["e1:EXPR W op:math W e2:EXPR"]},
   "PATH": {rules:["PATH dot name", "PATH open_bra number close_bra", "name"]},
-  "ASSIGN": {rules:["left:EXPR W op:assign W right:EXPR"], hooks:[reflect]},
+  "ASSIGN": {rules:[
+    "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:EXPR",
+    "left:EXPR W op:assign W right:EXPR"
+  ], hooks:[reflect, reflect]},
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
   "ANY_SPACE": {rules:["W", "samedent", "indent", "dedent"], verbose: "any space"},
@@ -291,6 +296,19 @@ var grammarDef = {
     "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
     "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
     hooks: [reflect, reflect]
+  },
+
+  "STRICT_COMMA_SEPARATED_EXPR": {rules:[
+    "e1:EXPR comma W e2:STRICT_COMMA_SEPARATED_EXPR",
+    "e1:EXPR comma W e2:EXPR"
+  ],
+  hooks: [function(p) {
+    // unroll recusrion
+    return [p.e1].concat(p.e2.children);
+  },
+  function(p) {
+    return [p.e1, p.e2];
+  }] 
   },
 
   "COMMA_SEPARATED_EXPR": {rules:[
@@ -343,7 +361,7 @@ var grammarDef = {
     "throw EXPR",
   ]},
 
-  "RETURN": {rules:["ret W EXPR", "ret"]},
+  "RETURN": {rules:["ret W EXPR", "ret", "ret W STRICT_COMMA_SEPARATED_EXPR"]},
   "RIGHT_EXPR": {rules: [
     "math_operators",
     "W binary_operators W EXPR",
@@ -570,21 +588,44 @@ var backend = {
     return str;
   },
   'ASSIGN': function(node) {
-    var prefix = "";
+    var prefix = "", str = "", i;
     var op = node.children.op.value;
+    var explicit_global = op === ':=';
+    if(op == ':=') {
+      op = '=';
+    }
     var ns = currentNs();
-    if(node.children.left.children[0].type === 'name') {
-      var ch = node.children.left.children[0];
+    var left = node.children.left;
+    var right_code = generateCode(node.children.right);
+    if(left.type === 'STRICT_COMMA_SEPARATED_EXPR') {
+      unpacking++;
+      var unpack_name = '__unpack' + unpacking;
+      str += 'var ' + unpack_name + ' = ' + right_code + ';\n'+sp();
+      for(i=0;i<left.children.length; i++) {
+        var n = left.children[i].children[0];
+        prefix = "";
+        if(n.type === 'name') {
+          if(ns[n.value] === undefined) {
+            ns[n.value] = true;
+            if(!explicit_global) {
+              prefix = 'var ';
+            }
+          }
+        }
+        str += prefix + generateCode(n) + ' ' + op + ' ' + unpack_name +'['+i+'];\n'+sp();
+      }
+      return str;
+    }
+    if(left.children[0].type === 'name') {
+      var ch = left.children[0];
       if(ns[ch.value] === undefined) {
-        if(op == ':=') {
-          op = '=';
-        } else {
+        if(!explicit_global) {
           prefix = 'var ';
         }
         ns[ch.value] = true;
       }
     }
-    return prefix+generateCode(node.children.left) + ' ' + op + ' ' + generateCode(node.children.right);
+    return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code;
   },
   'STATEMENT': function(node) {
     return generateCode(node.children[0]) + ';';
@@ -676,7 +717,7 @@ var backend = {
   }
 };
 
-function generateCode(node, ns) {
+function generateCode(node) {
   if(!node) {
     //debugger
   }
@@ -691,7 +732,7 @@ function generateCode(node, ns) {
     return '';
   }
   for(i=0;i<node.children.length; i++) {
-    str += generateCode(node.children[i], ns);
+    str += generateCode(node.children[i]);
   }
   return str;
 }

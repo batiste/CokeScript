@@ -263,5 +263,10 @@ describe("CokeScript features test suite", function () {
     code = gen("throw new Error(42)");
   }
   );
+  it("Value unpacking", function () {
+    var code = gen("a, b, c = [1, 2, 3]\nc");
+    assert.equal(exe(code), 3);
+  }
+  );
 }
 );
