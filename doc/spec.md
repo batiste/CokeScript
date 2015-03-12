@@ -82,6 +82,7 @@ function test() {
 var __unpack1 = test();
 var a = __unpack1[0];
 var b = __unpack1[1];
+var c = __unpack1[2];
 ```
 
 ### Loops
