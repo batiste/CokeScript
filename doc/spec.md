@@ -71,6 +71,8 @@ def test()
   return 1, 1 + 1, 2
 
 a, b, c = test()
+
+hello, world = "something", "else"
 ```
 
 Generates

@@ -276,9 +276,10 @@ var grammarDef = {
   "MATH": {rules:["e1:EXPR W op:math W e2:EXPR"]},
   "PATH": {rules:["PATH dot name", "PATH open_bra number close_bra", "name"]},
   "ASSIGN": {rules:[
+    "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:STRICT_COMMA_SEPARATED_EXPR",
     "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:EXPR",
-    "left:EXPR W op:assign W right:EXPR"
-  ], hooks:[reflect, reflect]},
+    "left:EXPR W op:assign W right:EXPR",
+  ], hooks:[reflect, reflect, reflect]},
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
   "ANY_SPACE": {rules:["W", "samedent", "indent", "dedent"], verbose: "any space"},
@@ -701,21 +702,18 @@ var backend = {
     str += generateCode(node.children.b2);
     return str+'\n'+sp()+"}";
   },
-  'RETURN': function(node) {
-    if(!node.children[2]) {
-      return 'return';
-    }
-    if(node.children[2].type == "STRICT_COMMA_SEPARATED_EXPR") {
-      return 'return [' + generateCode(node.children[2]) + ']';
-    }
-    return 'return ' + generateCode(node.children[2]);
-  },
+  //'RETURN': function(node) {
+  //  if(!node.children[2]) {
+  //    return 'return';
+  //  }
+  //  return 'return ' + generateCode(node.children[2]);
+  //},
   'STRICT_COMMA_SEPARATED_EXPR': function(node) {
     var elements = [];
     for (var i = 0; i < node.children.length; i++) {
       elements.push(generateCode(node.children[i]));
     }
-    return elements.join(", ");
+    return '[' + elements.join(", ") + ']';
   },
   'string': function(node) {
     var v = node.value;

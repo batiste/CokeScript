@@ -305,6 +305,11 @@ catch(e)
     assert.equal(exe(code), 3)
   )
 
+  it("Assignement unpacking", def()
+    code = gen("a, b, c = 1, 2, 3\nb")
+    assert.equal(exe(code), 2)
+  )
+
   it("Return comma separated", def()
     code = gen("
 def test
