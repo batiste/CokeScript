@@ -15,7 +15,6 @@
   "license": "BSD",
   "dependencies": {
     "minimist": "~1.1.0",
-    "epegjs": "0.0.4",
     "colors": "^1.0.3"
   },
   "repository": "https://github.com/batiste/CokeScript",
@@ -25,7 +24,7 @@
   },
   "devDependencies": {
     "browserify": "~8.1.1",
-    "epegjs": "0.0.4",
+    "epegjs": "0.0.51",
     "gulp-istanbul": "~0.6.0",
     "gulp-jshint": "~1.9.0",
     "gulp-mocha": "~2.0.0",
