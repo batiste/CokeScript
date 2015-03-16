@@ -190,13 +190,7 @@ function regExpDef(input) {
 }
 
 function defDef(input) {
-  if(input.indexOf("def(") === 0) {
-    return "def";
-  }
-  if(input.indexOf("def ") === 0) {
-    return "def";
-  }
-  if(input.indexOf("def\n") === 0) {
+  if(input.match(/^def[\(| |\n]/)) {
     return "def";
   }
   if(input.indexOf("dom ") === 0) {
@@ -276,9 +270,9 @@ var grammarDef = {
   "MATH": {rules:["e1:EXPR W op:math W e2:EXPR"]},
   "PATH": {rules:["PATH dot name", "PATH open_bra number close_bra", "name"]},
   "ASSIGN": {rules:[
+    "left:EXPR W op:assign W right:EXPR",
     "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:STRICT_COMMA_SEPARATED_EXPR",
     "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:EXPR",
-    "left:EXPR W op:assign W right:EXPR",
   ], hooks:[reflect, reflect, reflect]},
   "W_OR_SAMEDENT": {rules:["W", "samedent"], verbose: "samedent or whitespace"},
   "W_SAMEDENT_INDENT": {rules:["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
@@ -382,14 +376,14 @@ var grammarDef = {
     "FUNC_DEF",
     "EXPR RIGHT_EXPR",
     //"FUNC_CALL",
-    "LAMBDA",
+    "name",
     "number",
+    "LAMBDA",
+    "string",
     "regexp",
     "open_par EXPR close_par",
     "new EXPR",
-    "string",
-    "name",
-    "PATH",
+    //"PATH",
     "ARRAY"],
     verbose:"expression"
   },
