@@ -1,6 +1,6 @@
 # [PackageDev] target_format: plist, ext: tmLanguage
 ---
-name: CokeScrpit
+name: CokeScript
 scopeName: source.cokescript
 fileTypes: [coke]
 uuid: 80bb5c88-4a96-45ed-af77-18a15627612f
@@ -33,5 +33,9 @@ patterns:
 - name: string.cokescript
   begin: \"
   end: '[^\\]\"'
+
+- name: string.cokescript
+  begin: \'
+  end: '[^\\]'''
 
 ...

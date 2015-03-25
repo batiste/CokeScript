@@ -49,13 +49,14 @@ var tokenDef = [
   {key:"else", reg:/^else/},
   {key:"for_loop", reg:/^for /, verbose:"for loop"},
   {key:"in", reg:/^in /},
+  {key:"not", reg:/^not /, verbose:"not"},
   {key:"name", reg:/^[a-zA-Z_$][0-9a-zA-Z_$]{0,29}/}, // 30 chars max
   {key:"regexp", func:regExpDef, verbose:"regular epression"},
   {key:"math_operators", reg:/^(\+\+|\-\-)/, verbose:"math operator"},
   {key:"binary_operators", reg:/^(\&\&|\|\||\&|\||<<|\>\>)/, verbose:"binary operator"},
   {key:"comparison", reg:/^(<=|>=|<|>|!=|==)/},
   {key:"assign", reg:/^(\+=|-=|=|:=)/},
-  {key:"number", reg:/^[0-9]+\.?[0-9]*/}, // only positive for now
+  {key:"number", reg:/^[-]?[0-9]+\.?[0-9]*/}, // only positive for now
   {key:"comma", reg:/^\,/},
   {key:"dot", reg:/^\./},
   {key:"colon", reg:/^\:/, verbose:":"},
@@ -100,9 +101,9 @@ var strInterpolationGrammarDef = {
 
 var strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
 
-function generateStringCode(node) {
+function generateStringCode(node, c) {
   if(node.type === 'VAR') {
-    return '" + ' + generateStringCode(node.children[1]) + ' + "';
+    return c + ' + ' + generateStringCode(node.children[1], c) + ' + ' + c;
   }
   if(node.value !== undefined) {
     return node.value;
@@ -112,7 +113,7 @@ function generateStringCode(node) {
     return '';
   }
   for(i=0;i<node.children.length; i++) {
-    str += generateStringCode(node.children[i]);
+    str += generateStringCode(node.children[i], c);
   }
   return str;
 }
@@ -155,13 +156,14 @@ function dent(dentType) {
 }
 
 function stringDef(input) {
-  if(input.charAt(0) === '"') {
+  var first = input.charAt(0);
+  if(first === '"' || first === "'") {
     var i = 1;
     while(input.charAt(i)) {
       var ch = input.charAt(i);
       if(ch === '\\') {
         i++;
-      } else if(ch === '"') {
+      } else if(ch === first) {
         return input.slice(0, i+1);
       }
       i++;
@@ -179,7 +181,7 @@ function regExpDef(input) {
       } else if(ch === '/') {
         i++;
         // modifiers
-        while("igm".indexOf(input.charAt(i)) !== -1) {
+        while(input.charAt(i) && "igm".indexOf(input.charAt(i)) !== -1) {
           i++;
         }
         return input.slice(0, i);
@@ -285,11 +287,11 @@ var grammarDef = {
     //"open_par indent FUNC_CALL_PARAMS? close_par dedent"
   ]},
 
-  "TYPE": {rules:["name colon"]},
+  //"TYPE": {rules:["name colon"]},
 
   "FOR": {rules:[
-    "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
-    "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
+    "for_loop k:name comma W v:name W in a:name b:BLOCK",
+    "for_loop v:name W in a:name b:BLOCK"],
     hooks: [reflect, reflect]
   },
 
@@ -383,6 +385,7 @@ var grammarDef = {
     "regexp",
     "open_par EXPR close_par",
     "new EXPR",
+    "not EXPR",
     //"PATH",
     "ARRAY"],
     verbose:"expression"
@@ -716,10 +719,13 @@ var backend = {
     if(!ast.complete) {
       throw new Error(ast.hint);
     }
-    return generateStringCode(ast);
+    return generateStringCode(ast, v.charAt(0));
   },
   'comment': function(node) {
     return node.value.replace(/^#/g, "//");
+  },
+  'not': function(node) {
+    return '!';
   },
   'comparison': function(node) {
     if(node.value == '==') {

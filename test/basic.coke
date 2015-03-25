@@ -1,4 +1,4 @@
-cokescript = require("../dist/cokescript")
+cokescript = require("../dist/cokescript2")
 assert = require("assert")
 vm = require("vm")
 
@@ -25,6 +25,8 @@ describe("CokeScript features test suite", def()
     code = gen("def test(a=41 + 1)\n  return a\ntest()")
     assert.equal(exe(code), 42)
   )
+
+  'asdf'
 
   it("Function call", def()
     def test
@@ -80,6 +82,16 @@ describe("CokeScript features test suite", def()
     a = "hello
 hello"
     assert.equal(a, "hello\nhello")
+  )
+
+  it("single quoted string", def()
+    a = 'hello hello'
+    assert.equal(a, "hello hello")
+  )
+
+  it("not expression", def()
+    code = gen("not false")
+    assert.equal(exe(code), true, code)
   )
   
   it("Multiline interpolated string", def()

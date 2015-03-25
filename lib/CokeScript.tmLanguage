@@ -7,7 +7,7 @@
 		<string>coke</string>
 	</array>
 	<key>name</key>
-	<string>CokeScrpit</string>
+	<string>CokeScript</string>
 	<key>patterns</key>
 	<array>
 		<dict>
@@ -70,6 +70,14 @@
 			<string>\"</string>
 			<key>end</key>
 			<string>[^\\]\"</string>
+			<key>name</key>
+			<string>string.cokescript</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>\'</string>
+			<key>end</key>
+			<string>[^\]''</string>
 			<key>name</key>
 			<string>string.cokescript</string>
 		</dict>

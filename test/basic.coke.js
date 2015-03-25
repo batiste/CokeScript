@@ -1,4 +1,4 @@
-var cokescript = require("../dist/cokescript");
+var cokescript = require("../dist/cokescript2");
 var assert = require("assert");
 var vm = require("vm");
 function gen(source) {
@@ -23,6 +23,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 42);
   }
   );
+  'asdf';
   it("Function call", function () {
     function test() {
       return 1;
@@ -83,6 +84,16 @@ describe("CokeScript features test suite", function () {
   it("Multiline string", function () {
     var a = "hello\nhello";
     assert.equal(a, "hello\nhello");
+  }
+  );
+  it("single quoted string", function () {
+    var a = 'hello hello';
+    assert.equal(a, "hello hello");
+  }
+  );
+  it("not expression", function () {
+    var code = gen("not false");
+    assert.equal(exe(code), true, code);
   }
   );
   it("Multiline interpolated string", function () {

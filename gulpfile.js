@@ -21,6 +21,16 @@ gulp.task("build", function() {
     .pipe(gulp.dest("./dist"));
 });
 
+gulp.task("bootstrap", function() {
+  return browserify("./cokescript2.js", {
+      debug: true,
+      standalone: "cokescript"
+    })
+    .bundle()
+    .pipe(source("cokescript2.js"))
+    .pipe(gulp.dest("./dist"));
+});
+
 gulp.task("jshint", function() {
   gulp.src("cokescript.js")
     .pipe(jshint())
@@ -53,3 +63,4 @@ gulp.task("test", ['build'], function() {
         .pipe(istanbul.writeReports()); // Creating the reports after tests runned
     });
 });
+
