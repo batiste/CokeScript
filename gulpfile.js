@@ -11,7 +11,7 @@ var istanbul = require('gulp-istanbul');
 var mocha = require('gulp-mocha');
 var shell = require('gulp-shell');
 
-gulp.task("build", function() {
+gulp.task("build", ['bootstrap'],function() {
   return browserify("./cokescript.js", {
       debug: true,
       standalone: "cokescript"
@@ -22,13 +22,8 @@ gulp.task("build", function() {
 });
 
 gulp.task("bootstrap", function() {
-  return browserify("./cokescript2.js", {
-      debug: true,
-      standalone: "cokescript"
-    })
-    .bundle()
-    .pipe(source("cokescript2.js"))
-    .pipe(gulp.dest("./dist"));
+   return gulp.src('')
+    .pipe(shell("lib/coke.js cokescript.coke -o cokescript.js"));
 });
 
 gulp.task("jshint", function() {

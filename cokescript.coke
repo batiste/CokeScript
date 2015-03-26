@@ -19,11 +19,11 @@ def newNs()
   return namespaces[namespaces.length - 1]
 
 def resetGlobal()
-  namespaces = [{}]
-  forLoopCount = 1
-  levelStack = [0]
-  depth = 0
-  unpacking = 0
+  namespaces := [{}]
+  forLoopCount := 1
+  levelStack := [0]
+  depth := 0
+  unpacking := 0
 
 # token are matched in order of declaration
 # TODO: add functions
@@ -52,7 +52,7 @@ tokenDef = [
   {key: "binary_operators", reg: /^(\&\&|\|\||\&|\||<<|\>\>)/, verbose: "binary operator"},
   {key: "comparison", reg: /^(<=|>=|<|>|!=|==)/},
   {key: "assign", reg: /^(\+=|-=|=|:=)/},
-  {key: "number", reg: /^[0-9]+\.?[0-9]*/},
+  {key: "number", reg: /^[-]?[0-9]+\.?[0-9]*/},
   {key: "comma", reg: /^\,/},
   {key: "dot", reg: /^\./},
   {key: "colon", reg: /^\:/, verbose: ":"},
@@ -380,11 +380,11 @@ def popCN()
 backend = {
 
   dedent: def(node)
-    depth = Math.max(0, depth - 1)
+    depth := Math.max(0, depth - 1)
     return ''
   ,
   indent: def(node)
-    depth = depth + 1
+    depth := depth + 1
     return '\n' + sp()
   ,
   samedent: def(node)
@@ -426,12 +426,12 @@ backend = {
     funcs = node.children.methods
     parent = node.children.parent
     str = ''
-    constructor = null
+    _constructor = null
     for func in funcs
       func_def = func.children
       func_name = func_def.children.fn.value
       if func_name == 'constructor'
-        constructor = func_def
+        _constructor = func_def
       else
         str += '\n' + sp() + name + '.prototype.' + func_name + ' = ' + generateCode(func_def)
 
@@ -439,13 +439,13 @@ backend = {
     ns[name] = true
     ns = newNs()
 
-    params = constructor && constructor.children.params
+    params = _constructor && _constructor.children.params
     if params
       params = generateCode(params)
     else
       params = ''
     
-    body = constructor && constructor.children.block
+    body = _constructor && _constructor.children.block
     cons_str = '' + name + ' = function ' + name + '(' + params + ') {'
     cons_str += '\n' + sp(1) + 'if(!(this instanceof #{name})){ return new #{name}(' + Object.keys(ns).join(',') + ')}'
     for key, value in ns
@@ -537,8 +537,8 @@ backend = {
     prefix = ""
     str = ""
     op = node.children.op.value
-    explicit_global = op == ': ='
-    if op == ': ='
+    explicit_global = op == ':='
+    if explicit_global
       op = '='
     
     ns = currentNs()
@@ -547,7 +547,7 @@ backend = {
     if left.type == 'STRICT_COMMA_SEPARATED_EXPR'
       unpacking++
       unpack_name = '__unpack' + unpacking
-      str += unpack_name + " = " + right_code + "\n" + sp()
+      str += 'var ' + unpack_name + " = " + right_code + "\n" + sp()
       children = left.children
       i = 0
       for child in children
@@ -566,7 +566,7 @@ backend = {
       ch = left.children[0]
       if ns[ch.value] == undefined
         if not explicit_global
-          prefix = ''
+          prefix = 'var '
         
         ns[ch.value] = true
     
@@ -577,7 +577,7 @@ backend = {
     # TODO: this should be possible
     if node.children[0].type == 'FOR' || node.children[0].type == 'TRY_CATCH' || node.children[0].type == 'WHILE' || e && (e.type == 'FUNC_DEF' || e.type == 'LAMBDA')
       return generateCode(node.children[0])
-    return generateCode(node.children[0]) + ''
+    return generateCode(node.children[0]) + ';'
   ,
   IF: def(node)
     str = ''
@@ -619,12 +619,12 @@ backend = {
     if node.children.k
       indexName = node.children.k.value
     
-    str = '#{keyArrayName} = Object.keys(' + node.children.a.value + ')\n'
-    str += sp() + 'for(' + keyIndexName + '; ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n'
+    str = 'var #{keyArrayName} = Object.keys(' + node.children.a.value + ')\n'
+    str += sp() + 'for(var ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n'
     if indexName
-      str += sp(1) + '' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + ']\n'
+      str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + ']\n'
     
-    str += sp(1) + '' + node.children.v.value + ' = ' + node.children.a.value + '[' + keyArrayName + '[' + keyIndexName + ']]'
+    str += sp(1) + 'var ' + node.children.v.value + ' = ' + node.children.a.value + '[' + keyArrayName + '[' + keyIndexName + ']]'
     str += generateCode(node.children.b) + '\n' + sp() + '}'
     return str
   ,

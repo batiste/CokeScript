@@ -1,4 +1,4 @@
-var cokescript = require("../dist/cokescript2");
+var cokescript = require("../dist/cokescript");
 var assert = require("assert");
 var vm = require("vm");
 function gen(source) {
@@ -12,18 +12,20 @@ function exe(js,context) {
   }
 }
 describe("CokeScript features test suite", function () {
-  it("Simple function", function () {
+  it("Lambda function", function () {
     var code = gen("def test() 1");
     assert.equal(code, "function test() { return 1; }");
-    assert.equal(exe(code), undefined);
-    code = gen("def test()\n  1");
-    assert.equal(code, "function test() {\n  1;\n}");
     assert.equal(exe(code), undefined);
     code = gen("def test(a=41 + 1)\n  return a\ntest()");
     assert.equal(exe(code), 42);
   }
   );
-  'asdf';
+  it("Normal function", function () {
+    var code = gen("def test()\n  1");
+    assert.equal(code, "function test() {\n  1;\n}");
+    assert.equal(exe(code), undefined);
+  }
+  );
   it("Function call", function () {
     function test() {
       return 1;
@@ -152,13 +154,13 @@ describe("CokeScript features test suite", function () {
   it("DOM", function () {
     function h(n,p,c) { return {n: n, p: p, c: c}; }
     function makeDom(list) {
-      var __c1 = [];
-      var _keys1 = Object.keys(list);
-      for(var _index1 = 0; _index1 < _keys1.length; _index1++ ) {
-        var item = list[_keys1[_index1]];
-        var __c2 = [];
+      __c1 = [];
+      var _keys1 = Object.keys(list)
+      for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
+        var item = list[_keys1[_index1]]
+        __c2 = []
           __c2.push(String(item));
-          __c1.push(h("li", {className:"cls" + item + ""}, __c2));
+          __c1.push(h("li", {className: "cls" + item + ""}, __c2));
       }
       return __c1;
     }
@@ -227,10 +229,10 @@ describe("CokeScript features test suite", function () {
   it("For loop", function () {
     var array = [1, 2, 3];
     var array2 = [];
-    var _keys2 = Object.keys(array);
-    for(var _index2 = 0; _index2 < _keys2.length; _index2++ ) {
-      var index = _keys2[_index2];
-      var value = array[_keys2[_index2]];
+    var _keys2 = Object.keys(array)
+    for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
+      var index = _keys2[_index2]
+      var value = array[_keys2[_index2]]
       array2[index] = value * value;
     }
     assert.deepEqual(array2, [1, 4, 9]);

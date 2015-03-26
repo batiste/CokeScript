@@ -12,7 +12,7 @@
 	<array>
 		<dict>
 			<key>match</key>
-			<string>def|dom|if|else|elseif|for|in |class |try|catch|throw |return|undefined|false|true|while |null</string>
+			<string>def\(|def |dom|if|else|elseif|for|in |class |try|catch|throw |return|undefined|false|true|while |not |null</string>
 			<key>name</key>
 			<string>keyword.other.cokescript</string>
 		</dict>
@@ -27,12 +27,6 @@
 			<string>\.|\,|\:</string>
 			<key>name</key>
 			<string>punctuation.definition.string.cokescript</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\#[^\n]*</string>
-			<key>name</key>
-			<string>comment.cokescript</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -67,9 +61,17 @@
 		</dict>
 		<dict>
 			<key>begin</key>
+			<string>\/</string>
+			<key>end</key>
+			<string>[^\\]/</string>
+			<key>name</key>
+			<string>func.call.cokescript</string>
+		</dict>
+		<dict>
+			<key>begin</key>
 			<string>\"</string>
 			<key>end</key>
-			<string>[^\\]\"</string>
+			<string>[^\\]?\"</string>
 			<key>name</key>
 			<string>string.cokescript</string>
 		</dict>
@@ -77,9 +79,15 @@
 			<key>begin</key>
 			<string>\'</string>
 			<key>end</key>
-			<string>[^\]''</string>
+			<string>[^\\]?'</string>
 			<key>name</key>
 			<string>string.cokescript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\#[^\n]*</string>
+			<key>name</key>
+			<string>comment.cokescript</string>
 		</dict>
 	</array>
 	<key>scopeName</key>

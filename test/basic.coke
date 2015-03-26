@@ -1,4 +1,4 @@
-cokescript = require("../dist/cokescript2")
+cokescript = require("../dist/cokescript")
 assert = require("assert")
 vm = require("vm")
 
@@ -13,21 +13,22 @@ def exe(js, context)
 
 describe("CokeScript features test suite", def()
   
-  it("Simple function", def()
+  it("Lambda function", def()
     code = gen("def test() 1")
     assert.equal(code, "function test() { return 1; }")
-    assert.equal(exe(code), undefined)
-    code = gen("def test()
-  1")
-    assert.equal(code, "function test() {\n  1;\n}")
     assert.equal(exe(code), undefined)
 
     code = gen("def test(a=41 + 1)\n  return a\ntest()")
     assert.equal(exe(code), 42)
   )
 
-  'asdf'
-
+  it("Normal function", def()
+    code = gen("def test()
+  1")
+    assert.equal(code, "function test() {\n  1;\n}")
+    assert.equal(exe(code), undefined)
+  )
+  
   it("Function call", def()
     def test
       return 1
