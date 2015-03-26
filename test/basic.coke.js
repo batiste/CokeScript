@@ -20,6 +20,11 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 42);
   }
   );
+  it("If doesn't have ;", function () {
+    var code = gen("\nif 1\n  1");
+    assert.equal(code, "if(1) {\n  1;\n}");
+  }
+  );
   it("Normal function", function () {
     var code = gen("def test()\n  1");
     assert.equal(code, "function test() {\n  1;\n}");
@@ -140,6 +145,11 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, {}), 1);
   }
   );
+  it("Comments", function () {
+    var code = gen("# nothing\n# nothing 2");
+    assert.equal(code, "// nothing\n// nothing 2");
+  }
+  );
   it("Array syntax on several lines", function () {
     var code = gen("[1, 2, 3]");
     assert.deepEqual(exe(code), [1, 2, 3]);
@@ -155,9 +165,9 @@ describe("CokeScript features test suite", function () {
     function h(n,p,c) { return {n: n, p: p, c: c}; }
     function makeDom(list) {
       __c1 = [];
-      var _keys1 = Object.keys(list)
+      var _keys1 = Object.keys(list);
       for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
-        var item = list[_keys1[_index1]]
+        var item = list[_keys1[_index1]];
         __c2 = []
           __c2.push(String(item));
           __c1.push(h("li", {className: "cls" + item + ""}, __c2));
@@ -229,10 +239,10 @@ describe("CokeScript features test suite", function () {
   it("For loop", function () {
     var array = [1, 2, 3];
     var array2 = [];
-    var _keys2 = Object.keys(array)
+    var _keys2 = Object.keys(array);
     for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
-      var index = _keys2[_index2]
-      var value = array[_keys2[_index2]]
+      var index = _keys2[_index2];
+      var value = array[_keys2[_index2]];
       array2[index] = value * value;
     }
     assert.deepEqual(array2, [1, 4, 9]);

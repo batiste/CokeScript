@@ -10,6 +10,9 @@ var levelStack = [0];
 function currentNs() {
   return namespaces[namespaces.length - 1];
 }
+function currentNsHas(p) {
+  return namespaces[namespaces.length - 1].hasOwnProperty(p);
+}
 function newNs() {
   namespaces.push({});
   return namespaces[namespaces.length - 1];
@@ -64,12 +67,12 @@ var tokenDef = [
 ];
 function startStr(input,stream) {
   var last = stream[stream.length - 1];
-  if(last && last.value === "\\"){
+  if(last && last.value === "\\") {
     return;
-  };
-  if(input.match(/^#{/)){
+  }
+  if(input.match(/^#{/)) {
     return "#{";
-  };
+  }
 }
 var strInterpolationTokenDef = [
   {key: "start", func: startStr},
@@ -86,20 +89,20 @@ var strInterpolationGrammarDef = {
 };
 var strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
 function generateStringCode(node,c) {
-  if(node.type === 'VAR'){
+  if(node.type === 'VAR') {
     return c + ' + ' + generateStringCode(node.children[1], c) + ' + ' + c;
-  };
-  if(node.value !== undefined){
+  }
+  if(node.value !== undefined) {
     return node.value;
-  };
+  }
   var str = '';
-  if(!node.children){
+  if(!node.children) {
     return '';
-  };
+  }
   var children = node.children;
-  var _keys1 = Object.keys(children)
+  var _keys1 = Object.keys(children);
   for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
-    var child = children[_keys1[_index1]]
+    var child = children[_keys1[_index1]];
     str += generateStringCode(child, c);
   }
   return str;
@@ -108,57 +111,57 @@ function currentLevel() {
   return levelStack[levelStack.length - 1];
 }
 function indentType(l) {
-  if(l > currentLevel()){
+  if(l > currentLevel()) {
     return 'indent';
-  };
-  if(l < currentLevel()){
+  }
+  if(l < currentLevel()) {
     return 'dedent';
-  };
-  if(l === currentLevel()){
+  }
+  if(l === currentLevel()) {
     return 'samedent';
-  };
+  }
 }
 function dent(dentType) {
   return function _dent(input) {
     // empty line is a samedent
     var m = input.match(/^\n[\s]*/);
-    if(m){
+    if(m) {
       var lines = m[0].split("\n");
       var indent = lines[lines.length - 1].length;
-      if(indentType(indent) === dentType){
-        if(dentType === 'dedent'){
+      if(indentType(indent) === dentType) {
+        if(dentType === 'dedent') {
           levelStack.pop();
           return '';
-        };
-        if(dentType === 'indent'){
+        }
+        if(dentType === 'indent') {
           levelStack.push(indent);
-        };
+        }
         return m[0];
-      };
-    };
+      }
+    }
   };
 }
 function stringDef(input) {
   var first = input.charAt(0);
-  if(first === '"' || first === "'"){
+  if(first === '"' || first === "'") {
     var i = 1;
     while(input.charAt(i)){
       var ch = input.charAt(i);
-      if(ch === '\\'){
+      if(ch === '\\') {
         i++;
       } else if(ch === first) {
         return input.slice(0, i + 1);
-      };
+      }
       i++;
     }
-  };
+  }
 }
 function regExpDef(input) {
-  if(input.charAt(0) === '/'){
+  if(input.charAt(0) === '/') {
     var i = 1;
     while(input.charAt(i)){
       var ch = input.charAt(i);
-      if(ch === '\\'){
+      if(ch === '\\') {
         i++;
       } else if(ch === '/') {
         i++;;// modifiers
@@ -166,31 +169,31 @@ function regExpDef(input) {
           i++;
         }
         return input.slice(0, i);
-      };
+      }
       i++;
     }
-  };
+  }
 }
 function defDef(input) {
-  if(input.match(/^def[\(| |\n]/)){
+  if(input.match(/^def[\(| |\n]/)) {
     return "def";
-  };
-  if(input.indexOf("dom ") === 0){
+  }
+  if(input.indexOf("dom ") === 0) {
     return "dom";
-  };
+  }
 }
 function commentDef(input) {
   var m = input.match(/^#/);
-  if(m){
+  if(m) {
     var i = m[0].length;
     while(input.charAt(i)){
       var ch = input.charAt(i);
-      if(ch === '\n'){
+      if(ch === '\n') {
         return input.slice(0, i);
-      };
+      }
       i++;
     }
-  };
+  }
 }
 function reflect(params) { return params; }
 var grammarDef = {
@@ -351,9 +354,9 @@ function spacer(n) {
   return out;
 }
 function sp(mod) {
-  if(mod){
+  if(mod) {
     return spacer(2 * (depth + mod));
-  };
+  }
   return spacer(2 * depth);
 }
 var nc = 1;;// children name
@@ -389,31 +392,31 @@ var backend = {
   }
   ,
   TAG_PARAMS: function (node) {
-    if(node.children.left){
+    if(node.children.left) {
       return generateCode(node.children.left) + ', ' + generateCode(node.children.right);
-    };
-    if(node.children.e){
+    }
+    if(node.children.e) {
       return node.children.n.value + ': ' + generateCode(node.children.e);
     } else {
       return node.children.n.value + ': true';
-    };
+    }
   }
   ,
   TAG: function (node) {
     var str = '';
     var params = "{";
     var name = node.children.tag.value.substring(1);
-    if(node.children.params){
+    if(node.children.params) {
       params += generateCode(node.children.params);
-    };
+    }
     params += '}';
     var sub = '[]';
-    if(node.children.block){
+    if(node.children.block) {
       sub = pushCN();
       str += '' + CN() + ' = []';
       str += generateCode(node.children.block);
       popCN();
-    };
+    }
     str += '\n' + sp(1) + CN() + '.push(h("' + name + '", ' + params + ', ' + sub + '))';
     return str;
   }
@@ -423,46 +426,46 @@ var backend = {
     var funcs = node.children.methods;
     var parent = node.children.parent;
     var str = '';
-    var _constructor = null;
-    var _keys2 = Object.keys(funcs)
+    var constructor = null;
+    var _keys2 = Object.keys(funcs);
     for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
-      var func = funcs[_keys2[_index2]]
+      var func = funcs[_keys2[_index2]];
       var func_def = func.children;
       var func_name = func_def.children.fn.value;
-      if(func_name === 'constructor'){
-        _constructor = func_def;
+      if(func_name === 'constructor') {
+        constructor = func_def;
       } else {
         str += '\n' + sp() + name + '.prototype.' + func_name + ' = ' + generateCode(func_def);
-      };
+      }
     }
     var ns = currentNs();
     ns[name] = true;
     ns = newNs();
-    var params = _constructor && _constructor.children.params;
-    if(params){
+    var params = constructor && constructor.children.params;
+    if(params) {
       params = generateCode(params);
     } else {
       params = '';
-    };
-    var body = _constructor && _constructor.children.block;
+    }
+    var body = constructor && constructor.children.block;
     var cons_str = '' + name + ' = function ' + name + '(' + params + ') {';
     cons_str += '\n' + sp(1) + 'if(!(this instanceof ' + name + ')){ return new ' + name + '(' + Object.keys(ns).join(',') + ')}';
-    var _keys3 = Object.keys(ns)
+    var _keys3 = Object.keys(ns);
     for(var _index3 = 0; _index3 < _keys3.length; _index3++) {
-      var key = _keys3[_index3]
-      var value = ns[_keys3[_index3]]
-      if(value !== true && value !== undefined){
+      var key = _keys3[_index3];
+      var value = ns[_keys3[_index3]];
+      if(value !== true && value !== undefined) {
         cons_str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + generateCode(value) + '}';
-      };
+      }
     }
-    if(body){
+    if(body) {
       cons_str += generateCode(body);
-    };
+    }
     cons_str += sp() + '\n}';
-    if(parent){
+    if(parent) {
       cons_str += '\n' + sp() + '' + name + '.prototype = Object.create(' + parent.value + '.prototype)';
       cons_str += '\n' + sp() + '' + name + '.prototype.constructor = ' + name + '';
-    };
+    }
     namespaces.pop();
     return cons_str + str;
   }
@@ -470,27 +473,27 @@ var backend = {
   LAMBDA: function (node) {
     var name = "";
     var ns = newNs();
-    if(node.children.fn){
+    if(node.children.fn) {
       name = node.children.fn.value;
       ns[name] = true;
-    };
+    }
     var str = "function " + name + "(";
-    if(node.children.params){
+    if(node.children.params) {
       str += generateCode(node.children.params, ns);
-    };
+    }
     str += ') {';
-    var _keys4 = Object.keys(ns)
+    var _keys4 = Object.keys(ns);
     for(var _index4 = 0; _index4 < _keys4.length; _index4++) {
-      var key = _keys4[_index4]
-      var value = ns[_keys4[_index4]]
-      if(value !== true && value !== undefined){
+      var key = _keys4[_index4];
+      var value = ns[_keys4[_index4]];
+      if(value !== true && value !== undefined) {
         var code = generateCode(value);
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + '}';
-      };
+      }
     }
-    if(node.children.block){
+    if(node.children.block) {
       str += ' return ' + generateCode(node.children.block, ns);
-    };
+    }
     namespaces.pop();
     return str + "; }";
   }
@@ -499,54 +502,54 @@ var backend = {
     var name = "";
     var ns = currentNs();
     var is_dom = node.children.fd.value === 'dom';
-    if(node.children.fn){
+    if(node.children.fn) {
       name = node.children.fn.value;
       ns[name] = true;
-    };
+    }
     ns = newNs();
     var str = "function " + name + "(";
-    if(node.children.params){
+    if(node.children.params) {
       str += generateCode(node.children.params);
-    };
+    }
     str += ') {';
-    var _keys5 = Object.keys(ns)
+    var _keys5 = Object.keys(ns);
     for(var _index5 = 0; _index5 < _keys5.length; _index5++) {
-      var key = _keys5[_index5]
-      var value = ns[_keys5[_index5]]
-      if(value !== true && value !== undefined){
+      var key = _keys5[_index5];
+      var value = ns[_keys5[_index5]];
+      if(value !== true && value !== undefined) {
         var code = generateCode(value);
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + ';}';
-      };
+      }
     }
-    if(is_dom){
+    if(is_dom) {
       str += '\n' + sp(1) + '' + CN() + ' = [];';
-    };
-    if(node.children.block){
+    }
+    if(node.children.block) {
       str += generateCode(node.children.block);
-    };
+    }
     namespaces.pop();
-    if(is_dom){
+    if(is_dom) {
       str += '\n' + sp(1) + 'return ' + CN() + ';';
-    };
+    }
     return str + '\n' + sp() + '}';
   }
   ,
   FUNC_DEF_PARAMS: function (node) {
     var str = "";
     var ns = currentNs();
-    if(node.children[0].type === 'name'){
+    if(node.children[0].type === 'name') {
       ns[node.children[0].value] = true;
-      if(node.children[1] && node.children[1].type === 'assign'){
+      if(node.children[1] && node.children[1].type === 'assign') {
         ns[node.children[0].value] = node.children[2];
-      };
-    };;// TODO: fix this
+      }
+    };// TODO: fix this
     var children = node.children;
-    var _keys6 = Object.keys(children)
+    var _keys6 = Object.keys(children);
     for(var _index6 = 0; _index6 < _keys6.length; _index6++) {
-      var n = children[_keys6[_index6]]
-      if(n.type === 'name' || n.type === 'FUNC_DEF_PARAMS' || n.type === 'comma' || n.type === 'window'){
+      var n = children[_keys6[_index6]];
+      if(n.type === 'name' || n.type === 'FUNC_DEF_PARAMS' || n.type === 'comma' || n.type === 'window') {
         str += generateCode(n);
-      };
+      }
     }
     return str;
   }
@@ -556,85 +559,87 @@ var backend = {
     var str = "";
     var op = node.children.op.value;
     var explicit_global = op === ':=';
-    if(explicit_global){
+    if(explicit_global) {
       op = '=';
-    };
+    }
     var ns = currentNs();
     var left = node.children.left;
     var right_code = generateCode(node.children.right);
-    if(left.type === 'STRICT_COMMA_SEPARATED_EXPR'){
+    if(left.type === 'STRICT_COMMA_SEPARATED_EXPR') {
       unpacking++;
       var unpack_name = '__unpack' + unpacking;
       str += 'var ' + unpack_name + " = " + right_code + "\n" + sp();
       var children = left.children;
       var i = 0;
-      var _keys7 = Object.keys(children)
+      var _keys7 = Object.keys(children);
       for(var _index7 = 0; _index7 < _keys7.length; _index7++) {
-        var child = children[_keys7[_index7]]
+        var child = children[_keys7[_index7]];
         var n = child.children[0];
         prefix = "";
-        if(n.type === 'name'){
-          if(ns[n.value] === undefined){
+        if(n.type === 'name') {
+          if(currentNsHas(n.value) === undefined) {
             ns[n.value] = true;
-            if(!explicit_global){
+            if(!explicit_global) {
               prefix = '';
-            };
-          };
-        };
+            }
+          }
+        }
         str += prefix + generateCode(n) + ' ' + op + ' ' + unpack_name + '[' + i + '];\n' + sp();
         i++;
       }
       return str;
-    };
-    if(left.children[0].type === 'name'){
+    }
+    if(left.children[0].type === 'name') {
       var ch = left.children[0];
-      if(ns[ch.value] === undefined){
-        if(!explicit_global){
+      if(!currentNsHas(ch.value)) {
+        if(!explicit_global) {
           prefix = 'var ';
-        };
+        }
         ns[ch.value] = true;
-      };
-    };
+      }
+    }
     return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code;
   }
   ,
   STATEMENT: function (node) {
     var e = node.children[0].children[0];;// TODO: this should be possible
-    if(node.children[0].type === 'FOR' || node.children[0].type === 'TRY_CATCH' || node.children[0].type === 'WHILE' || e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA')){
+    var t = node.children[0].type;
+    var other = e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA' || e.type === 'COMMENT');
+    if(t === 'FOR' || t === 'TRY_CATCH' || t === 'WHILE' || t === 'IF' || t === 'COMMENT' || other) {
       return generateCode(node.children[0]);
-    };
+    }
     return generateCode(node.children[0]) + ';';
   }
   ,
   IF: function (node) {
     var str = '';
-    str = 'if(' + generateCode(node.children.e) + '){' + generateCode(node.children.b) + '\n' + sp() + '}';
+    str = 'if(' + generateCode(node.children.e) + ') {' + generateCode(node.children.b) + '\n' + sp() + '}';
     var elif = node.children.elif;
-    if(elif){
-      if(Array.isArray(elif)){
-        var _keys8 = Object.keys(elif)
+    if(elif) {
+      if(Array.isArray(elif)) {
+        var _keys8 = Object.keys(elif);
         for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
-          var value = elif[_keys8[_index8]]
+          var value = elif[_keys8[_index8]];
           str += generateCode(value);
         }
       } else {
         str += generateCode(elif);
-      };
-    };
-    if(node.children.el){
+      }
+    }
+    if(node.children.el) {
       str += generateCode(node.children.el);
-    };
+    }
     return str;
   }
   ,
   IF_EXPR: function (node) {
     var str = '';
     str = generateCode(node.children.test) + ' ? ' + generateCode(node.children.e) + ' : ';
-    if(node.children.el){
+    if(node.children.el) {
       str += generateCode(node.children.el);
     } else {
       str += 'undefined';
-    };
+    }
     return str;
   }
   ,
@@ -649,17 +654,19 @@ var backend = {
   FOR: function (node) {
     var keyIndexName = "_index" + forLoopCount;
     var keyArrayName = "_keys" + forLoopCount;
+    var arrayName = node.children.a.value;
+    var varName = node.children.v.value;
     forLoopCount++;
     var indexName = false;
-    if(node.children.k){
+    if(node.children.k) {
       indexName = node.children.k.value;
-    };
-    var str = 'var ' + keyArrayName + ' = Object.keys(' + node.children.a.value + ')\n';
+    }
+    var str = 'var ' + keyArrayName + ' = Object.keys(' + arrayName + ');\n';
     str += sp() + 'for(var ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n';
-    if(indexName){
-      str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + ']\n';
-    };
-    str += sp(1) + 'var ' + node.children.v.value + ' = ' + node.children.a.value + '[' + keyArrayName + '[' + keyIndexName + ']]';
+    if(indexName) {
+      str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + '];\n';
+    }
+    str += sp(1) + 'var ' + varName + ' = ' + arrayName + '[' + keyArrayName + '[' + keyIndexName + ']];';
     str += generateCode(node.children.b) + '\n' + sp() + '}';
     return str;
   }
@@ -683,9 +690,9 @@ var backend = {
   STRICT_COMMA_SEPARATED_EXPR: function (node) {
     var elements = [];
     var children = node.children;
-    var _keys9 = Object.keys(children)
+    var _keys9 = Object.keys(children);
     for(var _index9 = 0; _index9 < _keys9.length; _index9++) {
-      var child = children[_keys9[_index9]]
+      var child = children[_keys9[_index9]];
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
@@ -695,9 +702,9 @@ var backend = {
     var v = node.value;
     v = v.replace(/\n/g, "\\n");
     var ast = strGram.parse(v);
-    if(!ast.complete){
+    if(!ast.complete) {
       throw new Error(ast.hint);
-    };
+    }
     return generateStringCode(ast, v.charAt(0));
   }
   ,
@@ -710,33 +717,33 @@ var backend = {
   }
   ,
   comparison: function (node) {
-    if(node.value === '=='){
+    if(node.value === '==') {
       return '===';
-    };
-    if(node.value === '!='){
+    }
+    if(node.value === '!=') {
       return '!==';
-    };
+    }
     return node.value;
   }
 };
 function generateCode(node) {
-  if(!node){
+  if(!node) {
     // debugger
-  };
-  if(backend[node.type]){
+  }
+  if(backend[node.type]) {
     return backend[node.type](node);
-  };
-  if(node.value !== undefined){
+  }
+  if(node.value !== undefined) {
     return node.value;
-  };
+  }
   var str = "";
-  if(!node.children){
+  if(!node.children) {
     return '';
-  };
+  }
   var children = node.children;
-  var _keys10 = Object.keys(children)
+  var _keys10 = Object.keys(children);
   for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
-    var child = children[_keys10[_index10]]
+    var child = children[_keys10[_index10]];
     str += generateCode(child);
   }
   return str;
@@ -744,9 +751,9 @@ function generateCode(node) {
 function generateExports(keys) {
   var str = '\nmodule.exports = {';
   keys = keys || Object.keys(currentNs());
-  var _keys11 = Object.keys(keys)
+  var _keys11 = Object.keys(keys);
   for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
-    var key = keys[_keys11[_index11]]
+    var key = keys[_keys11[_index11]];
     str += '\n  ' + key + ': ' + key + ',';
   }
   return str + '\n}';
@@ -754,9 +761,9 @@ function generateExports(keys) {
 function generateModule(input,opts) {
   resetGlobal();
   var ast = gram.parse(input + "\n");
-  if(!ast.complete){
+  if(!ast.complete) {
     throw new Error(ast.hint);
-  };
+  }
   var obj = {ast: ast, code: generateCode(ast), ns: currentNs()};
   return obj;
 }

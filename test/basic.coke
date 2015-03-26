@@ -22,6 +22,15 @@ describe("CokeScript features test suite", def()
     assert.equal(exe(code), 42)
   )
 
+  it("If doesn't have ;", def()
+    code = gen("
+if 1
+  1")
+    assert.equal(code, "if(1) {
+  1;
+}")
+  )
+
   it("Normal function", def()
     code = gen("def test()
   1")
@@ -161,6 +170,11 @@ b.a")
     code = gen("# nothing\n1 # nothing")
     assert.equal(exe(code, {}), 1)
   )
+
+  it("Comments", def()
+    code = gen("# nothing\n# nothing 2")
+    assert.equal(code, "// nothing\n// nothing 2")
+  )
   
   it("Array syntax on several lines", def()
     code = gen("[1, 2, 3]")
@@ -297,7 +311,7 @@ catch(e)
     code = gen("\"Abc\ndef\".match(/abc/mig)")
     assert.equal(exe(code, {})[0], "Abc")
   )
-
+ 
   it("If expression", def()
     code = gen("2 if 1 else 3")
     assert.equal(exe(code), 2)

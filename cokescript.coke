@@ -14,6 +14,9 @@ levelStack = [0]
 def currentNs()
   return namespaces[namespaces.length - 1]
 
+def currentNsHas(p)
+  return namespaces[namespaces.length - 1].hasOwnProperty(p)
+
 def newNs()
   namespaces.push({})
   return namespaces[namespaces.length - 1]
@@ -426,12 +429,12 @@ backend = {
     funcs = node.children.methods
     parent = node.children.parent
     str = ''
-    _constructor = null
+    constructor = null
     for func in funcs
       func_def = func.children
       func_name = func_def.children.fn.value
       if func_name == 'constructor'
-        _constructor = func_def
+        constructor = func_def
       else
         str += '\n' + sp() + name + '.prototype.' + func_name + ' = ' + generateCode(func_def)
 
@@ -439,13 +442,13 @@ backend = {
     ns[name] = true
     ns = newNs()
 
-    params = _constructor && _constructor.children.params
+    params = constructor && constructor.children.params
     if params
       params = generateCode(params)
     else
       params = ''
     
-    body = _constructor && _constructor.children.block
+    body = constructor && constructor.children.block
     cons_str = '' + name + ' = function ' + name + '(' + params + ') {'
     cons_str += '\n' + sp(1) + 'if(!(this instanceof #{name})){ return new #{name}(' + Object.keys(ns).join(',') + ')}'
     for key, value in ns
@@ -554,7 +557,7 @@ backend = {
         n = child.children[0]
         prefix = ""
         if n.type == 'name'
-          if ns[n.value] == undefined
+          if currentNsHas(n.value) == undefined
             ns[n.value] = true
             if not explicit_global
               prefix = ''
@@ -564,7 +567,7 @@ backend = {
       return str
     if left.children[0].type == 'name'
       ch = left.children[0]
-      if ns[ch.value] == undefined
+      if not currentNsHas(ch.value)
         if not explicit_global
           prefix = 'var '
         
@@ -575,13 +578,15 @@ backend = {
   STATEMENT: def(node)
     e = node.children[0].children[0]
     # TODO: this should be possible
-    if node.children[0].type == 'FOR' || node.children[0].type == 'TRY_CATCH' || node.children[0].type == 'WHILE' || e && (e.type == 'FUNC_DEF' || e.type == 'LAMBDA')
+    t = node.children[0].type
+    other = e && (e.type == 'FUNC_DEF' || e.type == 'LAMBDA' || e.type == 'COMMENT')
+    if t == 'FOR' || t == 'TRY_CATCH' || t == 'WHILE' || t == 'IF' || t == 'COMMENT' || other
       return generateCode(node.children[0])
     return generateCode(node.children[0]) + ';'
   ,
   IF: def(node)
     str = ''
-    str = 'if(' + generateCode(node.children.e) + '){' + generateCode(node.children.b) + '\n' + sp() + '}'
+    str = 'if(' + generateCode(node.children.e) + ') {' + generateCode(node.children.b) + '\n' + sp() + '}'
     elif = node.children.elif
     if elif
       if Array.isArray(elif)
@@ -614,17 +619,19 @@ backend = {
   FOR: def(node)
     keyIndexName = "_index" + forLoopCount
     keyArrayName = "_keys" + forLoopCount
+    arrayName = node.children.a.value
+    varName = node.children.v.value
     forLoopCount++
     indexName = false
     if node.children.k
       indexName = node.children.k.value
     
-    str = 'var #{keyArrayName} = Object.keys(' + node.children.a.value + ')\n'
-    str += sp() + 'for(var ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n'
+    str = 'var #{keyArrayName} = Object.keys(#{arrayName});\n'
+    str += sp() + 'for(var #{keyIndexName} = 0; #{keyIndexName} < #{keyArrayName}.length; #{keyIndexName}++) {\n'
     if indexName
-      str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + ']\n'
+      str += sp(1) + 'var #{indexName} = #{keyArrayName}[#{keyIndexName}];\n'
     
-    str += sp(1) + 'var ' + node.children.v.value + ' = ' + node.children.a.value + '[' + keyArrayName + '[' + keyIndexName + ']]'
+    str += sp(1) + 'var #{varName} = #{arrayName}[#{keyArrayName}[#{keyIndexName}]];'
     str += generateCode(node.children.b) + '\n' + sp() + '}'
     return str
   ,
