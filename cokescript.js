@@ -117,10 +117,9 @@ function generateStringCode(node,c) {
     return '';
   }
   
-  var children = node.children;
-  var _keys1 = Object.keys(children);
+  var _keys1 = Object.keys(node.children);
   for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
-    var child = children[_keys1[_index1]];
+    var child = node.children[_keys1[_index1]];
     str += generateStringCode(child, c);
   }
   return str;
@@ -298,8 +297,8 @@ var grammarDef = {
   TYPE: {rules: ["name colon"]},
   
   FOR: {rules: [
-    "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
-    "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
+    "for_loop k:name comma W v:name W in a:EXPR b:BLOCK",
+    "for_loop v:name W in a:EXPR b:BLOCK"],
     hooks: [reflect, reflect]
   },
   
@@ -624,11 +623,9 @@ var backend = {
       }
     }
     
-    // TODO: fix this
-    var children = node.children;
-    var _keys6 = Object.keys(children);
+    var _keys6 = Object.keys(node.children);
     for(var _index6 = 0; _index6 < _keys6.length; _index6++) {
-      var n = children[_keys6[_index6]];
+      var n = node.children[_keys6[_index6]];
       if(n.type === 'name' || n.type === 'FUNC_DEF_PARAMS' || n.type === 'comma' || n.type === 'window') {
         str += generateCode(n);
       }
@@ -651,13 +648,12 @@ var backend = {
     var right_code = generateCode(node.children.right);
     if(left.type === 'STRICT_COMMA_SEPARATED_EXPR') {
       unpacking++;
-      var unpack_name = '__unpack' + unpacking;
-      str += 'var ' + unpack_name + " = " + right_code + "\n" + sp();
-      var children = left.children;
+      var unpack_name = '__unpack' + unpacking + '';
+      str += 'var ' + unpack_name + ' = ' + right_code + '\n' + sp();
       var i = 0;
-      var _keys7 = Object.keys(children);
+      var _keys7 = Object.keys(left.children);
       for(var _index7 = 0; _index7 < _keys7.length; _index7++) {
-        var child = children[_keys7[_index7]];
+        var child = left.children[_keys7[_index7]];
         var n = child.children[0];
         prefix = "";
         if(n.type === 'name') {
@@ -690,11 +686,9 @@ var backend = {
   ,
   STATEMENT: function (node) {
     var str = '';
-    var children = node.children;
-    
-    var _keys8 = Object.keys(children);
+    var _keys8 = Object.keys(node.children);
     for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
-      var child = children[_keys8[_index8]];
+      var child = node.children[_keys8[_index8]];
       var e = child.children && child.children[0];
       // TODO: this should be possible
       var t = child.type;
@@ -756,7 +750,7 @@ var backend = {
   FOR: function (node) {
     var keyIndexName = "_index" + forLoopCount;
     var keyArrayName = "_keys" + forLoopCount;
-    var arrayName = node.children.a.value;
+    var arrayName = generateCode(node.children.a);
     var varName = node.children.v.value;
     forLoopCount++;
     var indexName = false;
@@ -793,10 +787,9 @@ var backend = {
   ,
   STRICT_COMMA_SEPARATED_EXPR: function (node) {
     var elements = [];
-    var children = node.children;
-    var _keys10 = Object.keys(children);
+    var _keys10 = Object.keys(node.children);
     for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
-      var child = children[_keys10[_index10]];
+      var child = node.children[_keys10[_index10]];
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
@@ -854,10 +847,9 @@ function generateCode(node) {
     return '';
   }
   
-  var children = node.children;
-  var _keys11 = Object.keys(children);
+  var _keys11 = Object.keys(node.children);
   for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
-    var child = children[_keys11[_index11]];
+    var child = node.children[_keys11[_index11]];
     str += generateCode(child);
   }
   
@@ -871,7 +863,7 @@ function generateExports(keys) {
   var _keys12 = Object.keys(keys);
   for(var _index12 = 0; _index12 < _keys12.length; _index12++) {
     var key = keys[_keys12[_index12]];
-    str += '\n  ' + key + ': ' + key + ',';
+    str += '\n  ' + key + ' : ' + key + ',';
   }
   return str + '\n}';
 }

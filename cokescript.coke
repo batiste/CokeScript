@@ -107,8 +107,7 @@ def generateStringCode(node, c)
   if not node.children
     return ''
 
-  children = node.children
-  for child in children
+  for child in node.children
     str += generateStringCode(child, c)
   return str
 
@@ -257,8 +256,8 @@ grammarDef = {
   TYPE: {rules: ["name colon"]},
 
   FOR: {rules: [
-    "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
-    "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
+    "for_loop k:name comma W v:name W in a:EXPR b:BLOCK",
+    "for_loop v:name W in a:EXPR b:BLOCK"],
     hooks: [reflect, reflect]
   },
 
@@ -439,7 +438,7 @@ backend = {
       if func_name == 'constructor'
         constructor = func_def
       else
-        str += '\n' + sp() + name + '.prototype.' + func_name + ' = ' + generateCode(func_def)
+        str += '\n' + sp() + name + '.prototype.#{func_name} = ' + generateCode(func_def)
 
     ns = currentNs()
     ns[name] = true
@@ -531,9 +530,7 @@ backend = {
       if node.children[1] && node.children[1].type == 'assign'
         ns[node.children[0].value] = node.children[2]
 
-    # TODO: fix this
-    children = node.children
-    for n in children
+    for n in node.children
       if n.type == 'name' || n.type == 'FUNC_DEF_PARAMS' || n.type == 'comma' || n.type == 'window'
         str += generateCode(n)
 
@@ -552,11 +549,10 @@ backend = {
     right_code = generateCode(node.children.right)
     if left.type == 'STRICT_COMMA_SEPARATED_EXPR'
       unpacking++
-      unpack_name = '__unpack' + unpacking
-      str += 'var ' + unpack_name + " = " + right_code + "\n" + sp()
-      children = left.children
+      unpack_name = '__unpack#{unpacking}'
+      str += 'var #{unpack_name} = #{right_code}\n' + sp()
       i = 0
-      for child in children
+      for child in left.children
         n = child.children[0]
         prefix = ""
         if n.type == 'name'
@@ -565,7 +561,7 @@ backend = {
             if not explicit_global
               prefix = ''
             
-        str += prefix + generateCode(n) + ' ' + op + ' ' + unpack_name + '[' + i + '];\n' + sp()
+        str += prefix + generateCode(n) + ' #{op} #{unpack_name}[#{i}];\n' + sp()
         i++
       return str
     if left.children[0].type == 'name'
@@ -579,11 +575,8 @@ backend = {
     return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code
   ,
   STATEMENT: def(node)
-
     str = ''
-    children = node.children
-
-    for child in children
+    for child in node.children
       e = child.children && child.children[0]
       # TODO: this should be possible
       t = child.type
@@ -631,7 +624,7 @@ backend = {
   FOR: def(node)
     keyIndexName = "_index" + forLoopCount
     keyArrayName = "_keys" + forLoopCount
-    arrayName = node.children.a.value
+    arrayName = generateCode(node.children.a)
     varName = node.children.v.value
     forLoopCount++
     indexName = false
@@ -662,8 +655,7 @@ backend = {
   ,
   STRICT_COMMA_SEPARATED_EXPR: def(node)
     elements = []
-    children = node.children
-    for child in children
+    for child in node.children
       elements.push(generateCode(child))
     return '[' + elements.join(", ") + ']'
   ,
@@ -707,8 +699,7 @@ def generateCode(node)
   if not node.children
     return ''
   
-  children = node.children
-  for child in children
+  for child in node.children
     str += generateCode(child)
   
   return str
@@ -718,7 +709,7 @@ def generateExports(keys)
   str = '\nmodule.exports = {'
   keys = keys || Object.keys(currentNs())
   for key in keys
-    str += '\n  ' + key + ': ' + key + ','
+    str += '\n  #{key} : #{key},'
   return str + '\n}'
 
 def generateModule(input, opts)

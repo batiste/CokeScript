@@ -134,8 +134,18 @@ else
   )
   
   it("For loop", def()
-    code = gen("for k, v in array\n  array[k] = v * v\narray")
+    code = gen("for k, v in array
+  array[k] = v * v
+array")
     assert.deepEqual(exe(code, {array: [1, 2, 3]}), [1, 4, 9])
+  )
+  
+  it("For loop accept expression", def()
+    code = gen("acc = 0
+for k, v in [1, 3, 4]
+  acc += v
+acc")
+    assert.deepEqual(exe(code, {acc: 0}), 8)
   )
   
   it("Class", def()

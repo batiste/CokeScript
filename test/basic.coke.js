@@ -151,6 +151,12 @@ describe("CokeScript features test suite", function () {
   }
   );
   
+  it("For loop accept expression", function () {
+    var code = gen("acc = 0\nfor k, v in [1, 3, 4]\n  acc += v\nacc");
+    assert.deepEqual(exe(code, {acc: 0}), 8);
+  }
+  );
+  
   it("Class", function () {
     var code = gen("\nclass Test(Array)\n    def constructor(a=10, b)\n        this.a = b\n\nb = Test(1, 20)\nb.a");
     assert.deepEqual(exe(code), 20);
