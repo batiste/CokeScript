@@ -1,7 +1,5 @@
-
 # CokeScript language by Batiste Bieler 2015
 # Implemented using EPEG.JS
-
 
 epegjs = require("epegjs")
 
@@ -30,6 +28,7 @@ def resetGlobal()
 
 # token are matched in order of declaration
 # TODO: add functions
+
 tokenDef = [
   {key: "string", func: stringDef},
   {key: "comment", func: commentDef},
@@ -41,6 +40,7 @@ tokenDef = [
   {key: "try", reg: /^try/},
   {key: "catch", reg: /^catch/},
   {key: "throw", reg: /^throw /},
+  {key: "pazz", reg: /^pass/},
   {key: "new", reg: /^new /},
   {key: "tag", reg: /^<[a-zA-Z][0-9a-zA-Z]{0,29}/},
   {key: ">", reg: /^>/},
@@ -112,7 +112,6 @@ def generateStringCode(node, c)
     str += generateStringCode(child, c)
   return str
 
-
 def currentLevel()
   return levelStack[levelStack.length - 1]
 
@@ -125,7 +124,6 @@ def indentType(l)
 
   if l == currentLevel()
     return 'samedent'
-
 
 def dent(dentType)
   return def _dent(input)
@@ -171,7 +169,6 @@ def regExpDef(input)
         return input.slice(0, i)
       i++
 
-
 def defDef(input)
   if input.match(/^def[\(| |\n]/)
     return "def"
@@ -196,7 +193,7 @@ grammarDef = {
   ELC: {rules: ["W* comment"], verbose: "comment"},
   LINE: {rules: ["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", 
      "ELC? samedent", "ELC !dedent"], verbose: "new line"},
-  BLOCK: {rules: ["indent LINE+ dedent"]},
+  BLOCK: {rules: ["indent pazz dedent", "indent LINE+ dedent"]},
   STATEMENT: {rules: ["ASSIGN", "EXPR", "IF", "WHILE", "FOR", "RETURN", 
     "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   CLASS_METHODS: {
@@ -391,7 +388,13 @@ backend = {
     return '\n' + sp()
   ,
   samedent: def(node)
-    return '\n' + sp()
+    l = node.value.split('\n').length - 1
+    i = 0
+    str = ''
+    while i < l
+      str += '\n' + sp()
+      i++
+    return str
   ,
   DOM_ASSIGN: def(node)
     name = CN()
@@ -576,13 +579,22 @@ backend = {
     return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code
   ,
   STATEMENT: def(node)
-    e = node.children[0].children[0]
-    # TODO: this should be possible
-    t = node.children[0].type
-    other = e && (e.type == 'FUNC_DEF' || e.type == 'LAMBDA' || e.type == 'COMMENT')
-    if t == 'FOR' || t == 'TRY_CATCH' || t == 'WHILE' || t == 'IF' || t == 'COMMENT' || other
-      return generateCode(node.children[0])
-    return generateCode(node.children[0]) + ';'
+
+    str = ''
+    children = node.children
+
+    for child in children
+      e = child.children && child.children[0]
+      # TODO: this should be possible
+      t = child.type
+      str += generateCode(child)
+      other = e && (e.type == 'FUNC_DEF' || e.type == 'LAMBDA')
+      if t == 'FOR' || t == 'TRY_CATCH' || t == 'WHILE' || t == 'IF' || t == 'STATEMENT' || t == 'samedent' || other
+        pass
+      else
+        str += ';'
+
+    return str
   ,
   IF: def(node)
     str = ''
@@ -666,6 +678,9 @@ backend = {
   comment: def(node)
     return node.value.replace(/^#/g, "//")
   ,
+  pazz: def(node)
+    return ''
+  ,
   not: def(node)
     return '!'
   ,
@@ -714,7 +729,6 @@ def generateModule(input, opts)
   
   obj = {ast: ast, code: generateCode(ast), ns: currentNs()}
   return obj
-
 
 gram = epegjs.compileGrammar(grammarDef, tokenDef)
 

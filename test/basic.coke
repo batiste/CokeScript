@@ -171,9 +171,19 @@ b.a")
     assert.equal(exe(code, {}), 1)
   )
 
+  it("Comment samedent", def()
+    code = gen("1\n# nothing")
+    assert.equal(code, "1;\n// nothing")
+  )
+
   it("Comments", def()
     code = gen("# nothing\n# nothing 2")
     assert.equal(code, "// nothing\n// nothing 2")
+  )
+
+  it("Empty lines", def()
+    code = gen("1\n\n2")
+    assert.equal(code, "1;\n\n2;")
   )
   
   it("Array syntax on several lines", def()

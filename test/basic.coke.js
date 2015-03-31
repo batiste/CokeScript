@@ -1,9 +1,11 @@
 var cokescript = require("../dist/cokescript");
 var assert = require("assert");
 var vm = require("vm");
+
 function gen(source) {
   return cokescript.generateModule(source).code.trim();
 }
+
 function exe(js,context) {
   try {
     return vm.runInNewContext(js, context);
@@ -11,26 +13,31 @@ function exe(js,context) {
     throw "JS error\n" + js + "";
   }
 }
+
 describe("CokeScript features test suite", function () {
   it("Lambda function", function () {
     var code = gen("def test() 1");
     assert.equal(code, "function test() { return 1; }");
     assert.equal(exe(code), undefined);
+    
     code = gen("def test(a=41 + 1)\n  return a\ntest()");
     assert.equal(exe(code), 42);
   }
   );
+  
   it("If doesn't have ;", function () {
     var code = gen("\nif 1\n  1");
     assert.equal(code, "if(1) {\n  1;\n}");
   }
   );
+  
   it("Normal function", function () {
     var code = gen("def test()\n  1");
     assert.equal(code, "function test() {\n  1;\n}");
     assert.equal(exe(code), undefined);
   }
   );
+  
   it("Function call", function () {
     function test() {
       return 1;
@@ -38,19 +45,23 @@ describe("CokeScript features test suite", function () {
     assert.equal(test(), 1);
   }
   );
+  
   it("Lambda", function () {
     assert.equal((function () { return 1 + 1; })(), 2);
   }
   );
+  
   it("Function addition", function () {
     var code = gen("def test() 1 + 3\ntest()");
     assert.equal(exe(code), 4);
   }
   );
+  
   it("Function params indentation", function () {
     function test(a,b,c,d,e) {
       return a + b + c + d + e;
     }
+    
     assert.equal(test(1,
       2, 3,
       4,
@@ -58,6 +69,7 @@ describe("CokeScript features test suite", function () {
     15);
   }
   );
+  
   it("String interpolation", function () {
     function test(alpha,beta) {
       return "hello " + alpha + " world " + beta + "";
@@ -65,10 +77,12 @@ describe("CokeScript features test suite", function () {
     assert.equal(test(1, 2), "hello 1 world 2");
     var toto = {tata: 42};
     assert.equal("something " + toto.tata + " something", "something 42 something");
+    
     var code = gen("\"\#{test}\""); // for coverage
     assert.equal(exe(code, {test: 42}), "42");
   }
   );
+  
   it("Return an array", function () {
     function test(a,b,c) {
       if(a === undefined) {a = 1;}
@@ -78,6 +92,7 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(test(undefined, 3), [1, 3, "test"]);
   }
   );
+  
   it("Return an object", function () {
     function test(a,b,c) {
       if(a === undefined) {a = 1;}
@@ -88,21 +103,25 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(test(undefined, 3), {a: 1, b: 3, c: "test"});
   }
   );
+  
   it("Multiline string", function () {
     var a = "hello\nhello";
     assert.equal(a, "hello\nhello");
   }
   );
+  
   it("single quoted string", function () {
     var a = 'hello hello';
     assert.equal(a, "hello hello");
   }
   );
+  
   it("not expression", function () {
     var code = gen("not false");
     assert.equal(exe(code), true, code);
   }
   );
+  
   it("Multiline interpolated string", function () {
     var w = 1;
     var x = 2;
@@ -111,6 +130,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(a, "hello 1\nhello 2\nhello 3");
   }
   );
+  
   it("If else elseif", function () {
     var code = gen("\nif a == 0\n  1\nelseif a == 10\n  20\nelse\n  42");
     assert.equal(exe(code, {a: 0}), 1);
@@ -118,38 +138,58 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, {a: 100}), 42);
   }
   );
+  
   it("For loop", function () {
     var code = gen("for k, v in array\n  array[k] = v * v\narray");
     assert.deepEqual(exe(code, {array: [1, 2, 3]}), [1, 4, 9]);
   }
   );
+  
   it("Class", function () {
     var code = gen("\nclass Test(Array)\n    def constructor(a=10, b)\n        this.a = b\n\nb = Test(1, 20)\nb.a");
     assert.deepEqual(exe(code), 20);
+    
     code = gen("\nclass Test\n\n  def constructor()\n    this.a = 1\n\n  def other()\n    1\n\nb = Test()\nb.a");
     assert.deepEqual(exe(code, {}), 1);
   }
   );
+  
   it("Invalid syntax", function () {
     var t = function test() { return gen("a=1"); };
     assert.throws(t, Error);
   }
   );
+  
   it("Invalid token", function () {
     var t = function test() { return gen("a = 1;"); };
     assert.throws(t, Error);
   }
   );
+  
   it("Comments", function () {
     var code = gen("# nothing\n1 # nothing");
     assert.equal(exe(code, {}), 1);
   }
   );
+  
+  it("Comment samedent", function () {
+    var code = gen("1\n# nothing");
+    assert.equal(code, "1;\n// nothing");
+  }
+  );
+  
   it("Comments", function () {
     var code = gen("# nothing\n# nothing 2");
     assert.equal(code, "// nothing\n// nothing 2");
   }
   );
+  
+  it("Empty lines", function () {
+    var code = gen("1\n\n2");
+    assert.equal(code, "1;\n\n2;");
+  }
+  );
+  
   it("Array syntax on several lines", function () {
     var code = gen("[1, 2, 3]");
     assert.deepEqual(exe(code), [1, 2, 3]);
@@ -157,10 +197,13 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(exe(code), [1, 2, 3]);
   }
   );
+  
   it("DOM gen", function () {
     var code = gen("dom makeDom(list)\n      for item in list\n        <input enabled>\n        <li className=\"cls\#{item}\" dummy=\"1\">\n          =item");
   }
+  
   );
+  
   it("DOM", function () {
     function h(n,p,c) { return {n: n, p: p, c: c}; }
     function makeDom(list) {
@@ -183,12 +226,14 @@ describe("CokeScript features test suite", function () {
     );
   }
   );
+  
   it("Function call accept function def", function () {
     var code = gen("\ntest(1, def toto()\n  return 42\n, 1)");
     var context = {test: function (a,b,c) { return b(); }};
     assert.equal(exe(code, context), 42);
   }
   );
+  
   it("Object function def", function () {
     var code = gen("\na = {a: def test()\n  return 42\n}\na.a()");
     assert.equal(exe(code), 42);
@@ -198,6 +243,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 44);
   }
   );
+  
   it("Array and whitespace", function () {
     var a = [
       1, 2,
@@ -218,6 +264,7 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(a, [1, 3, 2]);
   }
   );
+  
   it("Object and whitspace", function () {
     var o = {
       a: 1, b: 2,
@@ -228,6 +275,7 @@ describe("CokeScript features test suite", function () {
     c: 5};
   }
   );
+  
   it("While loop", function () {
     var n = 5;
     while(n > 0){
@@ -236,6 +284,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(n, 0);
   }
   );
+  
   it("For loop", function () {
     var array = [1, 2, 3];
     var array2 = [];
@@ -248,11 +297,13 @@ describe("CokeScript features test suite", function () {
     assert.deepEqual(array2, [1, 4, 9]);
   }
   );
+  
   it("Try catch", function () {
     var code = gen("\ntry\n  wrong()\ncatch(e)\n  42");
     assert.equal(exe(code), 42);
   }
   );
+  
   it("Strict comparison", function () {
     var code = gen("23 == \"23\"");
     assert.equal(exe(code, {}), false);
@@ -262,6 +313,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, {}), true);
   }
   );
+  
   it("Regular expression", function () {
     var code = gen("\"abc\".match(/abc/)");
     assert.equal(exe(code, {})[0], "abc");
@@ -271,6 +323,7 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code, {})[0], "Abc");
   }
   );
+  
   it("If expression", function () {
     var code = gen("2 if 1 else 3");
     assert.equal(exe(code), 2);
@@ -280,26 +333,32 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 3);
   }
   );
+  
   it("New object", function () {
     var code = gen("new Number(42)");
     assert.equal(exe(code), 42);
     code = gen("throw new Error(42)");
   }
   );
+  
   it("Value unpacking", function () {
     var code = gen("a, b, c = [1, 2, 3]\nc");
     assert.equal(exe(code), 3);
   }
   );
+  
   it("Assignement unpacking", function () {
     var code = gen("a, b, c = 1, 2, 3\nb");
     assert.equal(exe(code), 2);
   }
   );
+  
   it("Return comma separated", function () {
     var code = gen("\ndef test\n  return 1, 1 + 1, 3\n\na, b, c = test()\na + b + c");
     assert.equal(exe(code), 6);
   }
   );
 }
+
 );
+

@@ -1,29 +1,38 @@
-
 // CokeScript language by Batiste Bieler 2015
 // Implemented using EPEG.JS
+
 var epegjs = require("epegjs");
+
 var depth = 0;
 var forLoopCount = 1;
 var unpacking = 0;
 var namespaces = [{}];
 var levelStack = [0];
+
 function currentNs() {
   return namespaces[namespaces.length - 1];
 }
+
 function currentNsHas(p) {
   return namespaces[namespaces.length - 1].hasOwnProperty(p);
 }
+
 function newNs() {
   namespaces.push({});
   return namespaces[namespaces.length - 1];
 }
+
 function resetGlobal() {
   namespaces = [{}];
   forLoopCount = 1;
   levelStack = [0];
   depth = 0;
   unpacking = 0;
-};;// TODO: add functions
+}
+
+// token are matched in order of declaration;
+// TODO: add functions
+
 var tokenDef = [
   {key: "string", func: stringDef},
   {key: "comment", func: commentDef},
@@ -35,6 +44,7 @@ var tokenDef = [
   {key: "try", reg: /^try/},
   {key: "catch", reg: /^catch/},
   {key: "throw", reg: /^throw /},
+  {key: "pazz", reg: /^pass/},
   {key: "new", reg: /^new /},
   {key: "tag", reg: /^<[a-zA-Z][0-9a-zA-Z]{0,29}/},
   {key: ">", reg: /^>/},
@@ -65,6 +75,7 @@ var tokenDef = [
   {key: "indent", func: dent("indent")},
   {key: "W", reg: /^[ ]/, verbose: "single whitespace"}
 ];
+
 function startStr(input,stream) {
   var last = stream[stream.length - 1];
   if(last && last.value === "\\") {
@@ -74,6 +85,7 @@ function startStr(input,stream) {
     return "#{";
   }
 }
+
 var strInterpolationTokenDef = [
   {key: "start", func: startStr},
   {key: "end", reg: /^}/},
@@ -81,24 +93,30 @@ var strInterpolationTokenDef = [
   {key: "dot", reg: /^\./},
   {key: "char", reg: /^./}
 ];
+
 var strInterpolationGrammarDef = {
   START: {rules: ["EL* EOF"]},
   EL: {rules: ["VAR", "char", "name", "start", "end", "dot"]},
   VAR: {rules: ["start NAME end"]},
   NAME: {rules: ["name dot NAME", "name"]}
 };
+
 var strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
+
 function generateStringCode(node,c) {
   if(node.type === 'VAR') {
     return c + ' + ' + generateStringCode(node.children[1], c) + ' + ' + c;
   }
+  
   if(node.value !== undefined) {
     return node.value;
   }
+  
   var str = '';
   if(!node.children) {
     return '';
   }
+  
   var children = node.children;
   var _keys1 = Object.keys(children);
   for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
@@ -107,20 +125,25 @@ function generateStringCode(node,c) {
   }
   return str;
 }
+
 function currentLevel() {
   return levelStack[levelStack.length - 1];
 }
+
 function indentType(l) {
   if(l > currentLevel()) {
     return 'indent';
   }
+  
   if(l < currentLevel()) {
     return 'dedent';
   }
+  
   if(l === currentLevel()) {
     return 'samedent';
   }
 }
+
 function dent(dentType) {
   return function _dent(input) {
     // empty line is a samedent
@@ -133,14 +156,17 @@ function dent(dentType) {
           levelStack.pop();
           return '';
         }
+        
         if(dentType === 'indent') {
           levelStack.push(indent);
         }
+        
         return m[0];
       }
     }
   };
 }
+
 function stringDef(input) {
   var first = input.charAt(0);
   if(first === '"' || first === "'") {
@@ -156,6 +182,7 @@ function stringDef(input) {
     }
   }
 }
+
 function regExpDef(input) {
   if(input.charAt(0) === '/') {
     var i = 1;
@@ -164,7 +191,8 @@ function regExpDef(input) {
       if(ch === '\\') {
         i++;
       } else if(ch === '/') {
-        i++;;// modifiers
+        i++;
+        // modifiers
         while(input.charAt(i) && "igm".indexOf(input.charAt(i)) !== -1){
           i++;
         }
@@ -174,14 +202,17 @@ function regExpDef(input) {
     }
   }
 }
+
 function defDef(input) {
   if(input.match(/^def[\(| |\n]/)) {
     return "def";
   }
+  
   if(input.indexOf("dom ") === 0) {
     return "dom";
   }
 }
+
 function commentDef(input) {
   var m = input.match(/^#/);
   if(m) {
@@ -195,13 +226,15 @@ function commentDef(input) {
     }
   }
 }
+
 function reflect(params) { return params; }
+
 var grammarDef = {
   START: {rules: ["LINE* EOF"]},
   ELC: {rules: ["W* comment"], verbose: "comment"},
   LINE: {rules: ["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", 
     "ELC? samedent", "ELC !dedent"], verbose: "new line"},
-  BLOCK: {rules: ["indent LINE+ dedent"]},
+  BLOCK: {rules: ["indent pazz dedent", "indent LINE+ dedent"]},
   STATEMENT: {rules: ["ASSIGN", "EXPR", "IF", "WHILE", "FOR", "RETURN", 
     "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   CLASS_METHODS: {
@@ -261,12 +294,15 @@ var grammarDef = {
   FUNC_CALL: {rules: [
     "open_par FUNC_CALL_PARAMS? close_par"
   ]},
+  
   TYPE: {rules: ["name colon"]},
+  
   FOR: {rules: [
     "for_loop k:name comma W v:name W in t:TYPE? a:name b:BLOCK",
     "for_loop v:name W in t:TYPE? a:name b:BLOCK"],
     hooks: [reflect, reflect]
   },
+  
   STRICT_COMMA_SEPARATED_EXPR: {rules: [
     "e1:EXPR comma W e2:STRICT_COMMA_SEPARATED_EXPR",
     "e1:EXPR comma W e2:EXPR"
@@ -275,20 +311,25 @@ var grammarDef = {
     function (p) { return [p.e1].concat(p.e2.children); }, function (p) { return [p.e1, p.e2]; }
   ] 
   },
+  
   COMMA_SEPARATED_EXPR: {rules: [
     "EXPR comma ANY_SPACE+ COMMA_SEPARATED_EXPR ANY_SPACE*",
     "EXPR ANY_SPACE*"
   ]},
+  
   ARRAY: {rules: [
     "open_bra ANY_SPACE* c:COMMA_SEPARATED_EXPR? ANY_SPACE* close_bra"
   ]},
+  
   MEMBERS: {rules: [
     "name colon W EXPR samedent? comma ANY_SPACE+ MEMBERS ANY_SPACE*",
     "name colon W EXPR ANY_SPACE*"
   ]},
+  
   OBJECT: {rules: [
     "open_curly indent? MEMBERS? close_curly"
   ]},
+  
   TAG_PARAMS: {rules: [
     "left:TAG_PARAMS W right:TAG_PARAMS",
     "n:name assign e:EXPR",
@@ -297,22 +338,27 @@ var grammarDef = {
     hooks: [reflect, reflect, reflect],
     verbose: "tag parameters"
   },
+  
   TAG: {rules: [
     "tag:tag W? params:TAG_PARAMS? end:>? block:BLOCK?"
   ],
   hooks: [reflect]
   },
+  
   DOM_ASSIGN: {rules: [
     "assign EXPR"
   ]},
+  
   TRY_CATCH: {rules: [
     "try b1:BLOCK samedent? catch open_par err:name? close_par b2:BLOCK"
     ],
     hooks: [reflect]
   },
+  
   THROW: {rules: [
     "throw EXPR"
   ]},
+  
   RETURN: {rules: ["ret W STRICT_COMMA_SEPARATED_EXPR", "ret W EXPR", "ret"]},
   RIGHT_EXPR: {rules: [
     "math_operators",
@@ -325,6 +371,7 @@ var grammarDef = {
     ],
     verbose: "expression"
   },
+  
   EXPR: {rules: [
     "IF_EXPR",
     "MATH",
@@ -344,6 +391,7 @@ var grammarDef = {
     verbose: "expression"
   }
 };
+
 function spacer(n) {
   var out = "";
   var i = 0;
@@ -353,24 +401,30 @@ function spacer(n) {
   }
   return out;
 }
+
 function sp(mod) {
   if(mod) {
     return spacer(2 * (depth + mod));
   }
   return spacer(2 * depth);
 }
-var nc = 1;;// children name
+
+var nc = 1;
+// children name
 function CN() {
   return '__c' + nc;
 }
+
 function pushCN() {
   nc++;
   return '__c' + nc;
 }
+
 function popCN() {
   nc--;
   return '__c' + nc;
 }
+
 var backend = {
   dedent: function (node) {
     depth = Math.max(0, depth - 1);
@@ -383,7 +437,14 @@ var backend = {
   }
   ,
   samedent: function (node) {
-    return '\n' + sp();
+    var l = node.value.split('\n').length - 1;
+    var i = 0;
+    var str = '';
+    while(i < l){
+      str += '\n' + sp();
+      i++;
+    }
+    return str;
   }
   ,
   DOM_ASSIGN: function (node) {
@@ -395,6 +456,7 @@ var backend = {
     if(node.children.left) {
       return generateCode(node.children.left) + ', ' + generateCode(node.children.right);
     }
+    
     if(node.children.e) {
       return node.children.n.value + ': ' + generateCode(node.children.e);
     } else {
@@ -409,6 +471,7 @@ var backend = {
     if(node.children.params) {
       params += generateCode(node.children.params);
     }
+    
     params += '}';
     var sub = '[]';
     if(node.children.block) {
@@ -417,6 +480,7 @@ var backend = {
       str += generateCode(node.children.block);
       popCN();
     }
+    
     str += '\n' + sp(1) + CN() + '.push(h("' + name + '", ' + params + ', ' + sub + '))';
     return str;
   }
@@ -438,15 +502,18 @@ var backend = {
         str += '\n' + sp() + name + '.prototype.' + func_name + ' = ' + generateCode(func_def);
       }
     }
+    
     var ns = currentNs();
     ns[name] = true;
     ns = newNs();
+    
     var params = constructor && constructor.children.params;
     if(params) {
       params = generateCode(params);
     } else {
       params = '';
     }
+    
     var body = constructor && constructor.children.block;
     var cons_str = '' + name + ' = function ' + name + '(' + params + ') {';
     cons_str += '\n' + sp(1) + 'if(!(this instanceof ' + name + ')){ return new ' + name + '(' + Object.keys(ns).join(',') + ')}';
@@ -462,10 +529,12 @@ var backend = {
       cons_str += generateCode(body);
     }
     cons_str += sp() + '\n}';
+    
     if(parent) {
       cons_str += '\n' + sp() + '' + name + '.prototype = Object.create(' + parent.value + '.prototype)';
       cons_str += '\n' + sp() + '' + name + '.prototype.constructor = ' + name + '';
     }
+    
     namespaces.pop();
     return cons_str + str;
   }
@@ -477,10 +546,12 @@ var backend = {
       name = node.children.fn.value;
       ns[name] = true;
     }
+    
     var str = "function " + name + "(";
     if(node.children.params) {
       str += generateCode(node.children.params, ns);
     }
+    
     str += ') {';
     var _keys4 = Object.keys(ns);
     for(var _index4 = 0; _index4 < _keys4.length; _index4++) {
@@ -491,9 +562,11 @@ var backend = {
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + '}';
       }
     }
+    
     if(node.children.block) {
       str += ' return ' + generateCode(node.children.block, ns);
     }
+    
     namespaces.pop();
     return str + "; }";
   }
@@ -506,11 +579,13 @@ var backend = {
       name = node.children.fn.value;
       ns[name] = true;
     }
+    
     ns = newNs();
     var str = "function " + name + "(";
     if(node.children.params) {
       str += generateCode(node.children.params);
     }
+    
     str += ') {';
     var _keys5 = Object.keys(ns);
     for(var _index5 = 0; _index5 < _keys5.length; _index5++) {
@@ -521,16 +596,21 @@ var backend = {
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + ';}';
       }
     }
+    
     if(is_dom) {
       str += '\n' + sp(1) + '' + CN() + ' = [];';
     }
+    
     if(node.children.block) {
       str += generateCode(node.children.block);
     }
+    
     namespaces.pop();
+    
     if(is_dom) {
       str += '\n' + sp(1) + 'return ' + CN() + ';';
     }
+    
     return str + '\n' + sp() + '}';
   }
   ,
@@ -542,7 +622,9 @@ var backend = {
       if(node.children[1] && node.children[1].type === 'assign') {
         ns[node.children[0].value] = node.children[2];
       }
-    };// TODO: fix this
+    }
+    
+    // TODO: fix this
     var children = node.children;
     var _keys6 = Object.keys(children);
     for(var _index6 = 0; _index6 < _keys6.length; _index6++) {
@@ -551,6 +633,7 @@ var backend = {
         str += generateCode(n);
       }
     }
+    
     return str;
   }
   ,
@@ -562,6 +645,7 @@ var backend = {
     if(explicit_global) {
       op = '=';
     }
+    
     var ns = currentNs();
     var left = node.children.left;
     var right_code = generateCode(node.children.right);
@@ -584,6 +668,7 @@ var backend = {
             }
           }
         }
+        
         str += prefix + generateCode(n) + ' ' + op + ' ' + unpack_name + '[' + i + '];\n' + sp();
         i++;
       }
@@ -595,20 +680,34 @@ var backend = {
         if(!explicit_global) {
           prefix = 'var ';
         }
+        
         ns[ch.value] = true;
       }
     }
+    
     return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code;
   }
   ,
   STATEMENT: function (node) {
-    var e = node.children[0].children[0];;// TODO: this should be possible
-    var t = node.children[0].type;
-    var other = e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA' || e.type === 'COMMENT');
-    if(t === 'FOR' || t === 'TRY_CATCH' || t === 'WHILE' || t === 'IF' || t === 'COMMENT' || other) {
-      return generateCode(node.children[0]);
+    var str = '';
+    var children = node.children;
+    
+    var _keys8 = Object.keys(children);
+    for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
+      var child = children[_keys8[_index8]];
+      var e = child.children && child.children[0];
+      // TODO: this should be possible
+      var t = child.type;
+      str += generateCode(child);
+      var other = e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA');
+      if(t === 'FOR' || t === 'TRY_CATCH' || t === 'WHILE' || t === 'IF' || t === 'STATEMENT' || t === 'samedent' || other) {
+        
+      } else {
+        str += ';';
+      }
     }
-    return generateCode(node.children[0]) + ';';
+    
+    return str;
   }
   ,
   IF: function (node) {
@@ -617,18 +716,20 @@ var backend = {
     var elif = node.children.elif;
     if(elif) {
       if(Array.isArray(elif)) {
-        var _keys8 = Object.keys(elif);
-        for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
-          var value = elif[_keys8[_index8]];
+        var _keys9 = Object.keys(elif);
+        for(var _index9 = 0; _index9 < _keys9.length; _index9++) {
+          var value = elif[_keys9[_index9]];
           str += generateCode(value);
         }
       } else {
         str += generateCode(elif);
       }
     }
+    
     if(node.children.el) {
       str += generateCode(node.children.el);
     }
+    
     return str;
   }
   ,
@@ -640,6 +741,7 @@ var backend = {
     } else {
       str += 'undefined';
     }
+    
     return str;
   }
   ,
@@ -661,11 +763,13 @@ var backend = {
     if(node.children.k) {
       indexName = node.children.k.value;
     }
+    
     var str = 'var ' + keyArrayName + ' = Object.keys(' + arrayName + ');\n';
     str += sp() + 'for(var ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n';
     if(indexName) {
       str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + '];\n';
     }
+    
     str += sp(1) + 'var ' + varName + ' = ' + arrayName + '[' + keyArrayName + '[' + keyIndexName + ']];';
     str += generateCode(node.children.b) + '\n' + sp() + '}';
     return str;
@@ -690,9 +794,9 @@ var backend = {
   STRICT_COMMA_SEPARATED_EXPR: function (node) {
     var elements = [];
     var children = node.children;
-    var _keys9 = Object.keys(children);
-    for(var _index9 = 0; _index9 < _keys9.length; _index9++) {
-      var child = children[_keys9[_index9]];
+    var _keys10 = Object.keys(children);
+    for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
+      var child = children[_keys10[_index10]];
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
@@ -712,6 +816,10 @@ var backend = {
     return node.value.replace(/^#/g, "//");
   }
   ,
+  pazz: function (node) {
+    return '';
+  }
+  ,
   not: function (node) {
     return '!';
   }
@@ -720,12 +828,15 @@ var backend = {
     if(node.value === '==') {
       return '===';
     }
+    
     if(node.value === '!=') {
       return '!==';
     }
+    
     return node.value;
   }
 };
+
 function generateCode(node) {
   if(!node) {
     // debugger
@@ -733,41 +844,51 @@ function generateCode(node) {
   if(backend[node.type]) {
     return backend[node.type](node);
   }
+  
   if(node.value !== undefined) {
     return node.value;
   }
+  
   var str = "";
   if(!node.children) {
     return '';
   }
+  
   var children = node.children;
-  var _keys10 = Object.keys(children);
-  for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
-    var child = children[_keys10[_index10]];
+  var _keys11 = Object.keys(children);
+  for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
+    var child = children[_keys11[_index11]];
     str += generateCode(child);
   }
+  
   return str;
 }
+
+
 function generateExports(keys) {
   var str = '\nmodule.exports = {';
   keys = keys || Object.keys(currentNs());
-  var _keys11 = Object.keys(keys);
-  for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
-    var key = keys[_keys11[_index11]];
+  var _keys12 = Object.keys(keys);
+  for(var _index12 = 0; _index12 < _keys12.length; _index12++) {
+    var key = keys[_keys12[_index12]];
     str += '\n  ' + key + ': ' + key + ',';
   }
   return str + '\n}';
 }
+
 function generateModule(input,opts) {
   resetGlobal();
   var ast = gram.parse(input + "\n");
   if(!ast.complete) {
     throw new Error(ast.hint);
   }
+  
   var obj = {ast: ast, code: generateCode(ast), ns: currentNs()};
   return obj;
 }
+
 var gram = epegjs.compileGrammar(grammarDef, tokenDef);
+
 module.exports = {
   grammar: gram,
   strGrammar: strGram,
@@ -778,3 +899,5 @@ module.exports = {
   generateCode: generateCode,
   generateExports: generateExports
 };
+
+
