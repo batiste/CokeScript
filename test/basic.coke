@@ -38,10 +38,16 @@ if 1
     assert.equal(exe(code), undefined)
   )
   
-  it("Function call", def()
+  it("Function pass", def()
+    code = gen("def test()
+  pass")
+    assert.equal(code, "function test() {\n  \n}")
+  )
+
+  it("Function pass", def()
     def test
-      return 1
-    assert.equal(test(), 1)
+      pass
+    assert.equal(test(), undefined)
   )
 
   it("Lambda", def

@@ -38,11 +38,17 @@ describe("CokeScript features test suite", function () {
   }
   );
   
-  it("Function call", function () {
+  it("Function pass", function () {
+    var code = gen("def test()\n  pass");
+    assert.equal(code, "function test() {\n  \n}");
+  }
+  );
+  
+  it("Function pass", function () {
     function test() {
-      return 1;
+      
     }
-    assert.equal(test(), 1);
+    assert.equal(test(), undefined);
   }
   );
   

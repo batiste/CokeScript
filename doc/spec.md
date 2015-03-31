@@ -159,6 +159,23 @@ class Tiger(Animal)
     return "Meat"
 ```
 
+### Pass
+
+Like python empty blocks are not allowed but you can use the pass keyword.
+
+```python
+if 1 == 2
+  pass
+```
+
+Generates
+
+```javascript
+if(1 === 2) {
+  
+}
+```
+
 ## Virtual DOM
 
 By adding 2 keywords and a special function declared with `dom` CokeScript
