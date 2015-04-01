@@ -247,7 +247,7 @@ grammarDef = {
   ], hooks: [reflect, reflect, reflect]},
   W_OR_SAMEDENT: {rules: ["W", "samedent"], verbose: "samedent or whitespace"},
   W_SAMEDENT_INDENT: {rules: ["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
-  ANY_SPACE: {rules: ["W", "samedent", "indent", "dedent"], verbose: "any space"},
+  ANY_SPACE: {rules: ["W", "samedent", "indent", "dedent", "comment"], verbose: "any space"},
   FUNC_CALL_PARAMS: {rules: ["EXPR comma ANY_SPACE+ FUNC_CALL_PARAMS ANY_SPACE*", "EXPR ANY_SPACE*"]},
   FUNC_CALL: {rules: [
     "open_par FUNC_CALL_PARAMS? close_par"
@@ -376,8 +376,26 @@ def popCN()
   nc--
   return '__c' + nc
 
-backend = {
+def generateHoistedVar()
+  ns = currentNs()
+  hoisted = []
+  for key, value in ns
+    if value == 'hoist'
+      hoisted.push(key)
+  if hoisted.length
+    return 'var ' + hoisted.join(', ') + ';'
+  return ''
 
+backend = {
+  START: def(node)
+    str = ''
+    for child in node.children
+      str += generateCode(child)
+    hoisted = generateHoistedVar()
+    if hoisted
+      return generateHoistedVar() + '\n' + str
+    return str
+  ,
   dedent: def(node)
     depth := Math.max(0, depth - 1)
     return ''
@@ -512,9 +530,17 @@ backend = {
     if is_dom
       str += '\n' + sp(1) + '' + CN() + ' = [];'
 
+    body = ''
     if node.children.block
-      str += generateCode(node.children.block)
+      body = generateCode(node.children.block)
     
+
+    hoisted = generateHoistedVar()
+    if hoisted
+      str += '\n' + sp(1) + hoisted
+
+    str += body
+
     namespaces.pop()
 
     if is_dom
@@ -537,7 +563,6 @@ backend = {
     return str
   ,
   ASSIGN: def(node)
-    prefix = ""
     str = ""
     op = node.children.op.value
     explicit_global = op == ':='
@@ -554,25 +579,20 @@ backend = {
       i = 0
       for child in left.children
         n = child.children[0]
-        prefix = ""
         if n.type == 'name'
           if currentNsHas(n.value) == undefined
             ns[n.value] = true
-            if not explicit_global
-              prefix = ''
             
-        str += prefix + generateCode(n) + ' #{op} #{unpack_name}[#{i}];\n' + sp()
+        str += generateCode(n) + ' #{op} #{unpack_name}[#{i}];\n' + sp()
         i++
       return str
     if left.children[0].type == 'name'
       ch = left.children[0]
       if not currentNsHas(ch.value)
         if not explicit_global
-          prefix = 'var '
-        
-        ns[ch.value] = true
+          ns[ch.value] = 'hoist'
     
-    return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code
+    return generateCode(node.children.left) + ' ' + op + ' ' + right_code
   ,
   STATEMENT: def(node)
     str = ''

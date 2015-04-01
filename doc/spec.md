@@ -120,11 +120,29 @@ can_be_tamed = "Yes" if a == "Elephant"
 
 ### Strings
 
-```python
-multi = "String can be 
-multiline"
+Strings can be interpolated ruby style
 
-b = "#{multi}. And interpolate in a Ruby-like style"
+```python
+data = {
+  h: "Hello",
+  w: "world"
+}
+
+string = "#{data.d}
+#{data.w}"
+```
+
+Generates
+
+```javascript
+var data;
+var string;
+data = {
+  h: "Hello",
+  w: "world"
+};
+
+string = "" + data.d + "\n" + data.w + "";
 ```
 
 ### Try / Catch / Throw

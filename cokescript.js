@@ -1,13 +1,14 @@
+var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
 // CokeScript language by Batiste Bieler 2015
 // Implemented using EPEG.JS
 
-var epegjs = require("epegjs");
+epegjs = require("epegjs");
 
-var depth = 0;
-var forLoopCount = 1;
-var unpacking = 0;
-var namespaces = [{}];
-var levelStack = [0];
+depth = 0;
+forLoopCount = 1;
+unpacking = 0;
+namespaces = [{}];
+levelStack = [0];
 
 function currentNs() {
   return namespaces[namespaces.length - 1];
@@ -33,7 +34,7 @@ function resetGlobal() {
 // token are matched in order of declaration;
 // TODO: add functions
 
-var tokenDef = [
+tokenDef = [
   {key: "string", func: stringDef},
   {key: "comment", func: commentDef},
   {key: "function_def", func: defDef, verbose: "def definition"},
@@ -77,7 +78,8 @@ var tokenDef = [
 ];
 
 function startStr(input,stream) {
-  var last = stream[stream.length - 1];
+  var last;
+  last = stream[stream.length - 1];
   if(last && last.value === "\\") {
     return;
   }
@@ -86,7 +88,7 @@ function startStr(input,stream) {
   }
 }
 
-var strInterpolationTokenDef = [
+strInterpolationTokenDef = [
   {key: "start", func: startStr},
   {key: "end", reg: /^}/},
   {key: "name", reg: /^[a-zA-Z_$][0-9a-zA-Z_]{0,29}/},
@@ -94,16 +96,17 @@ var strInterpolationTokenDef = [
   {key: "char", reg: /^./}
 ];
 
-var strInterpolationGrammarDef = {
+strInterpolationGrammarDef = {
   START: {rules: ["EL* EOF"]},
   EL: {rules: ["VAR", "char", "name", "start", "end", "dot"]},
   VAR: {rules: ["start NAME end"]},
   NAME: {rules: ["name dot NAME", "name"]}
 };
 
-var strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
+strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
 
 function generateStringCode(node,c) {
+  var str;
   if(node.type === 'VAR') {
     return c + ' + ' + generateStringCode(node.children[1], c) + ' + ' + c;
   }
@@ -112,7 +115,7 @@ function generateStringCode(node,c) {
     return node.value;
   }
   
-  var str = '';
+  str = '';
   if(!node.children) {
     return '';
   }
@@ -145,11 +148,12 @@ function indentType(l) {
 
 function dent(dentType) {
   return function _dent(input) {
+    var m, lines, indent;
     // empty line is a samedent
-    var m = input.match(/^\n[\s]*/);
+    m = input.match(/^\n[\s]*/);
     if(m) {
-      var lines = m[0].split("\n");
-      var indent = lines[lines.length - 1].length;
+      lines = m[0].split("\n");
+      indent = lines[lines.length - 1].length;
       if(indentType(indent) === dentType) {
         if(dentType === 'dedent') {
           levelStack.pop();
@@ -167,11 +171,12 @@ function dent(dentType) {
 }
 
 function stringDef(input) {
-  var first = input.charAt(0);
+  var first, i, ch;
+  first = input.charAt(0);
   if(first === '"' || first === "'") {
-    var i = 1;
+    i = 1;
     while(input.charAt(i)){
-      var ch = input.charAt(i);
+      ch = input.charAt(i);
       if(ch === '\\') {
         i++;
       } else if(ch === first) {
@@ -183,10 +188,11 @@ function stringDef(input) {
 }
 
 function regExpDef(input) {
+  var i, ch;
   if(input.charAt(0) === '/') {
-    var i = 1;
+    i = 1;
     while(input.charAt(i)){
-      var ch = input.charAt(i);
+      ch = input.charAt(i);
       if(ch === '\\') {
         i++;
       } else if(ch === '/') {
@@ -213,11 +219,12 @@ function defDef(input) {
 }
 
 function commentDef(input) {
-  var m = input.match(/^#/);
+  var m, i, ch;
+  m = input.match(/^#/);
   if(m) {
-    var i = m[0].length;
+    i = m[0].length;
     while(input.charAt(i)){
-      var ch = input.charAt(i);
+      ch = input.charAt(i);
       if(ch === '\n') {
         return input.slice(0, i);
       }
@@ -228,7 +235,7 @@ function commentDef(input) {
 
 function reflect(params) { return params; }
 
-var grammarDef = {
+grammarDef = {
   START: {rules: ["LINE* EOF"]},
   ELC: {rules: ["W* comment"], verbose: "comment"},
   LINE: {rules: ["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", 
@@ -288,7 +295,7 @@ var grammarDef = {
   ], hooks: [reflect, reflect, reflect]},
   W_OR_SAMEDENT: {rules: ["W", "samedent"], verbose: "samedent or whitespace"},
   W_SAMEDENT_INDENT: {rules: ["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
-  ANY_SPACE: {rules: ["W", "samedent", "indent", "dedent"], verbose: "any space"},
+  ANY_SPACE: {rules: ["W", "samedent", "indent", "dedent", "comment"], verbose: "any space"},
   FUNC_CALL_PARAMS: {rules: ["EXPR comma ANY_SPACE+ FUNC_CALL_PARAMS ANY_SPACE*", "EXPR ANY_SPACE*"]},
   FUNC_CALL: {rules: [
     "open_par FUNC_CALL_PARAMS? close_par"
@@ -392,8 +399,9 @@ var grammarDef = {
 };
 
 function spacer(n) {
-  var out = "";
-  var i = 0;
+  var out, i;
+  out = "";
+  i = 0;
   while(i < n){
     out += " ";
     i++;
@@ -408,7 +416,7 @@ function sp(mod) {
   return spacer(2 * depth);
 }
 
-var nc = 1;
+nc = 1;
 // children name
 function CN() {
   return '__c' + nc;
@@ -424,7 +432,40 @@ function popCN() {
   return '__c' + nc;
 }
 
-var backend = {
+function generateHoistedVar() {
+  var ns, hoisted;
+  ns = currentNs();
+  hoisted = [];
+  var _keys2 = Object.keys(ns);
+  for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
+    var key = _keys2[_index2];
+    var value = ns[_keys2[_index2]];
+    if(value === 'hoist') {
+      hoisted.push(key);
+    }
+  }
+  if(hoisted.length) {
+    return 'var ' + hoisted.join(', ') + ';';
+  }
+  return '';
+}
+
+backend = {
+  START: function (node) {
+    var str, hoisted;
+    str = '';
+    var _keys3 = Object.keys(node.children);
+    for(var _index3 = 0; _index3 < _keys3.length; _index3++) {
+      var child = node.children[_keys3[_index3]];
+      str += generateCode(child);
+    }
+    hoisted = generateHoistedVar();
+    if(hoisted) {
+      return generateHoistedVar() + '\n' + str;
+    }
+    return str;
+  }
+  ,
   dedent: function (node) {
     depth = Math.max(0, depth - 1);
     return '';
@@ -436,9 +477,10 @@ var backend = {
   }
   ,
   samedent: function (node) {
-    var l = node.value.split('\n').length - 1;
-    var i = 0;
-    var str = '';
+    var l, i, str;
+    l = node.value.split('\n').length - 1;
+    i = 0;
+    str = '';
     while(i < l){
       str += '\n' + sp();
       i++;
@@ -447,7 +489,8 @@ var backend = {
   }
   ,
   DOM_ASSIGN: function (node) {
-    var name = CN();
+    var name;
+    name = CN();
     return name + '.push(String(' + generateCode(node.children[1]) + '))';
   }
   ,
@@ -464,15 +507,16 @@ var backend = {
   }
   ,
   TAG: function (node) {
-    var str = '';
-    var params = "{";
-    var name = node.children.tag.value.substring(1);
+    var str, params, name, sub;
+    str = '';
+    params = "{";
+    name = node.children.tag.value.substring(1);
     if(node.children.params) {
       params += generateCode(node.children.params);
     }
     
     params += '}';
-    var sub = '[]';
+    sub = '[]';
     if(node.children.block) {
       sub = pushCN();
       str += '' + CN() + ' = []';
@@ -485,16 +529,17 @@ var backend = {
   }
   ,
   CLASS: function (node) {
-    var name = node.children.name.value;
-    var funcs = node.children.methods;
-    var parent = node.children.parent;
-    var str = '';
-    var constructor = null;
-    var _keys2 = Object.keys(funcs);
-    for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
-      var func = funcs[_keys2[_index2]];
-      var func_def = func.children;
-      var func_name = func_def.children.fn.value;
+    var name, funcs, parent, str, constructor, func_def, func_name, ns, params, body, cons_str;
+    name = node.children.name.value;
+    funcs = node.children.methods;
+    parent = node.children.parent;
+    str = '';
+    constructor = null;
+    var _keys4 = Object.keys(funcs);
+    for(var _index4 = 0; _index4 < _keys4.length; _index4++) {
+      var func = funcs[_keys4[_index4]];
+      func_def = func.children;
+      func_name = func_def.children.fn.value;
       if(func_name === 'constructor') {
         constructor = func_def;
       } else {
@@ -502,24 +547,24 @@ var backend = {
       }
     }
     
-    var ns = currentNs();
+    ns = currentNs();
     ns[name] = true;
     ns = newNs();
     
-    var params = constructor && constructor.children.params;
+    params = constructor && constructor.children.params;
     if(params) {
       params = generateCode(params);
     } else {
       params = '';
     }
     
-    var body = constructor && constructor.children.block;
-    var cons_str = '' + name + ' = function ' + name + '(' + params + ') {';
+    body = constructor && constructor.children.block;
+    cons_str = '' + name + ' = function ' + name + '(' + params + ') {';
     cons_str += '\n' + sp(1) + 'if(!(this instanceof ' + name + ')){ return new ' + name + '(' + Object.keys(ns).join(',') + ')}';
-    var _keys3 = Object.keys(ns);
-    for(var _index3 = 0; _index3 < _keys3.length; _index3++) {
-      var key = _keys3[_index3];
-      var value = ns[_keys3[_index3]];
+    var _keys5 = Object.keys(ns);
+    for(var _index5 = 0; _index5 < _keys5.length; _index5++) {
+      var key = _keys5[_index5];
+      var value = ns[_keys5[_index5]];
       if(value !== true && value !== undefined) {
         cons_str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + generateCode(value) + '}';
       }
@@ -539,25 +584,26 @@ var backend = {
   }
   ,
   LAMBDA: function (node) {
-    var name = "";
-    var ns = newNs();
+    var name, ns, str, code;
+    name = "";
+    ns = newNs();
     if(node.children.fn) {
       name = node.children.fn.value;
       ns[name] = true;
     }
     
-    var str = "function " + name + "(";
+    str = "function " + name + "(";
     if(node.children.params) {
       str += generateCode(node.children.params, ns);
     }
     
     str += ') {';
-    var _keys4 = Object.keys(ns);
-    for(var _index4 = 0; _index4 < _keys4.length; _index4++) {
-      var key = _keys4[_index4];
-      var value = ns[_keys4[_index4]];
+    var _keys6 = Object.keys(ns);
+    for(var _index6 = 0; _index6 < _keys6.length; _index6++) {
+      var key = _keys6[_index6];
+      var value = ns[_keys6[_index6]];
       if(value !== true && value !== undefined) {
-        var code = generateCode(value);
+        code = generateCode(value);
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + '}';
       }
     }
@@ -571,27 +617,28 @@ var backend = {
   }
   ,
   FUNC_DEF: function (node) {
-    var name = "";
-    var ns = currentNs();
-    var is_dom = node.children.fd.value === 'dom';
+    var name, ns, is_dom, str, code, body, hoisted;
+    name = "";
+    ns = currentNs();
+    is_dom = node.children.fd.value === 'dom';
     if(node.children.fn) {
       name = node.children.fn.value;
       ns[name] = true;
     }
     
     ns = newNs();
-    var str = "function " + name + "(";
+    str = "function " + name + "(";
     if(node.children.params) {
       str += generateCode(node.children.params);
     }
     
     str += ') {';
-    var _keys5 = Object.keys(ns);
-    for(var _index5 = 0; _index5 < _keys5.length; _index5++) {
-      var key = _keys5[_index5];
-      var value = ns[_keys5[_index5]];
+    var _keys7 = Object.keys(ns);
+    for(var _index7 = 0; _index7 < _keys7.length; _index7++) {
+      var key = _keys7[_index7];
+      var value = ns[_keys7[_index7]];
       if(value !== true && value !== undefined) {
-        var code = generateCode(value);
+        code = generateCode(value);
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + ';}';
       }
     }
@@ -600,9 +647,18 @@ var backend = {
       str += '\n' + sp(1) + '' + CN() + ' = [];';
     }
     
+    body = '';
     if(node.children.block) {
-      str += generateCode(node.children.block);
+      body = generateCode(node.children.block);
     }
+    
+    
+    hoisted = generateHoistedVar();
+    if(hoisted) {
+      str += '\n' + sp(1) + hoisted;
+    }
+    
+    str += body;
     
     namespaces.pop();
     
@@ -614,8 +670,9 @@ var backend = {
   }
   ,
   FUNC_DEF_PARAMS: function (node) {
-    var str = "";
-    var ns = currentNs();
+    var str, ns;
+    str = "";
+    ns = currentNs();
     if(node.children[0].type === 'name') {
       ns[node.children[0].value] = true;
       if(node.children[1] && node.children[1].type === 'assign') {
@@ -623,9 +680,9 @@ var backend = {
       }
     }
     
-    var _keys6 = Object.keys(node.children);
-    for(var _index6 = 0; _index6 < _keys6.length; _index6++) {
-      var n = node.children[_keys6[_index6]];
+    var _keys8 = Object.keys(node.children);
+    for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
+      var n = node.children[_keys8[_index8]];
       if(n.type === 'name' || n.type === 'FUNC_DEF_PARAMS' || n.type === 'comma' || n.type === 'window') {
         str += generateCode(n);
       }
@@ -635,65 +692,60 @@ var backend = {
   }
   ,
   ASSIGN: function (node) {
-    var prefix = "";
-    var str = "";
-    var op = node.children.op.value;
-    var explicit_global = op === ':=';
+    var str, op, explicit_global, ns, left, right_code, unpack_name, i, n, ch;
+    str = "";
+    op = node.children.op.value;
+    explicit_global = op === ':=';
     if(explicit_global) {
       op = '=';
     }
     
-    var ns = currentNs();
-    var left = node.children.left;
-    var right_code = generateCode(node.children.right);
+    ns = currentNs();
+    left = node.children.left;
+    right_code = generateCode(node.children.right);
     if(left.type === 'STRICT_COMMA_SEPARATED_EXPR') {
       unpacking++;
-      var unpack_name = '__unpack' + unpacking + '';
+      unpack_name = '__unpack' + unpacking + '';
       str += 'var ' + unpack_name + ' = ' + right_code + '\n' + sp();
-      var i = 0;
-      var _keys7 = Object.keys(left.children);
-      for(var _index7 = 0; _index7 < _keys7.length; _index7++) {
-        var child = left.children[_keys7[_index7]];
-        var n = child.children[0];
-        prefix = "";
+      i = 0;
+      var _keys9 = Object.keys(left.children);
+      for(var _index9 = 0; _index9 < _keys9.length; _index9++) {
+        var child = left.children[_keys9[_index9]];
+        n = child.children[0];
         if(n.type === 'name') {
           if(currentNsHas(n.value) === undefined) {
             ns[n.value] = true;
-            if(!explicit_global) {
-              prefix = '';
-            }
           }
         }
         
-        str += prefix + generateCode(n) + ' ' + op + ' ' + unpack_name + '[' + i + '];\n' + sp();
+        str += generateCode(n) + ' ' + op + ' ' + unpack_name + '[' + i + '];\n' + sp();
         i++;
       }
       return str;
     }
     if(left.children[0].type === 'name') {
-      var ch = left.children[0];
+      ch = left.children[0];
       if(!currentNsHas(ch.value)) {
         if(!explicit_global) {
-          prefix = 'var ';
+          ns[ch.value] = 'hoist';
         }
-        
-        ns[ch.value] = true;
       }
     }
     
-    return prefix + generateCode(node.children.left) + ' ' + op + ' ' + right_code;
+    return generateCode(node.children.left) + ' ' + op + ' ' + right_code;
   }
   ,
   STATEMENT: function (node) {
-    var str = '';
-    var _keys8 = Object.keys(node.children);
-    for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
-      var child = node.children[_keys8[_index8]];
-      var e = child.children && child.children[0];
+    var str, e, t, other;
+    str = '';
+    var _keys10 = Object.keys(node.children);
+    for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
+      var child = node.children[_keys10[_index10]];
+      e = child.children && child.children[0];
       // TODO: this should be possible
-      var t = child.type;
+      t = child.type;
       str += generateCode(child);
-      var other = e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA');
+      other = e && (e.type === 'FUNC_DEF' || e.type === 'LAMBDA');
       if(t === 'FOR' || t === 'TRY_CATCH' || t === 'WHILE' || t === 'IF' || t === 'STATEMENT' || t === 'samedent' || other) {
         
       } else {
@@ -705,14 +757,15 @@ var backend = {
   }
   ,
   IF: function (node) {
-    var str = '';
+    var str, elif;
+    str = '';
     str = 'if(' + generateCode(node.children.e) + ') {' + generateCode(node.children.b) + '\n' + sp() + '}';
-    var elif = node.children.elif;
+    elif = node.children.elif;
     if(elif) {
       if(Array.isArray(elif)) {
-        var _keys9 = Object.keys(elif);
-        for(var _index9 = 0; _index9 < _keys9.length; _index9++) {
-          var value = elif[_keys9[_index9]];
+        var _keys11 = Object.keys(elif);
+        for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
+          var value = elif[_keys11[_index11]];
           str += generateCode(value);
         }
       } else {
@@ -728,7 +781,8 @@ var backend = {
   }
   ,
   IF_EXPR: function (node) {
-    var str = '';
+    var str;
+    str = '';
     str = generateCode(node.children.test) + ' ? ' + generateCode(node.children.e) + ' : ';
     if(node.children.el) {
       str += generateCode(node.children.el);
@@ -748,17 +802,18 @@ var backend = {
   }
   ,
   FOR: function (node) {
-    var keyIndexName = "_index" + forLoopCount;
-    var keyArrayName = "_keys" + forLoopCount;
-    var arrayName = generateCode(node.children.a);
-    var varName = node.children.v.value;
+    var keyIndexName, keyArrayName, arrayName, varName, indexName, str;
+    keyIndexName = "_index" + forLoopCount;
+    keyArrayName = "_keys" + forLoopCount;
+    arrayName = generateCode(node.children.a);
+    varName = node.children.v.value;
     forLoopCount++;
-    var indexName = false;
+    indexName = false;
     if(node.children.k) {
       indexName = node.children.k.value;
     }
     
-    var str = 'var ' + keyArrayName + ' = Object.keys(' + arrayName + ');\n';
+    str = 'var ' + keyArrayName + ' = Object.keys(' + arrayName + ');\n';
     str += sp() + 'for(var ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n';
     if(indexName) {
       str += sp(1) + 'var ' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + '];\n';
@@ -778,7 +833,8 @@ var backend = {
   }
   ,
   TRY_CATCH: function (node) {
-    var str = "try {";
+    var str;
+    str = "try {";
     str += generateCode(node.children.b1);
     str += '\n' + sp() + "} catch(" + generateCode(node.children.err) + ") {";
     str += generateCode(node.children.b2);
@@ -786,19 +842,21 @@ var backend = {
   }
   ,
   STRICT_COMMA_SEPARATED_EXPR: function (node) {
-    var elements = [];
-    var _keys10 = Object.keys(node.children);
-    for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
-      var child = node.children[_keys10[_index10]];
+    var elements;
+    elements = [];
+    var _keys12 = Object.keys(node.children);
+    for(var _index12 = 0; _index12 < _keys12.length; _index12++) {
+      var child = node.children[_keys12[_index12]];
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
   }
   ,
   string: function (node) {
-    var v = node.value;
+    var v, ast;
+    v = node.value;
     v = v.replace(/\n/g, "\\n");
-    var ast = strGram.parse(v);
+    ast = strGram.parse(v);
     if(!ast.complete) {
       throw new Error(ast.hint);
     }
@@ -831,6 +889,7 @@ var backend = {
 };
 
 function generateCode(node) {
+  var str;
   if(!node) {
     // debugger
   }
@@ -842,14 +901,14 @@ function generateCode(node) {
     return node.value;
   }
   
-  var str = "";
+  str = "";
   if(!node.children) {
     return '';
   }
   
-  var _keys11 = Object.keys(node.children);
-  for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
-    var child = node.children[_keys11[_index11]];
+  var _keys13 = Object.keys(node.children);
+  for(var _index13 = 0; _index13 < _keys13.length; _index13++) {
+    var child = node.children[_keys13[_index13]];
     str += generateCode(child);
   }
   
@@ -858,28 +917,30 @@ function generateCode(node) {
 
 
 function generateExports(keys) {
-  var str = '\nmodule.exports = {';
+  var str;
+  str = '\nmodule.exports = {';
   keys = keys || Object.keys(currentNs());
-  var _keys12 = Object.keys(keys);
-  for(var _index12 = 0; _index12 < _keys12.length; _index12++) {
-    var key = keys[_keys12[_index12]];
+  var _keys14 = Object.keys(keys);
+  for(var _index14 = 0; _index14 < _keys14.length; _index14++) {
+    var key = keys[_keys14[_index14]];
     str += '\n  ' + key + ' : ' + key + ',';
   }
   return str + '\n}';
 }
 
 function generateModule(input,opts) {
+  var ast, obj;
   resetGlobal();
-  var ast = gram.parse(input + "\n");
+  ast = gram.parse(input + "\n");
   if(!ast.complete) {
     throw new Error(ast.hint);
   }
   
-  var obj = {ast: ast, code: generateCode(ast), ns: currentNs()};
+  obj = {ast: ast, code: generateCode(ast), ns: currentNs()};
   return obj;
 }
 
-var gram = epegjs.compileGrammar(grammarDef, tokenDef);
+gram = epegjs.compileGrammar(grammarDef, tokenDef);
 
 module.exports = {
   grammar: gram,

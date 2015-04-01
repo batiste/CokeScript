@@ -351,6 +351,35 @@ catch(e)
     assert.equal(exe(code), undefined)
   )
 
+  it("Var hoisting in if", def()
+    code = gen("if 1
+ a = 1
+else
+  a = 2")
+    assert.equal(code, "var a;
+if(1) {
+  a = 1;
+} else {
+  a = 2;
+}")
+  )
+
+  it("Var hoisting in function", def()
+    code = gen("def test()
+  if 1
+    a = 1
+  else
+    a = 2")
+    assert.equal(code, "function test() {
+  var a;
+  if(1) {
+    a = 1;
+  } else {
+    a = 2;
+  }
+}")
+  )
+
   it("New object", def()
     code = gen("new Number(42)")
     assert.equal(exe(code), 42)
