@@ -459,7 +459,7 @@ backend = {
         str += '\n' + sp() + name + '.prototype.#{func_name} = ' + generateCode(func_def)
 
     ns = currentNs()
-    ns[name] = true
+    ns[name] = 'hoist'
     ns = newNs()
 
     params = constructor && constructor.children.params

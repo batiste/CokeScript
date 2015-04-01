@@ -548,7 +548,7 @@ backend = {
     }
     
     ns = currentNs();
-    ns[name] = true;
+    ns[name] = 'hoist';
     ns = newNs();
     
     params = constructor && constructor.children.params;
