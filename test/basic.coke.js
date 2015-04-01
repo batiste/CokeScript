@@ -343,6 +343,10 @@ describe("CokeScript features test suite", function () {
     assert.equal(exe(code), 3);
     code = gen("a = 2 if 0 else 3\na");
     assert.equal(exe(code), 3);
+    code = gen("a = 2 if 1\na");
+    assert.equal(exe(code), 2);
+    code = gen("a = 2 if false\na");
+    assert.equal(exe(code), undefined);
   }
   );
   

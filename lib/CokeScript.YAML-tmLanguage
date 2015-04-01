@@ -13,6 +13,20 @@ patterns:
     '1': {name: keyword.other.cokescript}
     '2': {name: parens}
 
+- name: string.cokescript
+  match: ''''''
+
+- name: string.cokescript
+  match: '""'
+
+- name: string.cokescript
+  begin: \"
+  end: '([^\\]|\\\\)\"'
+
+- name: string.cokescript
+  begin: \'
+  end: '([^\\]|\\\\)'''
+
 - name: keyword.other.cokescript
   begin: \/
   end: '[^\\]/'
@@ -38,13 +52,7 @@ patterns:
 - name: constant.numeric.cokescript
   match: '[0-9]+\.?[0-9]*'
 
-- name: string.cokescript
-  begin: \"
-  end: '[^\\]?\"'
 
-- name: string.cokescript
-  begin: \'
-  end: '[^\\]?'''
 
 - name: comment.cokescript
   match: '\#[^\n]*'

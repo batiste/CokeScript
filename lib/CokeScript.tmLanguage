@@ -30,6 +30,34 @@
 			<string>def.cokescript</string>
 		</dict>
 		<dict>
+			<key>match</key>
+			<string>''</string>
+			<key>name</key>
+			<string>string.cokescript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>""</string>
+			<key>name</key>
+			<string>string.cokescript</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>\"</string>
+			<key>end</key>
+			<string>([^\\]|\\\\)\"</string>
+			<key>name</key>
+			<string>string.cokescript</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>\'</string>
+			<key>end</key>
+			<string>([^\\]|\\\\)'</string>
+			<key>name</key>
+			<string>string.cokescript</string>
+		</dict>
+		<dict>
 			<key>begin</key>
 			<string>\/</string>
 			<key>end</key>
@@ -85,22 +113,6 @@
 			<string>[0-9]+\.?[0-9]*</string>
 			<key>name</key>
 			<string>constant.numeric.cokescript</string>
-		</dict>
-		<dict>
-			<key>begin</key>
-			<string>\"</string>
-			<key>end</key>
-			<string>[^\\]?\"</string>
-			<key>name</key>
-			<string>string.cokescript</string>
-		</dict>
-		<dict>
-			<key>begin</key>
-			<string>\'</string>
-			<key>end</key>
-			<string>[^\\]?'</string>
-			<key>name</key>
-			<string>string.cokescript</string>
 		</dict>
 		<dict>
 			<key>match</key>

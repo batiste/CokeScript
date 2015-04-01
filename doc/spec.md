@@ -22,7 +22,7 @@ var a = 1;
 a = 2;
 function test() {
   var a = 3;
-};
+}
 ```
 
 CokeScript notion of scope is by function. You can assign explicitly to a higher scope
@@ -40,7 +40,7 @@ Generates
 var a = 2;
 function test() {
   a = 3;
-};
+}
 ```
 
 ### Functions and lambda
@@ -114,6 +114,8 @@ else
   3
 
 a = "Elephant" if weight > 1000 else "Mouse"
+
+can_be_tamed = "Yes" if a == "Elephant"
 ```
 
 ### Strings
