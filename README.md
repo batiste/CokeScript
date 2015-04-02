@@ -1,6 +1,6 @@
 # CokeScript
 
-CokeScript is a whitespace sensitive language inspired by Python and Ruby that compile to JavaScript. This project is still at it's infancy and no significant program has been written with it.
+CokeScript is a whitespace sensitive language inspired by Python and Ruby that compile to JavaScript. This project is still at an early stage. The CokeScript compiler is written in CokeScript. 
 
 How does it compare against CoffeeScript:
 
