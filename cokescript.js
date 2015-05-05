@@ -519,7 +519,7 @@ backend = {
     sub = '[]';
     if(node.children.block) {
       sub = pushCN();
-      str += '' + CN() + ' = []';
+      str += 'var ' + CN() + ' = [];';
       str += generateCode(node.children.block);
       popCN();
     }
@@ -644,7 +644,7 @@ backend = {
     }
     
     if(is_dom) {
-      str += '\n' + sp(1) + '' + CN() + ' = [];';
+      str += '\n' + sp(1) + 'var ' + CN() + ' = [];';
     }
     
     body = '';

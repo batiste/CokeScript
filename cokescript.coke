@@ -437,7 +437,7 @@ backend = {
     sub = '[]'
     if node.children.block
       sub = pushCN()
-      str += '' + CN() + ' = []'
+      str += 'var ' + CN() + ' = [];'
       str += generateCode(node.children.block)
       popCN()
     
@@ -479,7 +479,7 @@ backend = {
     cons_str += sp() + '\n}'
 
     if parent
-      cons_str += '\n' + sp() + '#{name}.prototype = Object.create(' + parent.value + '.prototype)'
+      cons_str += '\n' + sp() + '#{name}.prototype = Object.create(#{parent.value}.prototype)'
       cons_str += '\n' + sp() + '#{name}.prototype.constructor = #{name}'
 
     namespaces.pop()
@@ -528,7 +528,7 @@ backend = {
         str += '\n' + sp(1) + 'if(#{key} === undefined) {#{key} = #{code};}'
     
     if is_dom
-      str += '\n' + sp(1) + '' + CN() + ' = [];'
+      str += '\n' + sp(1) + 'var ' + CN() + ' = [];'
 
     body = ''
     if node.children.block
