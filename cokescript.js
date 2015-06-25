@@ -489,9 +489,11 @@ backend = {
   }
   ,
   DOM_ASSIGN: function (node) {
-    var name;
+    var name, varname, str;
     name = CN();
-    return name + '.push(String(' + generateCode(node.children[1]) + '))';
+    varname = generateCode(node.children[1]);
+    str = 'var __tmp = ' + varname + '; __tmp instanceof Array ? (' + name + ' = ' + name + '.concat(__tmp)) : ' + name + '.push(String(__tmp));';
+    return str;
   }
   ,
   TAG_PARAMS: function (node) {
@@ -939,6 +941,7 @@ function generateModule(input,opts) {
   obj = {ast: ast, code: generateCode(ast), ns: currentNs()};
   return obj;
 }
+
 
 gram = epegjs.compileGrammar(grammarDef, tokenDef);
 

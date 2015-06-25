@@ -188,10 +188,15 @@ menu = {home: "Homepage", products: "Products"}
 # a function declared with the "dom" keyword
 # automatically return an array of DOM elements
 dom generateVirtualDom(links)
+  <h1>
+    ="Menu"
   <ul className="nav">
     for index, content in links
-      <li className="cls#{index}">
-        =content
+      =listItem("cls#{index}", content)
+
+dom listItem(className, text)
+  <li className="#{className}">
+    =text
 
 virtual_dom = h("div", generateVirtualDom(menu))
 
