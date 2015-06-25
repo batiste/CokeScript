@@ -1,8 +1,10 @@
-var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
+var epegjs, source, SourceNode, depth, forLoopCount, unpacking, namespaces, levelStack, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
 // CokeScript language by Batiste Bieler 2015
 // Implemented using EPEG.JS
 
 epegjs = require("epegjs");
+source = require("source-map");
+SourceNode = source.SourceNode;
 
 depth = 0;
 forLoopCount = 1;
@@ -913,6 +915,10 @@ function generateCode(node) {
   }
   
   return str;
+}
+
+function generateSourceMap(node) {
+  return new SourceNode(this._line, this._column, originalFilename, chunk);
 }
 
 

@@ -2,6 +2,8 @@
 # Implemented using EPEG.JS
 
 epegjs = require("epegjs")
+source = require("source-map")
+SourceNode = source.SourceNode
 
 depth = 0
 forLoopCount = 1
@@ -723,6 +725,9 @@ def generateCode(node)
     str += generateCode(child)
   
   return str
+
+def generateSourceMap(node)
+  return new SourceNode(this._line, this._column, originalFilename, chunk)
 
 
 def generateExports(keys)
