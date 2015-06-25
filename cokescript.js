@@ -524,7 +524,7 @@ backend = {
       popCN();
     }
     
-    str += '\n' + sp(1) + CN() + '.push(h("' + name + '", ' + params + ', ' + sub + '))';
+    str += '\n' + sp() + CN() + '.push(h("' + name + '", ' + params + ', ' + sub + '))';
     return str;
   }
   ,
