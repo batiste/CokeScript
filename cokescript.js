@@ -1,4 +1,4 @@
-var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
+var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, prefix, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
 // CokeScript language by Batiste Bieler 2015
 // Implemented using EPEG.JS
 
@@ -9,6 +9,7 @@ forLoopCount = 1;
 unpacking = 0;
 namespaces = [{}];
 levelStack = [0];
+prefix = '__';
 
 function currentNs() {
   return namespaces[namespaces.length - 1];
@@ -419,17 +420,17 @@ function sp(mod) {
 nc = 1;
 // children name
 function CN() {
-  return '__c' + nc;
+  return prefix + 'c' + nc;
 }
 
 function pushCN() {
   nc++;
-  return '__c' + nc;
+  return prefix + 'c' + nc;
 }
 
 function popCN() {
   nc--;
-  return '__c' + nc;
+  return prefix + 'c' + nc;
 }
 
 function generateHoistedVar() {
@@ -492,7 +493,7 @@ backend = {
     var name, varname, str;
     name = CN();
     varname = generateCode(node.children[1]);
-    str = 'var __tmp = ' + varname + '; __tmp instanceof Array ? (' + name + ' = ' + name + '.concat(__tmp)) : ' + name + '.push(String(__tmp));';
+    str = 'var ' + prefix + 'tmp = ' + varname + '; ' + prefix + 'tmp instanceof Array ? (' + name + ' = ' + name + '.concat(' + prefix + 'tmp)) : ' + name + '.push(String(' + prefix + 'tmp))';
     return str;
   }
   ,
@@ -707,7 +708,7 @@ backend = {
     right_code = generateCode(node.children.right);
     if(left.type === 'STRICT_COMMA_SEPARATED_EXPR') {
       unpacking++;
-      unpack_name = '__unpack' + unpacking + '';
+      unpack_name = '' + prefix + 'unpack' + unpacking + '';
       str += 'var ' + unpack_name + ' = ' + right_code + '\n' + sp();
       i = 0;
       var _keys9 = Object.keys(left.children);
@@ -805,8 +806,8 @@ backend = {
   ,
   FOR: function (node) {
     var keyIndexName, keyArrayName, arrayName, varName, indexName, str;
-    keyIndexName = "_index" + forLoopCount;
-    keyArrayName = "_keys" + forLoopCount;
+    keyIndexName = prefix + "index" + forLoopCount;
+    keyArrayName = prefix + "keys" + forLoopCount;
     arrayName = generateCode(node.children.a);
     varName = node.children.v.value;
     forLoopCount++;

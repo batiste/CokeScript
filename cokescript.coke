@@ -8,6 +8,7 @@ forLoopCount = 1
 unpacking = 0
 namespaces = [{}]
 levelStack = [0]
+prefix = '__'
 
 def currentNs()
   return namespaces[namespaces.length - 1]
@@ -366,15 +367,15 @@ def sp(mod)
 nc = 1
 # children name
 def CN()
-  return '__c' + nc
+  return prefix + 'c' + nc
 
 def pushCN()
   nc++
-  return '__c' + nc
+  return prefix + 'c' + nc
 
 def popCN()
   nc--
-  return '__c' + nc
+  return prefix + 'c' + nc
 
 def generateHoistedVar()
   ns = currentNs()
@@ -416,7 +417,7 @@ backend = {
   DOM_ASSIGN: def(node)
     name = CN()
     varname = generateCode(node.children[1])
-    str = 'var __tmp = #{varname}; __tmp instanceof Array ? (#{name} = #{name}.concat(__tmp)) : #{name}.push(String(__tmp));'
+    str = 'var #{prefix}tmp = #{varname}; #{prefix}tmp instanceof Array ? (#{name} = #{name}.concat(#{prefix}tmp)) : #{name}.push(String(#{prefix}tmp))'
     return str
   ,
   TAG_PARAMS: def(node)
@@ -576,7 +577,7 @@ backend = {
     right_code = generateCode(node.children.right)
     if left.type == 'STRICT_COMMA_SEPARATED_EXPR'
       unpacking++
-      unpack_name = '__unpack#{unpacking}'
+      unpack_name = '#{prefix}unpack#{unpacking}'
       str += 'var #{unpack_name} = #{right_code}\n' + sp()
       i = 0
       for child in left.children
@@ -644,8 +645,8 @@ backend = {
     return 'while(' + generateCode(node.children.e) + '){' + generateCode(node.children.b) + '\n' + sp() + '}'
   ,
   FOR: def(node)
-    keyIndexName = "_index" + forLoopCount
-    keyArrayName = "_keys" + forLoopCount
+    keyIndexName = prefix + "index" + forLoopCount
+    keyArrayName = prefix + "keys" + forLoopCount
     arrayName = generateCode(node.children.a)
     varName = node.children.v.value
     forLoopCount++
