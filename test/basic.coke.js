@@ -240,15 +240,17 @@ describe("CokeScript features test suite", function () {
   );
   
   it("DOM", function () {
-    function h(n,p,c) { return {n: n, p: p, c: c}; }
+    var virtual;
+    virtual = {h: function h(n,p,c) { return {n: n, p: p, c: c}; }};
     function makeDom(list) {
-      __c1 = [];
-      var _keys1 = Object.keys(list);
-      for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
-        var item = list[_keys1[_index1]];
-        __c2 = []
-          __c2.push(String(item));
-          __c1.push(h("li", {className: "cls" + item + ""}, __c2));
+      var __c1 = [];
+      var __c2;
+      var __keys1 = Object.keys(list);
+      for(var __index1 = 0; __index1 < __keys1.length; __index1++) {
+        var item = list[__keys1[__index1]];
+        __c2 = [];
+          var __tmp = item; __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
+        __c1.push(virtual.h("li", {className: "cls" + item + ""}, __c2));
       }
       return __c1;
     }
@@ -329,10 +331,10 @@ describe("CokeScript features test suite", function () {
     var array, array2;
     array = [1, 2, 3];
     array2 = [];
-    var _keys2 = Object.keys(array);
-    for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
-      var index = _keys2[_index2];
-      var value = array[_keys2[_index2]];
+    var __keys2 = Object.keys(array);
+    for(var __index2 = 0; __index2 < __keys2.length; __index2++) {
+      var index = __keys2[__index2];
+      var value = array[__keys2[__index2]];
       array2[index] = value * value;
     }
     assert.deepEqual(array2, [1, 4, 9]);

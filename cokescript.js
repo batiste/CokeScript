@@ -43,6 +43,7 @@ tokenDef = [
   {key: "ret", reg: /^return/, verbose: "return"},
   {key: "if", reg: /^if /},
   {key: "while", reg: /^while /},
+  {key: "instanceof", reg: /^instanceof /},
   {key: "try", reg: /^try/},
   {key: "catch", reg: /^catch/},
   {key: "throw", reg: /^throw /},
@@ -121,9 +122,9 @@ function generateStringCode(node,c) {
     return '';
   }
   
-  var _keys1 = Object.keys(node.children);
-  for(var _index1 = 0; _index1 < _keys1.length; _index1++) {
-    var child = node.children[_keys1[_index1]];
+  var __keys1 = Object.keys(node.children);
+  for(var __index1 = 0; __index1 < __keys1.length; __index1++) {
+    var child = node.children[__keys1[__index1]];
     str += generateStringCode(child, c);
   }
   return str;
@@ -373,6 +374,7 @@ grammarDef = {
     "W comparison W EXPR",
     "W > W EXPR",
     "dot EXPR",
+    "W instanceof EXPR",
     "open_bra EXPR close_bra",
     "FUNC_CALL"
     ],
@@ -437,10 +439,10 @@ function generateHoistedVar() {
   var ns, hoisted;
   ns = currentNs();
   hoisted = [];
-  var _keys2 = Object.keys(ns);
-  for(var _index2 = 0; _index2 < _keys2.length; _index2++) {
-    var key = _keys2[_index2];
-    var value = ns[_keys2[_index2]];
+  var __keys2 = Object.keys(ns);
+  for(var __index2 = 0; __index2 < __keys2.length; __index2++) {
+    var key = __keys2[__index2];
+    var value = ns[__keys2[__index2]];
     if(value === 'hoist') {
       hoisted.push(key);
     }
@@ -455,9 +457,9 @@ backend = {
   START: function (node) {
     var str, hoisted;
     str = '';
-    var _keys3 = Object.keys(node.children);
-    for(var _index3 = 0; _index3 < _keys3.length; _index3++) {
-      var child = node.children[_keys3[_index3]];
+    var __keys3 = Object.keys(node.children);
+    for(var __index3 = 0; __index3 < __keys3.length; __index3++) {
+      var child = node.children[__keys3[__index3]];
       str += generateCode(child);
     }
     hoisted = generateHoistedVar();
@@ -498,19 +500,25 @@ backend = {
   }
   ,
   TAG_PARAMS: function (node) {
+    var name;
     if(node.children.left) {
       return generateCode(node.children.left) + ', ' + generateCode(node.children.right);
     }
     
+    name = node.children.n.value;
+    if(name === 'class') {
+      name = 'className';
+    }
+    
     if(node.children.e) {
-      return node.children.n.value + ': ' + generateCode(node.children.e);
+      return name + ': ' + generateCode(node.children.e);
     } else {
-      return node.children.n.value + ': true';
+      return name + ': true';
     }
   }
   ,
   TAG: function (node) {
-    var str, params, name, sub;
+    var str, params, name, sub, ns;
     str = '';
     params = "{";
     name = node.children.tag.value.substring(1);
@@ -520,14 +528,21 @@ backend = {
     
     params += '}';
     sub = '[]';
+    //varname = CN()
+    ns = currentNs();
+    
     if(node.children.block) {
       sub = pushCN();
-      str += 'var ' + CN() + ' = [];';
+      str += CN() + ' = [];';
+      ns[CN()] = 'hoist';
       str += generateCode(node.children.block);
       popCN();
     }
     
-    str += '\n' + sp() + CN() + '.push(h("' + name + '", ' + params + ', ' + sub + '))';
+    //if not currentNsHas(varname);
+    //  ns[varname] = 'hoist'
+    
+    str += '\n' + sp() + CN() + '.push(virtual.h("' + name + '", ' + params + ', ' + sub + '))';
     return str;
   }
   ,
@@ -538,9 +553,9 @@ backend = {
     parent = node.children.parent;
     str = '';
     constructor = null;
-    var _keys4 = Object.keys(funcs);
-    for(var _index4 = 0; _index4 < _keys4.length; _index4++) {
-      var func = funcs[_keys4[_index4]];
+    var __keys4 = Object.keys(funcs);
+    for(var __index4 = 0; __index4 < __keys4.length; __index4++) {
+      var func = funcs[__keys4[__index4]];
       func_def = func.children;
       func_name = func_def.children.fn.value;
       if(func_name === 'constructor') {
@@ -564,10 +579,10 @@ backend = {
     body = constructor && constructor.children.block;
     cons_str = '' + name + ' = function ' + name + '(' + params + ') {';
     cons_str += '\n' + sp(1) + 'if(!(this instanceof ' + name + ')){ return new ' + name + '(' + Object.keys(ns).join(',') + ')}';
-    var _keys5 = Object.keys(ns);
-    for(var _index5 = 0; _index5 < _keys5.length; _index5++) {
-      var key = _keys5[_index5];
-      var value = ns[_keys5[_index5]];
+    var __keys5 = Object.keys(ns);
+    for(var __index5 = 0; __index5 < __keys5.length; __index5++) {
+      var key = __keys5[__index5];
+      var value = ns[__keys5[__index5]];
       if(value !== true && value !== undefined) {
         cons_str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + generateCode(value) + '}';
       }
@@ -601,10 +616,10 @@ backend = {
     }
     
     str += ') {';
-    var _keys6 = Object.keys(ns);
-    for(var _index6 = 0; _index6 < _keys6.length; _index6++) {
-      var key = _keys6[_index6];
-      var value = ns[_keys6[_index6]];
+    var __keys6 = Object.keys(ns);
+    for(var __index6 = 0; __index6 < __keys6.length; __index6++) {
+      var key = __keys6[__index6];
+      var value = ns[__keys6[__index6]];
       if(value !== true && value !== undefined) {
         code = generateCode(value);
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + '}';
@@ -636,18 +651,14 @@ backend = {
     }
     
     str += ') {';
-    var _keys7 = Object.keys(ns);
-    for(var _index7 = 0; _index7 < _keys7.length; _index7++) {
-      var key = _keys7[_index7];
-      var value = ns[_keys7[_index7]];
+    var __keys7 = Object.keys(ns);
+    for(var __index7 = 0; __index7 < __keys7.length; __index7++) {
+      var key = __keys7[__index7];
+      var value = ns[__keys7[__index7]];
       if(value !== true && value !== undefined) {
         code = generateCode(value);
         str += '\n' + sp(1) + 'if(' + key + ' === undefined) {' + key + ' = ' + code + ';}';
       }
-    }
-    
-    if(is_dom) {
-      str += '\n' + sp(1) + 'var ' + CN() + ' = [];';
     }
     
     body = '';
@@ -655,6 +666,10 @@ backend = {
       body = generateCode(node.children.block);
     }
     
+    if(is_dom) {
+      str += '\n' + sp(1) + 'var ' + CN() + ' = [];';
+      //ns[CN()] = 'hoist'
+    }
     
     hoisted = generateHoistedVar();
     if(hoisted) {
@@ -683,9 +698,9 @@ backend = {
       }
     }
     
-    var _keys8 = Object.keys(node.children);
-    for(var _index8 = 0; _index8 < _keys8.length; _index8++) {
-      var n = node.children[_keys8[_index8]];
+    var __keys8 = Object.keys(node.children);
+    for(var __index8 = 0; __index8 < __keys8.length; __index8++) {
+      var n = node.children[__keys8[__index8]];
       if(n.type === 'name' || n.type === 'FUNC_DEF_PARAMS' || n.type === 'comma' || n.type === 'window') {
         str += generateCode(n);
       }
@@ -709,11 +724,11 @@ backend = {
     if(left.type === 'STRICT_COMMA_SEPARATED_EXPR') {
       unpacking++;
       unpack_name = '' + prefix + 'unpack' + unpacking + '';
-      str += 'var ' + unpack_name + ' = ' + right_code + '\n' + sp();
+      str += 'var ' + unpack_name + ' = ' + right_code + ';\n' + sp();
       i = 0;
-      var _keys9 = Object.keys(left.children);
-      for(var _index9 = 0; _index9 < _keys9.length; _index9++) {
-        var child = left.children[_keys9[_index9]];
+      var __keys9 = Object.keys(left.children);
+      for(var __index9 = 0; __index9 < __keys9.length; __index9++) {
+        var child = left.children[__keys9[__index9]];
         n = child.children[0];
         if(n.type === 'name') {
           if(currentNsHas(n.value) === undefined) {
@@ -741,9 +756,9 @@ backend = {
   STATEMENT: function (node) {
     var str, e, t, other;
     str = '';
-    var _keys10 = Object.keys(node.children);
-    for(var _index10 = 0; _index10 < _keys10.length; _index10++) {
-      var child = node.children[_keys10[_index10]];
+    var __keys10 = Object.keys(node.children);
+    for(var __index10 = 0; __index10 < __keys10.length; __index10++) {
+      var child = node.children[__keys10[__index10]];
       e = child.children && child.children[0];
       // TODO: this should be possible
       t = child.type;
@@ -766,9 +781,9 @@ backend = {
     elif = node.children.elif;
     if(elif) {
       if(Array.isArray(elif)) {
-        var _keys11 = Object.keys(elif);
-        for(var _index11 = 0; _index11 < _keys11.length; _index11++) {
-          var value = elif[_keys11[_index11]];
+        var __keys11 = Object.keys(elif);
+        for(var __index11 = 0; __index11 < __keys11.length; __index11++) {
+          var value = elif[__keys11[__index11]];
           str += generateCode(value);
         }
       } else {
@@ -847,9 +862,9 @@ backend = {
   STRICT_COMMA_SEPARATED_EXPR: function (node) {
     var elements;
     elements = [];
-    var _keys12 = Object.keys(node.children);
-    for(var _index12 = 0; _index12 < _keys12.length; _index12++) {
-      var child = node.children[_keys12[_index12]];
+    var __keys12 = Object.keys(node.children);
+    for(var __index12 = 0; __index12 < __keys12.length; __index12++) {
+      var child = node.children[__keys12[__index12]];
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
@@ -909,9 +924,9 @@ function generateCode(node) {
     return '';
   }
   
-  var _keys13 = Object.keys(node.children);
-  for(var _index13 = 0; _index13 < _keys13.length; _index13++) {
-    var child = node.children[_keys13[_index13]];
+  var __keys13 = Object.keys(node.children);
+  for(var __index13 = 0; __index13 < __keys13.length; __index13++) {
+    var child = node.children[__keys13[__index13]];
     str += generateCode(child);
   }
   
@@ -923,9 +938,9 @@ function generateExports(keys) {
   var str;
   str = '\nmodule.exports = {';
   keys = keys || Object.keys(currentNs());
-  var _keys14 = Object.keys(keys);
-  for(var _index14 = 0; _index14 < _keys14.length; _index14++) {
-    var key = keys[_keys14[_index14]];
+  var __keys14 = Object.keys(keys);
+  for(var __index14 = 0; __index14 < __keys14.length; __index14++) {
+    var key = keys[__keys14[__index14]];
     str += '\n  ' + key + ' : ' + key + ',';
   }
   return str + '\n}';

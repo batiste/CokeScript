@@ -38,6 +38,7 @@ tokenDef = [
   {key: "ret", reg: /^return/, verbose: "return"},
   {key: "if", reg: /^if /},
   {key: "while", reg: /^while /},
+  {key: "instanceof", reg: /^instanceof /},
   {key: "try", reg: /^try/},
   {key: "catch", reg: /^catch/},
   {key: "throw", reg: /^throw /},
@@ -325,6 +326,7 @@ grammarDef = {
     "W comparison W EXPR",
     "W > W EXPR",
     "dot EXPR",
+    "W instanceof EXPR",
     "open_bra EXPR close_bra",
     "FUNC_CALL"
     ],
@@ -424,10 +426,14 @@ backend = {
     if node.children.left
       return generateCode(node.children.left) + ', ' + generateCode(node.children.right)
     
+    name = node.children.n.value
+    if name == 'class'
+      name = 'className'
+
     if node.children.e
-      return node.children.n.value + ': ' + generateCode(node.children.e)
+      return name + ': ' + generateCode(node.children.e)
     else
-      return node.children.n.value + ': true'
+      return name + ': true'
   ,
   TAG: def(node)
     str = ''
@@ -438,13 +444,20 @@ backend = {
 
     params += '}'
     sub = '[]'
+    #varname = CN()
+    ns = currentNs()
+
     if node.children.block
       sub = pushCN()
-      str += 'var ' + CN() + ' = [];'
+      str += CN() + ' = [];'
+      ns[CN()] = 'hoist'
       str += generateCode(node.children.block)
       popCN()
+
+    #if not currentNsHas(varname)
+    #  ns[varname] = 'hoist'
     
-    str += '\n' + sp() + CN() + '.push(h("#{name}", #{params}, #{sub}))'
+    str += '\n' + sp() + CN() + '.push(virtual.h("#{name}", #{params}, #{sub}))'
     return str
   ,
   CLASS: def(node)
@@ -529,14 +542,14 @@ backend = {
       if value != true && value != undefined
         code = generateCode(value)
         str += '\n' + sp(1) + 'if(#{key} === undefined) {#{key} = #{code};}'
-    
-    if is_dom
-      str += '\n' + sp(1) + 'var ' + CN() + ' = [];'
 
     body = ''
     if node.children.block
       body = generateCode(node.children.block)
     
+    if is_dom
+      str += '\n' + sp(1) + 'var ' + CN() + ' = [];'
+      #ns[CN()] = 'hoist'
 
     hoisted = generateHoistedVar()
     if hoisted
@@ -578,7 +591,7 @@ backend = {
     if left.type == 'STRICT_COMMA_SEPARATED_EXPR'
       unpacking++
       unpack_name = '#{prefix}unpack#{unpacking}'
-      str += 'var #{unpack_name} = #{right_code}\n' + sp()
+      str += 'var #{unpack_name} = #{right_code};\n' + sp()
       i = 0
       for child in left.children
         n = child.children[0]

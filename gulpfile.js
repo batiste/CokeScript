@@ -47,6 +47,16 @@ gulp.task("default", function() {
   gulp.start("build");
 });
 
+gulp.task("virtual", function() {
+  return browserify("./node_modules/virtual-dom/dist/virtual-dom.js", {
+      debug: false,
+      standalone: "virtual-dom"
+    })
+    .bundle()
+    .pipe(streamify(uglify()))
+    .pipe(gulp.dest("./dist"));
+});
+
 gulp.task("test", ['build'], function() {
   gulp.src(['dist/cokescript.js'])
     .pipe(shell("lib/coke.js --glob test/*.coke --convert"))

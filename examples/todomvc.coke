@@ -1,0 +1,57 @@
+dom todoMVC(list)
+  <section id="todoapp">
+    <header id="header">
+      <h1>
+        ="todos"
+      <input id="new-todo" placeholder="What needs to be done?" autofocus>
+      <section id="main">
+        <input id="toggle-all" type="checkbox">
+        <label for="toggle-all">
+           ="Mark all as complete"
+        <ul id="todo-list">
+          for item in list
+            =listItem(item)
+    =footer()
+
+dom footer()
+  <footer id="footer">
+    <span id="todo-count">
+      <strong>
+        ="2"
+      " item left"
+    <ul id="filters">
+      <li>
+        <a href="#/" class="selected">
+          ="All"
+      <li>
+        <a href="#/active">
+          ="Active"
+      <li>
+        <a href="#/completed">
+          ="Completed"
+      <button id="clear-completed">
+        ="Clear completed"
+
+dom listItem(item)
+  <li class="completed">
+    <div class="view">
+      <input class="toggle" type="checkbox" checked="">
+      <label>
+        =item
+      <button class="destroy">
+      <input class="edit" value="#{item}">
+
+
+window.onload = def()
+  #virtual = require('virtual-dom')
+  virtual_dom = virtual.h("div", todoMVC([1, 2, 3]))
+  real_dom = virtual.create(virtual_dom)
+  target = document.body
+  target.innerHTML = ""
+  target.appendChild(real_dom)
+
+  def get(id)
+    return document.getElementById(id)
+
+  get("new-todo").onkeypress = def(e)
+    return 1
