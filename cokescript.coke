@@ -367,6 +367,7 @@ def sp(mod)
   return spacer(2 * depth)
 
 nc = 1
+
 # children name
 def CN()
   return prefix + 'c' + nc
@@ -388,6 +389,10 @@ def generateHoistedVar()
   if hoisted.length
     return 'var ' + hoisted.join(', ') + ';'
   return ''
+
+def hoistVar(name)
+  ns = currentNs()
+  ns[name] = 'hoist'
 
 backend = {
   START: def(node)
@@ -419,7 +424,9 @@ backend = {
   DOM_ASSIGN: def(node)
     name = CN()
     varname = generateCode(node.children[1])
-    str = 'var #{prefix}tmp = #{varname}; #{prefix}tmp instanceof Array ? (#{name} = #{name}.concat(#{prefix}tmp)) : #{name}.push(String(#{prefix}tmp))'
+    hoistVar(CN())
+    hoistVar('#{prefix}tmp')
+    str = '#{prefix}tmp = #{varname}; #{prefix}tmp instanceof Array ? (#{name} = #{name}.concat(#{prefix}tmp)) : #{name}.push(String(#{prefix}tmp))'
     return str
   ,
   TAG_PARAMS: def(node)
@@ -427,8 +434,6 @@ backend = {
       return generateCode(node.children.left) + ', ' + generateCode(node.children.right)
     
     name = node.children.n.value
-    if name == 'class'
-      name = 'className'
 
     if node.children.e
       return name + ': ' + generateCode(node.children.e)
@@ -444,20 +449,16 @@ backend = {
 
     params += '}'
     sub = '[]'
-    #varname = CN()
     ns = currentNs()
 
     if node.children.block
       sub = pushCN()
       str += CN() + ' = [];'
-      ns[CN()] = 'hoist'
+      hoistVar(CN())
       str += generateCode(node.children.block)
       popCN()
 
-    #if not currentNsHas(varname)
-    #  ns[varname] = 'hoist'
-    
-    str += '\n' + sp() + CN() + '.push(virtual.h("#{name}", #{params}, #{sub}))'
+    str += '\n' + sp() + CN() + '.push(virtualDom.h("#{name}", {attributes: #{params}}, #{sub}))'
     return str
   ,
   CLASS: def(node)
@@ -474,8 +475,7 @@ backend = {
       else
         str += '\n' + sp() + name + '.prototype.#{func_name} = ' + generateCode(func_def)
 
-    ns = currentNs()
-    ns[name] = 'hoist'
+    hoistVar(name)
     ns = newNs()
 
     params = constructor && constructor.children.params
@@ -549,7 +549,6 @@ backend = {
     
     if is_dom
       str += '\n' + sp(1) + 'var ' + CN() + ' = [];'
-      #ns[CN()] = 'hoist'
 
     hoisted = generateHoistedVar()
     if hoisted

@@ -240,17 +240,17 @@ describe("CokeScript features test suite", function () {
   );
   
   it("DOM", function () {
-    var virtual;
-    virtual = {h: function h(n,p,c) { return {n: n, p: p, c: c}; }};
+    var virtualDom;
+    virtualDom = {h: function h(n,p,c) { return {n: n, p: p, c: c}; }};
     function makeDom(list) {
       var __c1 = [];
-      var __c2;
+      var __c2, __tmp;
       var __keys1 = Object.keys(list);
       for(var __index1 = 0; __index1 < __keys1.length; __index1++) {
         var item = list[__keys1[__index1]];
         __c2 = [];
-          var __tmp = item; __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
-        __c1.push(virtual.h("li", {className: "cls" + item + ""}, __c2));
+          __tmp = item; __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
+        __c1.push(virtualDom.h("li", {attributes: {className: "cls" + item + ""}}, __c2));
       }
       return __c1;
     }
@@ -258,7 +258,7 @@ describe("CokeScript features test suite", function () {
       {
         n: "li",
         c: ["1"], 
-        p: {className: "cls1"}
+        p: {attributes: {className: "cls1"}}
       }
     );
   }

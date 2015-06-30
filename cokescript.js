@@ -420,6 +420,7 @@ function sp(mod) {
 }
 
 nc = 1;
+
 // children name
 function CN() {
   return prefix + 'c' + nc;
@@ -451,6 +452,12 @@ function generateHoistedVar() {
     return 'var ' + hoisted.join(', ') + ';';
   }
   return '';
+}
+
+function hoistVar(name) {
+  var ns;
+  ns = currentNs();
+  ns[name] = 'hoist';
 }
 
 backend = {
@@ -495,7 +502,9 @@ backend = {
     var name, varname, str;
     name = CN();
     varname = generateCode(node.children[1]);
-    str = 'var ' + prefix + 'tmp = ' + varname + '; ' + prefix + 'tmp instanceof Array ? (' + name + ' = ' + name + '.concat(' + prefix + 'tmp)) : ' + name + '.push(String(' + prefix + 'tmp))';
+    hoistVar(CN());
+    hoistVar('' + prefix + 'tmp');
+    str = '' + prefix + 'tmp = ' + varname + '; ' + prefix + 'tmp instanceof Array ? (' + name + ' = ' + name + '.concat(' + prefix + 'tmp)) : ' + name + '.push(String(' + prefix + 'tmp))';
     return str;
   }
   ,
@@ -506,9 +515,6 @@ backend = {
     }
     
     name = node.children.n.value;
-    if(name === 'class') {
-      name = 'className';
-    }
     
     if(node.children.e) {
       return name + ': ' + generateCode(node.children.e);
@@ -528,21 +534,17 @@ backend = {
     
     params += '}';
     sub = '[]';
-    //varname = CN()
     ns = currentNs();
     
     if(node.children.block) {
       sub = pushCN();
       str += CN() + ' = [];';
-      ns[CN()] = 'hoist';
+      hoistVar(CN());
       str += generateCode(node.children.block);
       popCN();
     }
     
-    //if not currentNsHas(varname);
-    //  ns[varname] = 'hoist'
-    
-    str += '\n' + sp() + CN() + '.push(virtual.h("' + name + '", ' + params + ', ' + sub + '))';
+    str += '\n' + sp() + CN() + '.push(virtualDom.h("' + name + '", {attributes: ' + params + '}, ' + sub + '))';
     return str;
   }
   ,
@@ -565,8 +567,7 @@ backend = {
       }
     }
     
-    ns = currentNs();
-    ns[name] = 'hoist';
+    hoistVar(name);
     ns = newNs();
     
     params = constructor && constructor.children.params;
@@ -668,7 +669,6 @@ backend = {
     
     if(is_dom) {
       str += '\n' + sp(1) + 'var ' + CN() + ' = [];';
-      //ns[CN()] = 'hoist'
     }
     
     hoisted = generateHoistedVar();

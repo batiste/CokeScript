@@ -219,7 +219,7 @@ b.a")
   )
 
   it("DOM", def()
-    virtual = {h: def h(n, p, c) {n: n, p: p, c: c}}
+    virtualDom = {h: def h(n, p, c) {n: n, p: p, c: c}}
     dom makeDom(list)
       for item in list
         <li className="cls#{item}">
@@ -228,7 +228,7 @@ b.a")
       {
         n: "li",
         c: ["1"], 
-        p: {className: "cls1"}
+        p: {attributes: {className: "cls1"}}
       }
     )
   )

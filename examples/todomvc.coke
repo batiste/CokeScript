@@ -1,3 +1,4 @@
+
 dom todoMVC(list)
   <section id="todoapp">
     <header id="header">
@@ -43,9 +44,8 @@ dom listItem(item)
 
 
 window.onload = def()
-  #virtual = require('virtual-dom')
-  virtual_dom = virtual.h("div", todoMVC([1, 2, 3]))
-  real_dom = virtual.create(virtual_dom)
+  virtual_dom = virtualDom.h("div", todoMVC([1, 2, 3]))
+  real_dom = virtualDom.create(virtual_dom)
   target = document.body
   target.innerHTML = ""
   target.appendChild(real_dom)
