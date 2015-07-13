@@ -740,22 +740,24 @@ backend = {
       for(var __index9 = 0; __index9 < __keys9.length; __index9++) {
         var child = left.children[__keys9[__index9]];
         n = child.children[0];
-        if(n.type === 'name') {
-          if(currentNsHas(n.value) === undefined) {
-            ns[n.value] = true;
-          }
+        if(n.type === 'name' && child.children.length === 1) {
+          hoistVar(n.value);
         }
         
-        str += generateCode(child) + ' ' + op + ' ' + unpack_name + '[' + i + '];\n' + sp();
+        str += generateCode(child) + ' ' + op + ' ' + unpack_name + '[' + i + ']';
+        if(i < left.children.length - 1) {
+          str += ';\n' + sp();
+        }
         i++;
       }
       return str;
     }
+    
     if(left.children[0].type === 'name') {
       ch = left.children[0];
       if(!currentNsHas(ch.value)) {
         if(!explicit_global) {
-          ns[ch.value] = 'hoist';
+          hoistVar(ch.value);
         }
       }
     }

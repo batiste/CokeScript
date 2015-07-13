@@ -70,7 +70,8 @@ Assignement can unpack positionnal values
 def test()
   return 1, 1 + 1, 2
 
-a, b, c = test()
+obj = {}
+obj.first, obj.toto, other = test()
 
 hello, world = "something", "else"
 ```
@@ -78,13 +79,20 @@ hello, world = "something", "else"
 Generates
 
 ```javascript
+var obj, other, hello, world;
 function test() {
   return [1, 1 + 1, 2];
-};
+}
+
+obj = {};
 var __unpack1 = test();
-var a = __unpack1[0];
-var b = __unpack1[1];
-var c = __unpack1[2];
+obj.first = __unpack1[0];
+obj.toto = __unpack1[1];
+other = __unpack1[2];
+
+var __unpack2 = ["something", "else"];
+hello = __unpack2[0];
+world = __unpack2[1];
 ```
 
 ### Loops
