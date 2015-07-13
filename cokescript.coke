@@ -33,16 +33,18 @@ def resetGlobal()
 tokenDef = [
   {key: "string", func: stringDef},
   {key: "comment", func: commentDef},
-  {key: "function_def", func: defDef, verbose: "def definition"},
+  {key: "function_def", func: defDef, verbose: "function"},
   {key: "class", reg: /^class /},
   {key: "ret", reg: /^return/, verbose: "return"},
   {key: "if", reg: /^if /},
+  {key: "or", reg: /^or /},
+  {key: "and", reg: /^and /},
   {key: "while", reg: /^while /},
   {key: "instanceof", reg: /^instanceof /},
   {key: "try", reg: /^try/},
   {key: "catch", reg: /^catch/},
   {key: "throw", reg: /^throw /},
-  {key: "pazz", reg: /^pass/},
+  {key: "pazz", reg: /^pass/, verbose: "pass"},
   {key: "new", reg: /^new /},
   {key: "tag", reg: /^<[a-zA-Z][0-9a-zA-Z]{0,29}/},
   {key: ">", reg: /^>/},
@@ -52,7 +54,7 @@ tokenDef = [
   {key: "in", reg: /^in /},
   {key: "not", reg: /^not /, verbose: "not"},
   {key: "name", reg: /^[a-zA-Z_$][0-9a-zA-Z_$]{0,29}/},
-  {key: "regexp", func: regExpDef, verbose: "regular epression"},
+  {key: "regexp", func: regExpDef, verbose: "regular expression"},
   {key: "math_operators", reg: /^(\+\+|\-\-)/, verbose: "math operator"},
   {key: "binary_operators", reg: /^(\&\&|\|\||\&|\||<<|\>\>)/, verbose: "binary operator"},
   {key: "comparison", reg: /^(<=|>=|<|>|!=|==)/},
@@ -323,6 +325,8 @@ grammarDef = {
   RIGHT_EXPR: {rules: [
     "math_operators",
     "W binary_operators W EXPR",
+    "W or EXPR",
+    "W and EXPR",
     "W comparison W EXPR",
     "W > W EXPR",
     "dot EXPR",
@@ -710,6 +714,12 @@ backend = {
   ,
   not: def(node)
     return '!'
+  ,
+  and: def(node)
+    return '&& '
+  ,
+  or: def(node)
+    return '|| '
   ,
   comparison: def(node)
     if node.value == '=='

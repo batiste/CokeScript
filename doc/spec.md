@@ -106,9 +106,9 @@ while i > 0
 ### Conditionnal
 
 ```python
-if 1 == 2
+if false or 2 < 0
   1
-elseif 1 == 1
+elseif true and 0
   2
 else
   3
