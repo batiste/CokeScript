@@ -67,7 +67,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>def |dom|if|else|elseif|for|in |class |try|catch|throw |return|undefined|false|true|while |not |null|pass</string>
+			<string>def |dom|if |or |and |else|elseif |for |in |class |try|catch|throw |return|undefined|false|true|while |not |null|pass</string>
 			<key>name</key>
 			<string>keyword.other.cokescript</string>
 		</dict>

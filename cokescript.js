@@ -582,7 +582,7 @@ backend = {
     }
     
     body = constructor && constructor.children.block;
-    cons_str = '' + name + ' = function ' + name + '(' + params + ') {';
+    cons_str = '' + name + ' = function ' + name + ' ( ' + params + ' ) {';
     cons_str += '\n' + sp(1) + 'if(!(this instanceof ' + name + ')){ return new ' + name + '(' + Object.keys(ns).join(',') + ')}';
     var __keys5 = Object.keys(ns);
     for(var __index5 = 0; __index5 < __keys5.length; __index5++) {

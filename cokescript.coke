@@ -78,7 +78,7 @@ tokenDef = [
 
 def startStr(input, stream)
   last = stream[stream.length - 1]
-  if last && last.value == "\\"
+  if last and last.value == "\\"
     return
   if input.match(/^#{/)
     return "#{"
@@ -147,7 +147,7 @@ def dent(dentType)
     
 def stringDef(input)
   first = input.charAt(0)
-  if first == '"' || first == "'"
+  if first == '"' or first == "'"
     i = 1
     while input.charAt(i)
       ch = input.charAt(i)
@@ -167,7 +167,7 @@ def regExpDef(input)
       elseif ch == '/'
         i++
         # modifiers
-        while input.charAt(i) && "igm".indexOf(input.charAt(i)) != -1
+        while input.charAt(i) and "igm".indexOf(input.charAt(i)) != -1
           i++
         return input.slice(0, i)
       i++
@@ -482,17 +482,17 @@ backend = {
     hoistVar(name)
     ns = newNs()
 
-    params = constructor && constructor.children.params
+    params = constructor and constructor.children.params
     if params
       params = generateCode(params)
     else
       params = ''
     
-    body = constructor && constructor.children.block
-    cons_str = '' + name + ' = function ' + name + '(' + params + ') {'
+    body = constructor and constructor.children.block
+    cons_str = '#{name} = function #{name} ( #{params} ) {'
     cons_str += '\n' + sp(1) + 'if(!(this instanceof #{name})){ return new #{name}(' + Object.keys(ns).join(',') + ')}'
     for key, value in ns
-      if value != true && value != undefined
+      if value != true and value != undefined
         cons_str += '\n' + sp(1) + 'if(#{key} === undefined) {#{key} = ' + generateCode(value) + '}'
     if body
       cons_str += generateCode(body)
@@ -518,7 +518,7 @@ backend = {
     
     str += ') {'
     for key, value in ns
-      if value != true && value != undefined
+      if value != true and value != undefined
         code = generateCode(value)
         str += '\n' + sp(1) + 'if(#{key} === undefined) {#{key} = #{code}}'
       
@@ -543,7 +543,7 @@ backend = {
 
     str += ') {'
     for key, value in ns
-      if value != true && value != undefined
+      if value != true and value != undefined
         code = generateCode(value)
         str += '\n' + sp(1) + 'if(#{key} === undefined) {#{key} = #{code};}'
 
@@ -572,11 +572,11 @@ backend = {
     ns = currentNs()
     if node.children[0].type == 'name'
       ns[node.children[0].value] = true
-      if node.children[1] && node.children[1].type == 'assign'
+      if node.children[1] and node.children[1].type == 'assign'
         ns[node.children[0].value] = node.children[2]
 
     for n in node.children
-      if n.type == 'name' || n.type == 'FUNC_DEF_PARAMS' || n.type == 'comma' || n.type == 'window'
+      if n.type == 'name' or n.type == 'FUNC_DEF_PARAMS' or n.type == 'comma' or n.type == 'window'
         str += generateCode(n)
 
     return str
@@ -616,12 +616,12 @@ backend = {
   STATEMENT: def(node)
     str = ''
     for child in node.children
-      e = child.children && child.children[0]
+      e = child.children and child.children[0]
       # TODO: this should be possible
       t = child.type
       str += generateCode(child)
-      other = e && (e.type == 'FUNC_DEF' || e.type == 'LAMBDA')
-      if t == 'FOR' || t == 'TRY_CATCH' || t == 'WHILE' || t == 'IF' || t == 'STATEMENT' || t == 'samedent' || other
+      other = e and (e.type == 'FUNC_DEF' or e.type == 'LAMBDA')
+      if t == 'FOR' or t == 'TRY_CATCH' or t == 'WHILE' or t == 'IF' or t == 'STATEMENT' or t == 'samedent' or other
         pass
       else
         str += ';'
@@ -752,7 +752,7 @@ def generateCode(node)
 
 def generateExports(keys)
   str = '\nmodule.exports = {'
-  keys = keys || Object.keys(currentNs())
+  keys = keys or Object.keys(currentNs())
   for key in keys
     str += '\n  #{key} : #{key},'
   return str + '\n}'
