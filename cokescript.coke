@@ -10,6 +10,11 @@ namespaces = [{}]
 levelStack = [0]
 prefix = '__'
 
+a = {t: 1, z: 2}
+
+def hello()
+  return {t: 1, z: 2}
+
 def currentNs()
   return namespaces[namespaces.length - 1]
 
@@ -602,7 +607,7 @@ backend = {
           if currentNsHas(n.value) == undefined
             ns[n.value] = true
             
-        str += generateCode(n) + ' #{op} #{unpack_name}[#{i}];\n' + sp()
+        str += generateCode(child) + ' #{op} #{unpack_name}[#{i}];\n' + sp()
         i++
       return str
     if left.children[0].type == 'name'

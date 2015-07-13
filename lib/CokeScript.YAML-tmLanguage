@@ -32,7 +32,7 @@ patterns:
   end: '[^\\]/'
 
 - name: keyword.other.cokescript
-  match: def |dom|if |or |and |else|elseif |for |in |class |try|catch|throw |return|undefined|false|true|while |not |null|pass
+  match: def |dom|if |or |and |else|elseif |for |in |class |try|catch|throw |return|undefined|false|debugger|true|while |not |null|pass
 
 - name: keyword.other.compare.cokescript
   match: \=\=|\<\=|\>\=|\=|\<|\>|\+|\-
