@@ -696,6 +696,9 @@ backend = {
   FOR: def(node)
     keyIndexName = prefix + "index" + forLoopCount
     keyArrayName = prefix + "keys" + forLoopCount
+    hoistVar(keyIndexName)
+    hoistVar(keyArrayName)
+
     arrayName = generateCode(node.children.a)
     varName = node.children.v.value
     forLoopCount++
@@ -707,8 +710,8 @@ backend = {
       hoistVar(indexName)
     hoistVar(varName)
 
-    str = 'var #{keyArrayName} = Object.keys(#{arrayName});\n'
-    str += sp() + 'for(var #{keyIndexName} = 0; #{keyIndexName} < #{keyArrayName}.length; #{keyIndexName}++) {\n'
+    str = '#{keyArrayName} = Object.keys(#{arrayName});\n'
+    str += sp() + 'for(#{keyIndexName} = 0; #{keyIndexName} < #{keyArrayName}.length; #{keyIndexName}++) {\n'
     if indexName
       str += sp(1) + '#{indexName} = #{keyArrayName}[#{keyIndexName}];\n'
     

@@ -244,9 +244,9 @@ describe("CokeScript features test suite", function () {
     virtualDom = {h: function h(n,p,c) { return {n: n, p: p, c: c}; }};
     function makeDom(list) {
       var __c1 = [];
-      var item, __c2, __tmp;
-      var __keys1 = Object.keys(list);
-      for(var __index1 = 0; __index1 < __keys1.length; __index1++) {
+      var __index1, __keys1, item, __c2, __tmp;
+      __keys1 = Object.keys(list);
+      for(__index1 = 0; __index1 < __keys1.length; __index1++) {
         item = list[__keys1[__index1]];
         __c2 = [];
           __tmp = item; __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
@@ -321,11 +321,11 @@ describe("CokeScript features test suite", function () {
   );
   
   it("For loop", function () {
-    var array, array2, index, value;
+    var array, array2, __index2, __keys2, index, value;
     array = [1, 2, 3];
     array2 = [];
-    var __keys2 = Object.keys(array);
-    for(var __index2 = 0; __index2 < __keys2.length; __index2++) {
+    __keys2 = Object.keys(array);
+    for(__index2 = 0; __index2 < __keys2.length; __index2++) {
       index = __keys2[__index2];
       value = array[__keys2[__index2]];
       array2[index] = value * value;

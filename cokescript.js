@@ -106,7 +106,7 @@ strInterpolationGrammarDef = {
 strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
 
 function generateStringCode(node,c) {
-  var str, child;
+  var str, __index1, __keys1, child;
   if(node.type === 'VAR') {
     return c + ' + ' + generateStringCode(node.children[1], c) + ' + ' + c;
   }
@@ -120,8 +120,8 @@ function generateStringCode(node,c) {
     return '';
   }
   
-  var __keys1 = Object.keys(node.children);
-  for(var __index1 = 0; __index1 < __keys1.length; __index1++) {
+  __keys1 = Object.keys(node.children);
+  for(__index1 = 0; __index1 < __keys1.length; __index1++) {
     child = node.children[__keys1[__index1]];
     str += generateStringCode(child, c);
   }
@@ -361,11 +361,11 @@ function popCN() {
 }
 
 function generateHoistedVar() {
-  var ns, hoisted, key, value;
+  var ns, hoisted, __index2, __keys2, key, value;
   ns = currentNs();
   hoisted = [];
-  var __keys2 = Object.keys(ns);
-  for(var __index2 = 0; __index2 < __keys2.length; __index2++) {
+  __keys2 = Object.keys(ns);
+  for(__index2 = 0; __index2 < __keys2.length; __index2++) {
     key = __keys2[__index2];
     value = ns[__keys2[__index2]];
     if(value === 'hoist') {
@@ -386,10 +386,10 @@ function hoistVar(name) {
 
 backend = {
   START: function (node) {
-    var str, child, hoisted;
+    var str, __index3, __keys3, child, hoisted;
     str = '';
-    var __keys3 = Object.keys(node.children);
-    for(var __index3 = 0; __index3 < __keys3.length; __index3++) {
+    __keys3 = Object.keys(node.children);
+    for(__index3 = 0; __index3 < __keys3.length; __index3++) {
       child = node.children[__keys3[__index3]];
       str += generateCode(child);
     }
@@ -459,14 +459,14 @@ backend = {
     str += '\n' + sp() + CN() + '.push(virtualDom.h("' + name + '", {attributes: ' + params + '}, ' + sub + '))';
     return str;
   }, CLASS: function (node) {
-    var name, funcs, parent, str, constructor, func, func_def, func_name, ns, params, body, cons_str, key, value;
+    var name, funcs, parent, str, constructor, __index4, __keys4, func, func_def, func_name, ns, params, body, cons_str, __index5, __keys5, key, value;
     name = node.children.name.value;
     funcs = node.children.methods;
     parent = node.children.parent;
     str = '';
     constructor = null;
-    var __keys4 = Object.keys(funcs);
-    for(var __index4 = 0; __index4 < __keys4.length; __index4++) {
+    __keys4 = Object.keys(funcs);
+    for(__index4 = 0; __index4 < __keys4.length; __index4++) {
       func = funcs[__keys4[__index4]];
       func_def = func.children;
       func_name = func_def.children.fn.value;
@@ -490,8 +490,8 @@ backend = {
     body = constructor && constructor.children.block;
     cons_str = '' + name + ' = function ' + name + ' ( ' + params + ' ) {';
     cons_str += '\n' + sp(1) + 'if(!(this instanceof ' + name + ')){ return new ' + name + '(' + Object.keys(ns).join(',') + ')}';
-    var __keys5 = Object.keys(ns);
-    for(var __index5 = 0; __index5 < __keys5.length; __index5++) {
+    __keys5 = Object.keys(ns);
+    for(__index5 = 0; __index5 < __keys5.length; __index5++) {
       key = __keys5[__index5];
       value = ns[__keys5[__index5]];
       if(value !== true && value !== undefined) {
@@ -511,7 +511,7 @@ backend = {
     namespaces.pop();
     return cons_str + str;
   }, LAMBDA: function (node) {
-    var name, ns, str, key, value, code;
+    var name, ns, str, __index6, __keys6, key, value, code;
     name = "";
     ns = newNs();
     if(node.children.fn) {
@@ -525,8 +525,8 @@ backend = {
     }
     
     str += ') {';
-    var __keys6 = Object.keys(ns);
-    for(var __index6 = 0; __index6 < __keys6.length; __index6++) {
+    __keys6 = Object.keys(ns);
+    for(__index6 = 0; __index6 < __keys6.length; __index6++) {
       key = __keys6[__index6];
       value = ns[__keys6[__index6]];
       if(value !== true && value !== undefined) {
@@ -542,7 +542,7 @@ backend = {
     namespaces.pop();
     return str + "; }";
   }, FUNC_DEF: function (node) {
-    var name, ns, is_dom, str, key, value, code, body, hoisted;
+    var name, ns, is_dom, str, __index7, __keys7, key, value, code, body, hoisted;
     name = "";
     ns = currentNs();
     is_dom = node.children.fd.value === 'dom';
@@ -558,8 +558,8 @@ backend = {
     }
     
     str += ') {';
-    var __keys7 = Object.keys(ns);
-    for(var __index7 = 0; __index7 < __keys7.length; __index7++) {
+    __keys7 = Object.keys(ns);
+    for(__index7 = 0; __index7 < __keys7.length; __index7++) {
       key = __keys7[__index7];
       value = ns[__keys7[__index7]];
       if(value !== true && value !== undefined) {
@@ -592,7 +592,7 @@ backend = {
     
     return str + '\n' + sp() + '}';
   }, FUNC_DEF_PARAMS: function (node) {
-    var str, ns, n;
+    var str, ns, __index8, __keys8, n;
     str = "";
     ns = currentNs();
     if(node.children[0].type === 'name') {
@@ -602,8 +602,8 @@ backend = {
       }
     }
     
-    var __keys8 = Object.keys(node.children);
-    for(var __index8 = 0; __index8 < __keys8.length; __index8++) {
+    __keys8 = Object.keys(node.children);
+    for(__index8 = 0; __index8 < __keys8.length; __index8++) {
       n = node.children[__keys8[__index8]];
       if(n.type === 'name' || n.type === 'FUNC_DEF_PARAMS' || n.type === 'comma' || n.type === 'window') {
         str += generateCode(n);
@@ -612,7 +612,7 @@ backend = {
     
     return str;
   }, ASSIGN: function (node) {
-    var str, op, explicit_global, ns, left, right_code, unpack_name, i, child, n, members, member, name, value, s, ch;
+    var str, op, explicit_global, ns, left, right_code, unpack_name, i, __index9, __keys9, child, n, members, __index10, __keys10, member, name, value, __index11, __keys11, s, __index12, __keys12, ch;
     str = "";
     op = node.children.op.value;
     explicit_global = op === ':=';
@@ -630,8 +630,8 @@ backend = {
       unpack_name = '' + prefix + 'unpack' + unpacking + '';
       str += 'var ' + unpack_name + ' = ' + right_code + ';\n' + sp();
       i = 0;
-      var __keys9 = Object.keys(left.children);
-      for(var __index9 = 0; __index9 < __keys9.length; __index9++) {
+      __keys9 = Object.keys(left.children);
+      for(__index9 = 0; __index9 < __keys9.length; __index9++) {
         child = left.children[__keys9[__index9]];
         n = child.children[0];
         if(n.type === 'name' && child.children.length === 1) {
@@ -653,8 +653,8 @@ backend = {
       str += 'var ' + unpack_name + ' = ' + right_code + ';\n' + sp();
       i = 0;
       members = left.children[1].children;
-      var __keys10 = Object.keys(members);
-      for(var __index10 = 0; __index10 < __keys10.length; __index10++) {
+      __keys10 = Object.keys(members);
+      for(__index10 = 0; __index10 < __keys10.length; __index10++) {
         member = members[__keys10[__index10]];
         name = generateCode(member.name);
         value = generateCode(member.value);
@@ -662,15 +662,15 @@ backend = {
           generateCode(member.samedent);
         }
         if(member.any) {
-          var __keys11 = Object.keys(member.any);
-          for(var __index11 = 0; __index11 < __keys11.length; __index11++) {
+          __keys11 = Object.keys(member.any);
+          for(__index11 = 0; __index11 < __keys11.length; __index11++) {
             s = member.any[__keys11[__index11]];
             generateCode(s);
           }
         }
         if(member.space) {
-          var __keys12 = Object.keys(member.space);
-          for(var __index12 = 0; __index12 < __keys12.length; __index12++) {
+          __keys12 = Object.keys(member.space);
+          for(__index12 = 0; __index12 < __keys12.length; __index12++) {
             s = member.space[__keys12[__index12]];
             generateCode(s);
           }
@@ -696,10 +696,10 @@ backend = {
     
     return generateCode(node.children.left) + ' ' + op + ' ' + right_code;
   }, STATEMENT: function (node) {
-    var str, child, e, t, other;
+    var str, __index13, __keys13, child, e, t, other;
     str = '';
-    var __keys13 = Object.keys(node.children);
-    for(var __index13 = 0; __index13 < __keys13.length; __index13++) {
+    __keys13 = Object.keys(node.children);
+    for(__index13 = 0; __index13 < __keys13.length; __index13++) {
       child = node.children[__keys13[__index13]];
       e = child.children && child.children[0];
       // TODO: this should be possible
@@ -715,14 +715,14 @@ backend = {
     
     return str;
   }, IF: function (node) {
-    var str, elif, value;
+    var str, elif, __index14, __keys14, value;
     str = '';
     str = 'if(' + generateCode(node.children.e) + ') {' + generateCode(node.children.b) + '\n' + sp() + '}';
     elif = node.children.elif;
     if(elif) {
       if(Array.isArray(elif)) {
-        var __keys14 = Object.keys(elif);
-        for(var __index14 = 0; __index14 < __keys14.length; __index14++) {
+        __keys14 = Object.keys(elif);
+        for(__index14 = 0; __index14 < __keys14.length; __index14++) {
           value = elif[__keys14[__index14]];
           str += generateCode(value);
         }
@@ -755,6 +755,9 @@ backend = {
     var keyIndexName, keyArrayName, arrayName, varName, indexName, str;
     keyIndexName = prefix + "index" + forLoopCount;
     keyArrayName = prefix + "keys" + forLoopCount;
+    hoistVar(keyIndexName);
+    hoistVar(keyArrayName);
+    
     arrayName = generateCode(node.children.a);
     varName = node.children.v.value;
     forLoopCount++;
@@ -768,8 +771,8 @@ backend = {
     }
     hoistVar(varName);
     
-    str = 'var ' + keyArrayName + ' = Object.keys(' + arrayName + ');\n';
-    str += sp() + 'for(var ' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n';
+    str = '' + keyArrayName + ' = Object.keys(' + arrayName + ');\n';
+    str += sp() + 'for(' + keyIndexName + ' = 0; ' + keyIndexName + ' < ' + keyArrayName + '.length; ' + keyIndexName + '++) {\n';
     if(indexName) {
       str += sp(1) + '' + indexName + ' = ' + keyArrayName + '[' + keyIndexName + '];\n';
     }
@@ -789,34 +792,34 @@ backend = {
     str += generateCode(node.children.b2);
     return str + '\n' + sp() + "}";
   }, STRICT_COMMA_SEPARATED_EXPR: function (node) {
-    var elements, child;
+    var elements, __index15, __keys15, child;
     elements = [];
-    var __keys15 = Object.keys(node.children);
-    for(var __index15 = 0; __index15 < __keys15.length; __index15++) {
+    __keys15 = Object.keys(node.children);
+    for(__index15 = 0; __index15 < __keys15.length; __index15++) {
       child = node.children[__keys15[__index15]];
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
   }, MEMBERS: function (node) {
-    var elements, space, member, s;
+    var elements, space, __index16, __keys16, member, __index17, __keys17, s, __index18, __keys18;
     elements = [];
     space = "";
-    var __keys16 = Object.keys(node.children);
-    for(var __index16 = 0; __index16 < __keys16.length; __index16++) {
+    __keys16 = Object.keys(node.children);
+    for(__index16 = 0; __index16 < __keys16.length; __index16++) {
       member = node.children[__keys16[__index16]];
       if(member.same) {
         space = generateCode(member.same);
       }
       if(member.any) {
-        var __keys17 = Object.keys(member.any);
-        for(var __index17 = 0; __index17 < __keys17.length; __index17++) {
+        __keys17 = Object.keys(member.any);
+        for(__index17 = 0; __index17 < __keys17.length; __index17++) {
           s = member.any[__keys17[__index17]];
           generateCode(s);
         }
       }
       if(member.space) {
-        var __keys18 = Object.keys(member.space);
-        for(var __index18 = 0; __index18 < __keys18.length; __index18++) {
+        __keys18 = Object.keys(member.space);
+        for(__index18 = 0; __index18 < __keys18.length; __index18++) {
           s = member.space[__keys18[__index18]];
           generateCode(s);
         }
@@ -856,7 +859,7 @@ backend = {
 }};
 
 function generateCode(node) {
-  var str, child;
+  var str, __index19, __keys19, child;
   if(!node) {
     // debugger
   }
@@ -873,8 +876,8 @@ function generateCode(node) {
     return '';
   }
   
-  var __keys19 = Object.keys(node.children);
-  for(var __index19 = 0; __index19 < __keys19.length; __index19++) {
+  __keys19 = Object.keys(node.children);
+  for(__index19 = 0; __index19 < __keys19.length; __index19++) {
     child = node.children[__keys19[__index19]];
     str += generateCode(child);
   }
@@ -884,11 +887,11 @@ function generateCode(node) {
 
 
 function generateExports(keys) {
-  var str, key;
+  var str, __index20, __keys20, key;
   str = '\nmodule.exports = {';
   keys = keys || Object.keys(currentNs());
-  var __keys20 = Object.keys(keys);
-  for(var __index20 = 0; __index20 < __keys20.length; __index20++) {
+  __keys20 = Object.keys(keys);
+  for(__index20 = 0; __index20 < __keys20.length; __index20++) {
     key = keys[__keys20[__index20]];
     str += '\n  ' + key + ' : ' + key + ',';
   }
