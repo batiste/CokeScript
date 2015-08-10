@@ -739,19 +739,22 @@ backend = {
     return '[' + elements.join(", ") + ']'
   ,
   MEMBERS: def(node)
-    elements = []
-    space = ""
+    str = ""
+    i = 0
     for member in node.children
+      str += generateCode(member.name) + ': ' + generateCode(member.value)
+      if i < node.children.length - 1
+        str += ', '
       if member.same
-        space = generateCode(member.same)
+        str += generateCode(member.same)
       if member.any
         for s in member.any
           generateCode(s)
       if member.space
         for s in member.space
-          generateCode(s)
-      elements.push(generateCode(member.name) + ': ' + generateCode(member.value))
-    return elements.join(", ")
+          str += generateCode(s)
+      i++
+    return str
   ,
   string: def(node)
     v = node.value

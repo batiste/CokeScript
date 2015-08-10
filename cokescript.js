@@ -101,7 +101,8 @@ strInterpolationTokenDef = [
 ];
 
 strInterpolationGrammarDef = {
-  START: {rules: ["EL* EOF"]}, EL: {rules: ["VAR", "char", "name", "start", "end", "dot"]}, VAR: {rules: ["start NAME end"]}, NAME: {rules: ["name dot NAME", "name"]}};
+  START: {rules: ["EL* EOF"]}, EL: {rules: ["VAR", "char", "name", "start", "end", "dot"]}, VAR: {rules: ["start NAME end"]}, NAME: {rules: ["name dot NAME", "name"]}
+};
 
 strGram = epegjs.compileGrammar(strInterpolationGrammarDef, strInterpolationTokenDef);
 
@@ -237,29 +238,34 @@ function reflect(params) { return params; }
 
 grammarDef = {
   START: {rules: ["LINE* EOF"]}, ELC: {rules: ["W* comment"], verbose: "comment"}, LINE: {rules: ["STATEMENT ELC? samedent+", "STATEMENT ELC? !dedent", 
-  "ELC? samedent", "ELC !dedent"], verbose: "new line"}, BLOCK: {rules: ["indent pazz dedent", "indent LINE+ dedent"]}, STATEMENT: {rules: ["ASSIGN", "EXPR", "IF", "WHILE", "FOR", "RETURN", 
-  "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]}, CLASS_METHODS: {
-    rules: ["samedent* f:FUNC_DEF samedent*"], hooks: function (p) { return p.f; }}, CLASS: {
+    "ELC? samedent", "ELC !dedent"], verbose: "new line"}, BLOCK: {rules: ["indent pazz dedent", "indent LINE+ dedent"]}, STATEMENT: {rules: ["ASSIGN", "EXPR", "IF", "WHILE", "FOR", "RETURN", 
+    "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]}, CLASS_METHODS: {
+    rules: ["samedent* f:FUNC_DEF samedent*"], hooks: function (p) { return p.f; }
+  }, CLASS: {
     rules: [
       "class n:name open_par p:name close_par indent m:CLASS_METHODS+ dedent",
       "class n:name indent m:CLASS_METHODS+ dedent"
     ], hooks: [
-    function (p) { return {name: p.n, methods: p.m, parent: p.p}; },
-    function (p) { return {name: p.n, methods: p.m}; }
-  ]}, FUNC_DEF_PARAMS: {rules: [
+      function (p) { return {name: p.n, methods: p.m, parent: p.p}; },
+      function (p) { return {name: p.n, methods: p.m}; }
+    ]
+  }, FUNC_DEF_PARAMS: {rules: [
     "p1:FUNC_DEF_PARAMS comma W p2:FUNC_DEF_PARAMS",
     "p1:name assign e:EXPR",
     "p1:name"
-    ], verbose: "def parameters"}, LAMBDA: {rules: [
+    ], verbose: "def parameters"
+  }, LAMBDA: {rules: [
     "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
     "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
     "fd:function_def W block:EXPR"
-    ], hooks: reflect}, FUNC_DEF: {rules: [
+    ], hooks: reflect
+  }, FUNC_DEF: {rules: [
     "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par block:BLOCK",
     "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par block:BLOCK",
     "fd:function_def W fn:name block:BLOCK",
     "fd:function_def block:BLOCK"
-    ], hooks: reflect, verbose: "def definition"}, ELSE_IF: {rules: ["samedent elseif e:EXPR b:BLOCK"], hooks: reflect}, ELSE: {rules: ["samedent else b:BLOCK"], hooks: reflect}, IF: {rules: ["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks: reflect}, ELSE_EXPR: {rules: ["W else W b:EXPR"], hooks: reflect}, IF_EXPR: {rules: ["e:EXPR W if test:EXPR el:ELSE_EXPR?"], hooks: reflect}, WHILE: {rules: ["while e:EXPR b:BLOCK"], hooks: reflect}, MATH: {rules: ["e1:EXPR W op:math W e2:EXPR"]}, PATH: {rules: ["PATH dot name", "PATH open_bra number close_bra", "name"]}, ASSIGN: {rules: [
+    ], hooks: reflect, verbose: "def definition"
+  }, ELSE_IF: {rules: ["samedent elseif e:EXPR b:BLOCK"], hooks: reflect}, ELSE: {rules: ["samedent else b:BLOCK"], hooks: reflect}, IF: {rules: ["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks: reflect}, ELSE_EXPR: {rules: ["W else W b:EXPR"], hooks: reflect}, IF_EXPR: {rules: ["e:EXPR W if test:EXPR el:ELSE_EXPR?"], hooks: reflect}, WHILE: {rules: ["while e:EXPR b:BLOCK"], hooks: reflect}, MATH: {rules: ["e1:EXPR W op:math W e2:EXPR"]}, PATH: {rules: ["PATH dot name", "PATH open_bra number close_bra", "name"]}, ASSIGN: {rules: [
     "left:OBJECT W op:assign W right:EXPR",
     "left:EXPR W op:assign W right:EXPR",
     "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:STRICT_COMMA_SEPARATED_EXPR",
@@ -268,12 +274,14 @@ grammarDef = {
     "open_par FUNC_CALL_PARAMS? close_par"
   ]}, TYPE: {rules: ["name colon"]}, FOR: {rules: [
     "for_loop k:name comma W v:name W in a:EXPR b:BLOCK",
-    "for_loop v:name W in a:EXPR b:BLOCK"], hooks: reflect}, STRICT_COMMA_SEPARATED_EXPR: {rules: [
+    "for_loop v:name W in a:EXPR b:BLOCK"], hooks: reflect
+  }, STRICT_COMMA_SEPARATED_EXPR: {rules: [
     "e1:EXPR comma W e2:STRICT_COMMA_SEPARATED_EXPR",
     "e1:EXPR comma W e2:EXPR"
   ], hooks: [
     function (p) { return [p.e1].concat(p.e2.children); }, function (p) { return [p.e1, p.e2]; }
-  ]}, COMMA_SEPARATED_EXPR: {rules: [
+  ] 
+  }, COMMA_SEPARATED_EXPR: {rules: [
     "EXPR comma ANY_SPACE+ COMMA_SEPARATED_EXPR ANY_SPACE*",
     "EXPR ANY_SPACE*"
   ]}, ARRAY: {rules: [
@@ -283,19 +291,23 @@ grammarDef = {
     "name:name colon W value:EXPR space:ANY_SPACE*"
   ], hooks: [
     function (p) { return [p].concat(p.m.children); }, function (p) { return [p]; }
-  ]}, OBJECT: {rules: [
+  ]
+  }, OBJECT: {rules: [
     "open_curly indent? MEMBERS? close_curly"
   ]}, TAG_PARAMS: {rules: [
     "left:TAG_PARAMS W right:TAG_PARAMS",
     "n:name assign e:EXPR",
     "n:name"
-    ], hooks: reflect, verbose: "tag parameters"}, TAG: {rules: [
+    ], hooks: reflect, verbose: "tag parameters"
+  }, TAG: {rules: [
     "tag:tag W? params:TAG_PARAMS? end:>? block:BLOCK?"
-  ], hooks: reflect}, DOM_ASSIGN: {rules: [
+  ], hooks: reflect
+  }, DOM_ASSIGN: {rules: [
     "assign EXPR"
   ]}, TRY_CATCH: {rules: [
     "try b1:BLOCK samedent? catch open_par err:name? close_par b2:BLOCK"
-    ], hooks: reflect}, THROW: {rules: [
+    ], hooks: reflect
+  }, THROW: {rules: [
     "throw EXPR"
   ]}, RETURN: {rules: ["ret W STRICT_COMMA_SEPARATED_EXPR", "ret W EXPR", "ret"]}, RIGHT_EXPR: {rules: [
     "math_operators",
@@ -308,22 +320,25 @@ grammarDef = {
     "W instanceof EXPR",
     "open_bra EXPR close_bra",
     "FUNC_CALL"
-    ], verbose: "expression"}, EXPR: {rules: [
-  "IF_EXPR",
-  "MATH",
-  "OBJECT",
-  "FUNC_DEF",
-  "EXPR RIGHT_EXPR",
-  "name",
-  "number",
-  "LAMBDA",
-  "string",
-  "regexp",
-  "open_par EXPR close_par",
-  "new EXPR",
-  "not EXPR",
-  "ARRAY"
-  ], verbose: "expression"}};
+    ], verbose: "expression"
+  }, EXPR: {rules: [
+    "IF_EXPR",
+    "MATH",
+    "OBJECT",
+    "FUNC_DEF",
+    "EXPR RIGHT_EXPR",
+    "name",
+    "number",
+    "LAMBDA",
+    "string",
+    "regexp",
+    "open_par EXPR close_par",
+    "new EXPR",
+    "not EXPR",
+    "ARRAY"
+    ], verbose: "expression"
+  }
+};
 
 function spacer(n) {
   var out, i;
@@ -398,13 +413,16 @@ backend = {
       return generateHoistedVar() + '\n' + str;
     }
     return str;
-  }, dedent: function (node) {
+  }, 
+  dedent: function (node) {
     depth = Math.max(0, depth - 1);
     return '';
-  }, indent: function (node) {
+  }, 
+  indent: function (node) {
     depth = depth + 1;
     return '\n' + sp();
-  }, samedent: function (node) {
+  }, 
+  samedent: function (node) {
     var l, i, str;
     l = node.value.split('\n').length - 1;
     i = 0;
@@ -414,7 +432,8 @@ backend = {
       i++;
     }
     return str;
-  }, DOM_ASSIGN: function (node) {
+  }, 
+  DOM_ASSIGN: function (node) {
     var name, varname, str;
     name = CN();
     varname = generateCode(node.children[1]);
@@ -422,7 +441,8 @@ backend = {
     hoistVar('' + prefix + 'tmp');
     str = '' + prefix + 'tmp = ' + varname + '; ' + prefix + 'tmp instanceof Array ? (' + name + ' = ' + name + '.concat(' + prefix + 'tmp)) : ' + name + '.push(String(' + prefix + 'tmp))';
     return str;
-  }, TAG_PARAMS: function (node) {
+  }, 
+  TAG_PARAMS: function (node) {
     var name;
     if(node.children.left) {
       return generateCode(node.children.left) + ', ' + generateCode(node.children.right);
@@ -435,7 +455,8 @@ backend = {
     } else {
       return name + ': true';
     }
-  }, TAG: function (node) {
+  }, 
+  TAG: function (node) {
     var str, params, name, sub, ns;
     str = '';
     params = "{";
@@ -458,7 +479,8 @@ backend = {
     
     str += '\n' + sp() + CN() + '.push(virtualDom.h("' + name + '", {attributes: ' + params + '}, ' + sub + '))';
     return str;
-  }, CLASS: function (node) {
+  }, 
+  CLASS: function (node) {
     var name, funcs, parent, str, constructor, __index4, __keys4, func, func_def, func_name, ns, params, body, cons_str, __index5, __keys5, key, value;
     name = node.children.name.value;
     funcs = node.children.methods;
@@ -510,7 +532,8 @@ backend = {
     
     namespaces.pop();
     return cons_str + str;
-  }, LAMBDA: function (node) {
+  }, 
+  LAMBDA: function (node) {
     var name, ns, str, __index6, __keys6, key, value, code;
     name = "";
     ns = newNs();
@@ -541,7 +564,8 @@ backend = {
     
     namespaces.pop();
     return str + "; }";
-  }, FUNC_DEF: function (node) {
+  }, 
+  FUNC_DEF: function (node) {
     var name, ns, is_dom, str, __index7, __keys7, key, value, code, body, hoisted;
     name = "";
     ns = currentNs();
@@ -591,7 +615,8 @@ backend = {
     }
     
     return str + '\n' + sp() + '}';
-  }, FUNC_DEF_PARAMS: function (node) {
+  }, 
+  FUNC_DEF_PARAMS: function (node) {
     var str, ns, __index8, __keys8, n;
     str = "";
     ns = currentNs();
@@ -611,7 +636,8 @@ backend = {
     }
     
     return str;
-  }, ASSIGN: function (node) {
+  }, 
+  ASSIGN: function (node) {
     var str, op, explicit_global, ns, left, right_code, unpack_name, i, __index9, __keys9, child, n, members, __index10, __keys10, member, name, value, __index11, __keys11, s, __index12, __keys12, ch;
     str = "";
     op = node.children.op.value;
@@ -695,7 +721,8 @@ backend = {
     }
     
     return generateCode(node.children.left) + ' ' + op + ' ' + right_code;
-  }, STATEMENT: function (node) {
+  }, 
+  STATEMENT: function (node) {
     var str, __index13, __keys13, child, e, t, other;
     str = '';
     __keys13 = Object.keys(node.children);
@@ -714,7 +741,8 @@ backend = {
     }
     
     return str;
-  }, IF: function (node) {
+  }, 
+  IF: function (node) {
     var str, elif, __index14, __keys14, value;
     str = '';
     str = 'if(' + generateCode(node.children.e) + ') {' + generateCode(node.children.b) + '\n' + sp() + '}';
@@ -736,7 +764,8 @@ backend = {
     }
     
     return str;
-  }, IF_EXPR: function (node) {
+  }, 
+  IF_EXPR: function (node) {
     var str;
     str = '';
     str = generateCode(node.children.test) + ' ? ' + generateCode(node.children.e) + ' : ';
@@ -747,11 +776,14 @@ backend = {
     }
     
     return str;
-  }, ELSE_EXPR: function (node) {
+  }, 
+  ELSE_EXPR: function (node) {
     return generateCode(node.children.b);
-  }, WHILE: function (node) {
+  }, 
+  WHILE: function (node) {
     return 'while(' + generateCode(node.children.e) + '){' + generateCode(node.children.b) + '\n' + sp() + '}';
-  }, FOR: function (node) {
+  }, 
+  FOR: function (node) {
     var keyIndexName, keyArrayName, arrayName, varName, indexName, str;
     keyIndexName = prefix + "index" + forLoopCount;
     keyArrayName = prefix + "keys" + forLoopCount;
@@ -780,18 +812,22 @@ backend = {
     str += sp(1) + '' + varName + ' = ' + arrayName + '[' + keyArrayName + '[' + keyIndexName + ']];';
     str += generateCode(node.children.b) + '\n' + sp() + '}';
     return str;
-  }, ELSE_IF: function (node) {
+  }, 
+  ELSE_IF: function (node) {
     return ' else if(' + generateCode(node.children.e) + ') {' + generateCode(node.children.b) + '\n' + sp() + '}';
-  }, ELSE: function (node) {
+  }, 
+  ELSE: function (node) {
     return ' else {' + generateCode(node.children.b) + '\n' + sp() + '}';
-  }, TRY_CATCH: function (node) {
+  }, 
+  TRY_CATCH: function (node) {
     var str;
     str = "try {";
     str += generateCode(node.children.b1);
     str += '\n' + sp() + "} catch(" + generateCode(node.children.err) + ") {";
     str += generateCode(node.children.b2);
     return str + '\n' + sp() + "}";
-  }, STRICT_COMMA_SEPARATED_EXPR: function (node) {
+  }, 
+  STRICT_COMMA_SEPARATED_EXPR: function (node) {
     var elements, __index15, __keys15, child;
     elements = [];
     __keys15 = Object.keys(node.children);
@@ -800,15 +836,20 @@ backend = {
       elements.push(generateCode(child));
     }
     return '[' + elements.join(", ") + ']';
-  }, MEMBERS: function (node) {
-    var elements, space, __index16, __keys16, member, __index17, __keys17, s, __index18, __keys18;
-    elements = [];
-    space = "";
+  }, 
+  MEMBERS: function (node) {
+    var str, i, __index16, __keys16, member, __index17, __keys17, s, __index18, __keys18;
+    str = "";
+    i = 0;
     __keys16 = Object.keys(node.children);
     for(__index16 = 0; __index16 < __keys16.length; __index16++) {
       member = node.children[__keys16[__index16]];
+      str += generateCode(member.name) + ': ' + generateCode(member.value);
+      if(i < node.children.length - 1) {
+        str += ', ';
+      }
       if(member.same) {
-        space = generateCode(member.same);
+        str += generateCode(member.same);
       }
       if(member.any) {
         __keys17 = Object.keys(member.any);
@@ -821,13 +862,14 @@ backend = {
         __keys18 = Object.keys(member.space);
         for(__index18 = 0; __index18 < __keys18.length; __index18++) {
           s = member.space[__keys18[__index18]];
-          generateCode(s);
+          str += generateCode(s);
         }
       }
-      elements.push(generateCode(member.name) + ': ' + generateCode(member.value));
+      i++;
     }
-    return elements.join(", ");
-  }, string: function (node) {
+    return str;
+  }, 
+  string: function (node) {
     var v, ast;
     v = node.value;
     v = v.replace(/\n/g, "\\n");
@@ -836,27 +878,34 @@ backend = {
       throw new Error(ast.hint);
     }
     return generateStringCode(ast, v.charAt(0));
-  }, comment: function (node) {
+  }, 
+  comment: function (node) {
     return node.value.replace(/^#/g, "//");
-  }, pazz: function (node) {
+  }, 
+  pazz: function (node) {
     return '';
-  }, not: function (node) {
+  }, 
+  not: function (node) {
     return '!';
-  }, and: function (node) {
+  }, 
+  and: function (node) {
     return '&& ';
-  }, or: function (node) {
+  }, 
+  or: function (node) {
     return '|| ';
-  }, comparison: function (node) {
-  if(node.value === '==') {
-    return '===';
+  }, 
+  comparison: function (node) {
+    if(node.value === '==') {
+      return '===';
+    }
+    
+    if(node.value === '!=') {
+      return '!==';
+    }
+    
+    return node.value;
   }
-  
-  if(node.value === '!=') {
-    return '!==';
-  }
-  
-  return node.value;
-}};
+};
 
 function generateCode(node) {
   var str, __index19, __keys19, child;
@@ -914,5 +963,6 @@ function generateModule(input,opts) {
 gram = epegjs.compileGrammar(grammarDef, tokenDef);
 
 module.exports = {
-  grammar: gram, strGrammar: strGram, grammarDef: grammarDef, epegjs: epegjs, tokenDef: tokenDef, generateModule: generateModule, generateCode: generateCode, generateExports: generateExports};
+  grammar: gram, strGrammar: strGram, grammarDef: grammarDef, epegjs: epegjs, tokenDef: tokenDef, generateModule: generateModule, generateCode: generateCode, generateExports: generateExports
+};
 

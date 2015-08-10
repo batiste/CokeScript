@@ -256,7 +256,8 @@ describe("CokeScript features test suite", function () {
     }
     assert.deepEqual(makeDom([1, 2, 3])[0], 
       {
-        n: "li", c: ["1"], p: {attributes: {className: "cls1"}}}
+        n: "li", c: ["1"], p: {attributes: {className: "cls1"}}
+      }
     );
   }
   );
@@ -305,7 +306,8 @@ describe("CokeScript features test suite", function () {
   it("Object and whitspace", function () {
     var o;
     o = {
-      a: 1, b: 2, c: 5};
+      a: 1, b: 2, c: 5
+    };
     o = {c: 2, a: 1, b: 2, c: 5};
   }
   );
