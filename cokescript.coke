@@ -10,11 +10,6 @@ namespaces = [{}]
 levelStack = [0]
 prefix = '__'
 
-a = {t: 1, z: 2}
-
-def hello()
-  return {t: 1, z: 2}
-
 def currentNs()
   return namespaces[namespaces.length - 1]
 

@@ -387,13 +387,25 @@ if(1) {
   )
 
   it("Value unpacking", def()
-    code = gen("a, b, c = [1, 2, 3]\nc")
+    code = gen("
+a, b, c = [1, 2, 3]
+c")
     assert.equal(exe(code), 3)
   )
 
   it("Assignement unpacking", def()
-    code = gen("a, b, c = 1, 2, 3\nb")
+    code = gen("
+a, b, c = 1, 2, 3
+b")
     assert.equal(exe(code), 2)
+  )
+
+  it("Assignement unpacking to object", def()
+    code = gen("
+a = {}
+a.b, c = 12, 22
+a.b")
+    assert.equal(exe(code), 12)
   )
 
   it("Return comma separated", def()

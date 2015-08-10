@@ -409,15 +409,22 @@ describe("CokeScript features test suite", function () {
   
   it("Value unpacking", function () {
     var code;
-    code = gen("a, b, c = [1, 2, 3]\nc");
+    code = gen("\na, b, c = [1, 2, 3]\nc");
     assert.equal(exe(code), 3);
   }
   );
   
   it("Assignement unpacking", function () {
     var code;
-    code = gen("a, b, c = 1, 2, 3\nb");
+    code = gen("\na, b, c = 1, 2, 3\nb");
     assert.equal(exe(code), 2);
+  }
+  );
+  
+  it("Assignement unpacking to object", function () {
+    var code;
+    code = gen("\na = {}\na.b, c = 12, 22\na.b");
+    assert.equal(exe(code), 12);
   }
   );
   

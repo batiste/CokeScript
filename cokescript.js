@@ -1,4 +1,4 @@
-var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, prefix, a, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
+var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, prefix, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
 // CokeScript language by Batiste Bieler 2015
 // Implemented using EPEG.JS
 
@@ -10,12 +10,6 @@ unpacking = 0;
 namespaces = [{}];
 levelStack = [0];
 prefix = '__';
-
-a = {t: 1, z: 2};
-
-function hello() {
-  return {t: 1, z: 2};
-}
 
 function currentNs() {
   return namespaces[namespaces.length - 1];
