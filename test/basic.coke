@@ -400,12 +400,13 @@ b")
     assert.equal(exe(code), 2)
   )
 
-  it("Assignement unpacking to object", def()
+  it("Assignement mapping", def()
     code = gen("
-a = {}
-a.b, c = 12, 22
-a.b")
-    assert.equal(exe(code), 12)
+a = {b: 1, c: 2}
+hello = {world: 'a string'}
+{b: a, world: hello} = {b: 'worked', world: 'mapping '}
+hello.world + a.b")
+    assert.equal(exe(code), "mapping worked")
   )
 
   it("Return comma separated", def()

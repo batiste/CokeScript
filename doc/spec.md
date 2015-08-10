@@ -95,6 +95,31 @@ hello = __unpack2[0];
 world = __unpack2[1];
 ```
 
+### Assignement Mapping
+
+Assignement can map atrtibute to separate objects
+
+```python
+great = {}
+language = {name: " JavaScript"}
+
+# map attribute greeting to great, and name to language
+{greeting: great, name: language} = {greeting: "Hello! ", name: "CoffeScript"}
+great.greeting + language.name
+```
+
+```javascript
+var great, language;
+great = {};
+language = {name: " JavaScript"};
+
+// map attribute greeting to great, and name to language
+var __unpack1 = {greeting: "Hello! ", name: "CoffeScript"};
+great.greeting = __unpack1.greeting;
+language.name = __unpack1.name;
+great.greeting + language.name;
+```
+
 ### Loops
 
 Both Objects and Arrays are iterable using the same type of loop.

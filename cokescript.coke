@@ -225,7 +225,7 @@ grammarDef = {
       "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
       "fd:function_def W block:EXPR"
     ],
-    hooks: [reflect, reflect, reflect]
+    hooks: reflect
   },
   FUNC_DEF: {rules: [
       "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par block:BLOCK",
@@ -233,22 +233,23 @@ grammarDef = {
       "fd:function_def W fn:name block:BLOCK",
       "fd:function_def block:BLOCK"
     ],
-    hooks: [reflect, reflect, reflect, reflect],
+    hooks: reflect,
     verbose: "def definition"
   },
-  ELSE_IF: {rules: ["samedent elseif e:EXPR b:BLOCK"], hooks: [reflect]},
-  ELSE: {rules: ["samedent else b:BLOCK"], hooks: [reflect]},
-  IF: {rules: ["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks: [reflect]},
-  ELSE_EXPR: {rules: ["W else W b:EXPR"], hooks: [reflect]},
-  IF_EXPR: {rules: ["e:EXPR W if test:EXPR el:ELSE_EXPR?"], hooks: [reflect]},
-  WHILE: {rules: ["while e:EXPR b:BLOCK"], hooks: [reflect]},
+  ELSE_IF: {rules: ["samedent elseif e:EXPR b:BLOCK"], hooks: reflect},
+  ELSE: {rules: ["samedent else b:BLOCK"], hooks: reflect},
+  IF: {rules: ["if e:EXPR b:BLOCK elif:ELSE_IF* el:ELSE?"], hooks: reflect},
+  ELSE_EXPR: {rules: ["W else W b:EXPR"], hooks: reflect},
+  IF_EXPR: {rules: ["e:EXPR W if test:EXPR el:ELSE_EXPR?"], hooks: reflect},
+  WHILE: {rules: ["while e:EXPR b:BLOCK"], hooks: reflect},
   MATH: {rules: ["e1:EXPR W op:math W e2:EXPR"]},
   PATH: {rules: ["PATH dot name", "PATH open_bra number close_bra", "name"]},
   ASSIGN: {rules: [
+    "left:OBJECT W op:assign W right:EXPR",
     "left:EXPR W op:assign W right:EXPR",
     "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:STRICT_COMMA_SEPARATED_EXPR",
     "left:STRICT_COMMA_SEPARATED_EXPR W op:assign W right:EXPR"
-  ], hooks: [reflect, reflect, reflect]},
+  ], hooks: reflect},
   W_OR_SAMEDENT: {rules: ["W", "samedent"], verbose: "samedent or whitespace"},
   W_SAMEDENT_INDENT: {rules: ["W", "samedent", "indent"], verbose: "indent or samedent or whitespace"},
   ANY_SPACE: {rules: ["W", "samedent", "indent", "dedent", "comment"], verbose: "any space"},
@@ -262,7 +263,7 @@ grammarDef = {
   FOR: {rules: [
     "for_loop k:name comma W v:name W in a:EXPR b:BLOCK",
     "for_loop v:name W in a:EXPR b:BLOCK"],
-    hooks: [reflect, reflect]
+    hooks: reflect
   },
 
   STRICT_COMMA_SEPARATED_EXPR: {rules: [
@@ -284,9 +285,13 @@ grammarDef = {
   ]},
 
   MEMBERS: {rules: [
-    "name colon W EXPR samedent? comma ANY_SPACE+ MEMBERS ANY_SPACE*",
-    "name colon W EXPR ANY_SPACE*"
-  ]},
+    "n:name colon W e:EXPR samedent? comma ANY_SPACE+ m:MEMBERS ANY_SPACE*",
+    "n:name colon W e:EXPR ANY_SPACE*"
+  ],
+  hooks: [
+    def(p) [{name: p.n, value: p.e}].concat(p.m.children), def(p) [{name: p.n, value: p.e}]
+  ]
+  },
 
   OBJECT: {rules: [
     "open_curly indent? MEMBERS? close_curly"
@@ -297,14 +302,14 @@ grammarDef = {
       "n:name assign e:EXPR",
       "n:name"
     ],
-    hooks: [reflect, reflect, reflect],
+    hooks: reflect,
     verbose: "tag parameters"
   },
 
   TAG: {rules: [
     "tag:tag W? params:TAG_PARAMS? end:>? block:BLOCK?"
   ],
-  hooks: [reflect]
+  hooks: reflect
   },
 
   DOM_ASSIGN: {rules: [
@@ -314,7 +319,7 @@ grammarDef = {
   TRY_CATCH: {rules: [
       "try b1:BLOCK samedent? catch open_par err:name? close_par b2:BLOCK"
     ],
-    hooks: [reflect]
+    hooks: reflect
   },
 
   THROW: {rules: [
@@ -591,6 +596,8 @@ backend = {
     ns = currentNs()
     left = node.children.left
     right_code = generateCode(node.children.right)
+
+    # assignement unpacking
     if left.type == 'STRICT_COMMA_SEPARATED_EXPR'
       unpacking++
       unpack_name = '#{prefix}unpack#{unpacking}'
@@ -600,12 +607,28 @@ backend = {
         n = child.children[0]
         if n.type == 'name' and child.children.length == 1
           hoistVar(n.value)
-            
         str += generateCode(child) + ' #{op} #{unpack_name}[#{i}]'
         if i < left.children.length - 1
           str += ';\n' + sp()
         i++
       return str
+
+    # assignement mapping
+    if left.type == 'OBJECT'
+      unpacking++
+      unpack_name = '#{prefix}unpack#{unpacking}'
+      str += 'var #{unpack_name} = #{right_code};\n' + sp()
+      i = 0
+      members = left.children[1].children
+      for member in members
+        name = generateCode(member.name)
+        value = generateCode(member.value)
+        str += "#{value}.#{name} = #{unpack_name}.#{name}"
+        if i < members.length - 1
+          str += ';\n' + sp()
+        i++
+      return str
+
 
     if left.children[0].type == 'name'
       ch = left.children[0]
@@ -700,6 +723,12 @@ backend = {
       elements.push(generateCode(child))
     return '[' + elements.join(", ") + ']'
   ,
+  MEMBERS: def(node)
+    elements = []
+    for child in node.children
+      elements.push(generateCode(child.name) + ': ' + generateCode(child.value))
+    return elements.join(", ")
+  ,
   string: def(node)
     v = node.value
     v = v.replace(/\n/g, "\\n")
@@ -781,4 +810,3 @@ module.exports = {
   generateCode: generateCode,
   generateExports: generateExports
 }
-

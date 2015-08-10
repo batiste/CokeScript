@@ -240,7 +240,7 @@ describe("CokeScript features test suite", function () {
   );
   
   it("DOM", function () {
-    var virtualDom;
+      var virtualDom;
     virtualDom = {h: function h(n,p,c) { return {n: n, p: p, c: c}; }};
     function makeDom(list) {
       var __c1 = [];
@@ -256,185 +256,179 @@ describe("CokeScript features test suite", function () {
     }
     assert.deepEqual(makeDom([1, 2, 3])[0], 
       {
-        n: "li",
-        c: ["1"], 
-        p: {attributes: {className: "cls1"}}
-      }
+        n: "li", c: ["1"], p: {attributes: {className: "cls1"}}}
+      );
+    }
     );
-  }
-  );
-  
-  it("Function call accept function def", function () {
-    var code, context;
-    code = gen("\ntest(1, def toto()\n  return 42\n, 1)");
-    context = {test: function (a,b,c) { return b(); }};
-    assert.equal(exe(code, context), 42);
-  }
-  );
-  
-  it("Object function def", function () {
-    var code;
-    code = gen("\na = {a: def test()\n  return 42\n}\na.a()");
-    assert.equal(exe(code), 42);
-    code = gen("\na = {\n  a: def test()\n    return 43\n}\na.a()");
-    assert.equal(exe(code), 43);
-    code = gen("\na = {\n    a: def test()\n      return 44\n    , c: 1\n}\na.a()");
-    assert.equal(exe(code), 44);
-  }
-  );
-  
-  it("Array and whitespace", function () {
-    var a;
-    a = [
-      1, 2,
-      5
-    ];
-    assert.deepEqual(a, [1, 2, 5]);
-    a = [
-      1
-    ];
-    assert.deepEqual(a, [1]);
-    a = [1,
-      2, 3,
-    4];
-    assert.deepEqual(a, [1, 2, 3, 4]);
-    a = [1, 3,
-      2
-    ];
-    assert.deepEqual(a, [1, 3, 2]);
-  }
-  );
-  
-  it("Object and whitspace", function () {
-    var o;
-    o = {
-      a: 1, b: 2,
-      c: 5
-    };
-    o = {c: 2,
-      a: 1, b: 2,
-    c: 5};
-  }
-  );
-  
-  it("While loop", function () {
-    var n;
-    n = 5;
-    while(n > 0){
-      n = n - 1;
+    
+    it("Function call accept function def", function () {
+      var code, context;
+      code = gen("\ntest(1, def toto()\n  return 42\n, 1)");
+      context = {test: function (a,b,c) { return b(); }};
+      assert.equal(exe(code, context), 42);
     }
-    assert.equal(n, 0);
-  }
-  );
-  
-  it("For loop", function () {
-    var array, array2;
-    array = [1, 2, 3];
-    array2 = [];
-    var __keys2 = Object.keys(array);
-    for(var __index2 = 0; __index2 < __keys2.length; __index2++) {
-      var index = __keys2[__index2];
-      var value = array[__keys2[__index2]];
-      array2[index] = value * value;
+    );
+    
+    it("Object function def", function () {
+      var code;
+      code = gen("\na = {a: def test()\n  return 42\n}\na.a()");
+      assert.equal(exe(code), 42);
+      code = gen("\na = {\n  a: def test()\n    return 43\n}\na.a()");
+      assert.equal(exe(code), 43);
+      code = gen("\na = {\n    a: def test()\n      return 44\n    , c: 1\n}\na.a()");
+      assert.equal(exe(code), 44);
     }
-    assert.deepEqual(array2, [1, 4, 9]);
-  }
-  );
-  
-  it("Try catch", function () {
-    var code;
-    code = gen("\ntry\n  wrong()\ncatch(e)\n  42");
-    assert.equal(exe(code), 42);
-  }
-  );
-  
-  it("Strict comparison", function () {
-    var code;
-    code = gen("23 == \"23\"");
-    assert.equal(exe(code, {}), false);
-    code = gen("23 == 23");
-    assert.equal(exe(code, {}), true);
-    code = gen("23 != \"23\"");
-    assert.equal(exe(code, {}), true);
-  }
-  );
-  
-  it("Regular expression", function () {
-    var code;
-    code = gen("\"abc\".match(/abc/)");
-    assert.equal(exe(code, {})[0], "abc");
-    code = gen("\"a\/bc\".match(/a\\\/bc/)");
-    assert.equal(exe(code, {})[0], "a\/bc");
-    code = gen("\"Abc\ndef\".match(/abc/mig)");
-    assert.equal(exe(code, {})[0], "Abc");
-  }
-  );
-  
-  it("If expression", function () {
-    var code;
-    code = gen("2 if 1 else 3");
-    assert.equal(exe(code), 2);
-    code = gen("2 if 0 else 3");
-    assert.equal(exe(code), 3);
-    code = gen("a = 2 if 0 else 3\na");
-    assert.equal(exe(code), 3);
-    code = gen("a = 2 if 1\na");
-    assert.equal(exe(code), 2);
-    code = gen("a = 2 if false\na");
-    assert.equal(exe(code), undefined);
-  }
-  );
-  
-  it("Var hoisting in if", function () {
-    var code;
-    code = gen("if 1\n a = 1\nelse\n  a = 2");
-    assert.equal(code, "var a;\nif(1) {\n  a = 1;\n} else {\n  a = 2;\n}");
-  }
-  );
-  
-  it("Var hoisting in function", function () {
-    var code;
-    code = gen("def test()\n  if 1\n    a = 1\n  else\n    a = 2");
-    assert.equal(code, "function test() {\n  var a;\n  if(1) {\n    a = 1;\n  } else {\n    a = 2;\n  }\n}");
-  }
-  );
-  
-  it("New object", function () {
-    var code;
-    code = gen("new Number(42)");
-    assert.equal(exe(code), 42);
-    code = gen("throw new Error(42)");
-  }
-  );
-  
-  it("Value unpacking", function () {
-    var code;
-    code = gen("\na, b, c = [1, 2, 3]\nc");
-    assert.equal(exe(code), 3);
-  }
-  );
-  
-  it("Assignement unpacking", function () {
-    var code;
-    code = gen("\na, b, c = 1, 2, 3\nb");
-    assert.equal(exe(code), 2);
-  }
-  );
-  
-  it("Assignement unpacking to object", function () {
-    var code;
-    code = gen("\na = {}\na.b, c = 12, 22\na.b");
-    assert.equal(exe(code), 12);
-  }
-  );
-  
-  it("Return comma separated", function () {
-    var code;
-    code = gen("\ndef test\n  return 1, 1 + 1, 3\n\na, b, c = test()\na + b + c");
-    assert.equal(exe(code), 6);
-  }
-  );
-}
-
-);
-
+    );
+    
+    it("Array and whitespace", function () {
+      var a;
+      a = [
+        1, 2,
+        5
+      ];
+      assert.deepEqual(a, [1, 2, 5]);
+      a = [
+        1
+      ];
+      assert.deepEqual(a, [1]);
+      a = [1,
+        2, 3,
+      4];
+      assert.deepEqual(a, [1, 2, 3, 4]);
+      a = [1, 3,
+        2
+      ];
+      assert.deepEqual(a, [1, 3, 2]);
+    }
+    );
+    
+    it("Object and whitspace", function () {
+        var o;
+      o = {
+        a: 1, b: 2, c: 5};
+        o = {c: 2, a: 1, b: 2, c: 5};
+      }
+      );
+      
+      it("While loop", function () {
+        var n;
+        n = 5;
+        while(n > 0){
+          n = n - 1;
+        }
+        assert.equal(n, 0);
+      }
+      );
+      
+      it("For loop", function () {
+        var array, array2;
+        array = [1, 2, 3];
+        array2 = [];
+        var __keys2 = Object.keys(array);
+        for(var __index2 = 0; __index2 < __keys2.length; __index2++) {
+          var index = __keys2[__index2];
+          var value = array[__keys2[__index2]];
+          array2[index] = value * value;
+        }
+        assert.deepEqual(array2, [1, 4, 9]);
+      }
+      );
+      
+      it("Try catch", function () {
+        var code;
+        code = gen("\ntry\n  wrong()\ncatch(e)\n  42");
+        assert.equal(exe(code), 42);
+      }
+      );
+      
+      it("Strict comparison", function () {
+        var code;
+        code = gen("23 == \"23\"");
+        assert.equal(exe(code, {}), false);
+        code = gen("23 == 23");
+        assert.equal(exe(code, {}), true);
+        code = gen("23 != \"23\"");
+        assert.equal(exe(code, {}), true);
+      }
+      );
+      
+      it("Regular expression", function () {
+        var code;
+        code = gen("\"abc\".match(/abc/)");
+        assert.equal(exe(code, {})[0], "abc");
+        code = gen("\"a\/bc\".match(/a\\\/bc/)");
+        assert.equal(exe(code, {})[0], "a\/bc");
+        code = gen("\"Abc\ndef\".match(/abc/mig)");
+        assert.equal(exe(code, {})[0], "Abc");
+      }
+      );
+      
+      it("If expression", function () {
+        var code;
+        code = gen("2 if 1 else 3");
+        assert.equal(exe(code), 2);
+        code = gen("2 if 0 else 3");
+        assert.equal(exe(code), 3);
+        code = gen("a = 2 if 0 else 3\na");
+        assert.equal(exe(code), 3);
+        code = gen("a = 2 if 1\na");
+        assert.equal(exe(code), 2);
+        code = gen("a = 2 if false\na");
+        assert.equal(exe(code), undefined);
+      }
+      );
+      
+      it("Var hoisting in if", function () {
+        var code;
+        code = gen("if 1\n a = 1\nelse\n  a = 2");
+        assert.equal(code, "var a;\nif(1) {\n  a = 1;\n} else {\n  a = 2;\n}");
+      }
+      );
+      
+      it("Var hoisting in function", function () {
+        var code;
+        code = gen("def test()\n  if 1\n    a = 1\n  else\n    a = 2");
+        assert.equal(code, "function test() {\n  var a;\n  if(1) {\n    a = 1;\n  } else {\n    a = 2;\n  }\n}");
+      }
+      );
+      
+      it("New object", function () {
+        var code;
+        code = gen("new Number(42)");
+        assert.equal(exe(code), 42);
+        code = gen("throw new Error(42)");
+      }
+      );
+      
+      it("Value unpacking", function () {
+        var code;
+        code = gen("\na, b, c = [1, 2, 3]\nc");
+        assert.equal(exe(code), 3);
+      }
+      );
+      
+      it("Assignement unpacking", function () {
+        var code;
+        code = gen("\na, b, c = 1, 2, 3\nb");
+        assert.equal(exe(code), 2);
+      }
+      );
+      
+      it("Assignement mapping", function () {
+        var code;
+        code = gen("\na = {b: 1, c: 2}\nhello = {world: 'a string'}\n{b: a, world: hello} = {b: 'worked', world: 'mapping '}\nhello.world + a.b");
+        assert.equal(exe(code), "mapping worked");
+      }
+      );
+      
+      it("Return comma separated", function () {
+        var code;
+        code = gen("\ndef test\n  return 1, 1 + 1, 3\n\na, b, c = test()\na + b + c");
+        assert.equal(exe(code), 6);
+      }
+      );
+    }
+    
+    );
+    
+    
