@@ -97,7 +97,7 @@ world = __unpack2[1];
 
 ### Assignement Mapping
 
-Assignement can map atrtibute to separate objects
+Assignement to object literal can map attributes to different objects
 
 ```python
 great = {}
@@ -107,6 +107,8 @@ language = {name: " JavaScript"}
 {greeting: great, name: language} = {greeting: "Hello! ", name: "CoffeScript"}
 great.greeting + language.name
 ```
+
+Generates
 
 ```javascript
 var great, language;
@@ -149,6 +151,21 @@ else
 a = "Elephant" if weight > 1000 else "Mouse"
 
 can_be_tamed = "Yes" if a == "Elephant"
+```
+
+```javascript
+var a, can_be_tamed;
+if(false || 2 < 0) {
+  1;
+} else if(true && 0) {
+  2;
+} else {
+  3;
+}
+
+a = weight > 1000 ? "Elephant" : "Mouse";
+
+can_be_tamed = a === "Elephant" ? "Yes" : undefined;
 ```
 
 ### Strings

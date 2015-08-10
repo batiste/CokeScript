@@ -201,7 +201,7 @@ grammarDef = {
     "CLASS", "TAG", "DOM_ASSIGN", "TRY_CATCH", "THROW"]},
   CLASS_METHODS: {
       rules: ["samedent* f:FUNC_DEF samedent*"],
-      hooks: [def(p) p.f]
+      hooks: def(p) p.f
   },
   CLASS: {
     rules: [
@@ -285,11 +285,11 @@ grammarDef = {
   ]},
 
   MEMBERS: {rules: [
-    "n:name colon W e:EXPR samedent? comma ANY_SPACE+ m:MEMBERS ANY_SPACE*",
-    "n:name colon W e:EXPR ANY_SPACE*"
+    "name:name colon W value:EXPR same:samedent? comma any:ANY_SPACE+ m:MEMBERS space:ANY_SPACE*",
+    "name:name colon W value:EXPR space:ANY_SPACE*"
   ],
   hooks: [
-    def(p) [{name: p.n, value: p.e}].concat(p.m.children), def(p) [{name: p.n, value: p.e}]
+    def(p) [p].concat(p.m.children), def(p) [p]
   ]
   },
 
@@ -623,6 +623,14 @@ backend = {
       for member in members
         name = generateCode(member.name)
         value = generateCode(member.value)
+        if member.samedent
+          generateCode(member.samedent)
+        if member.any
+          for s in member.any
+            generateCode(s)
+        if member.space
+          for s in member.space
+            generateCode(s)
         str += "#{value}.#{name} = #{unpack_name}.#{name}"
         if i < members.length - 1
           str += ';\n' + sp()
@@ -694,13 +702,17 @@ backend = {
     indexName = false
     if node.children.k
       indexName = node.children.k.value
-    
+
+    if indexName
+      hoistVar(indexName)
+    hoistVar(varName)
+
     str = 'var #{keyArrayName} = Object.keys(#{arrayName});\n'
     str += sp() + 'for(var #{keyIndexName} = 0; #{keyIndexName} < #{keyArrayName}.length; #{keyIndexName}++) {\n'
     if indexName
-      str += sp(1) + 'var #{indexName} = #{keyArrayName}[#{keyIndexName}];\n'
+      str += sp(1) + '#{indexName} = #{keyArrayName}[#{keyIndexName}];\n'
     
-    str += sp(1) + 'var #{varName} = #{arrayName}[#{keyArrayName}[#{keyIndexName}]];'
+    str += sp(1) + '#{varName} = #{arrayName}[#{keyArrayName}[#{keyIndexName}]];'
     str += generateCode(node.children.b) + '\n' + sp() + '}'
     return str
   ,
@@ -725,8 +737,17 @@ backend = {
   ,
   MEMBERS: def(node)
     elements = []
-    for child in node.children
-      elements.push(generateCode(child.name) + ': ' + generateCode(child.value))
+    space = ""
+    for member in node.children
+      if member.same
+        space = generateCode(member.same)
+      if member.any
+        for s in member.any
+          generateCode(s)
+      if member.space
+        for s in member.space
+          generateCode(s)
+      elements.push(generateCode(member.name) + ': ' + generateCode(member.value))
     return elements.join(", ")
   ,
   string: def(node)
