@@ -162,9 +162,6 @@ out
 
 
 
-
-
-
 <div id="egDOM" class="row">
 <div class="row">
   <div class="col-6">
@@ -198,20 +195,20 @@ dom listItem(className, text)
   <li className="#{className}">
     =text
 
-virtual_dom = h("div", generateVirtualDom(menu))
+virtual_dom = cokescript.h("div", generateVirtualDom(menu))
 
-real_dom = virtual.create(virtual_dom)
+real_dom = cokescript.create(virtual_dom)
 target = document.getElementById("domOut")
 target.innerHTML = ""
 target.appendChild(real_dom)
 
 # let's modify the menu
 menu = {home: "Homepage", products: "Products", contacts: "Contacts"}
-new_virtual_dom = h("div", generateVirtualDom(menu))
+new_virtual_dom = cokescript.h("div", generateVirtualDom(menu))
 
-patches = virtual.diff(virtual_dom, new_virtual_dom)
+patches = cokescript.diff(virtual_dom, new_virtual_dom)
 
-virtual.patch(real_dom, patches)
+cokescript.patch(real_dom, patches)
 
 </textarea>
 
@@ -236,13 +233,10 @@ virtual.patch(real_dom, patches)
 
 
 <script src='dist/cokescript.js'></script>
-<script src='dist/virtual-dom.js'></script>
 <script>
 
 window.onload = function() {
 
-window.h = virtual.h;
-window.virtual = virtual;
 
 var elTC = document.getElementById('notrycatch');
 var notrycatch = localStorage.getItem("notrycatch") == "true";
@@ -295,8 +289,6 @@ initExample(document.getElementById('egClass'));
 initExample(document.getElementById('egFunction'));
 initExample(document.getElementById('egScope'));
 initExample(document.getElementById('egDOM'));
-
-
 
 };
 

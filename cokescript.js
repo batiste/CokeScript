@@ -1,8 +1,10 @@
-var epegjs, depth, forLoopCount, unpacking, namespaces, levelStack, prefix, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
+var epegjs, virtual, h, depth, forLoopCount, unpacking, namespaces, levelStack, prefix, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
 // CokeScript language by Batiste Bieler 2015
 // Implemented using EPEG.JS
 
 epegjs = require("epegjs");
+virtual = require("virtual-dom");
+h = virtual.create;
 
 depth = 0;
 forLoopCount = 1;
@@ -477,7 +479,7 @@ backend = {
       popCN();
     }
     
-    str += '\n' + sp() + CN() + '.push(virtualDom.h("' + name + '", {attributes: ' + params + '}, ' + sub + '))';
+    str += '\n' + sp() + CN() + '.push(cokescript.h("' + name + '", {attributes: ' + params + '}, ' + sub + '))';
     return str;
   }, 
   CLASS: function (node) {
@@ -963,6 +965,6 @@ function generateModule(input,opts) {
 gram = epegjs.compileGrammar(grammarDef, tokenDef);
 
 module.exports = {
-  grammar: gram, strGrammar: strGram, grammarDef: grammarDef, epegjs: epegjs, tokenDef: tokenDef, generateModule: generateModule, generateCode: generateCode, generateExports: generateExports
+  v: virtual, h: virtual.h, create: virtual.create, diff: virtual.diff, patch: virtual.patch, grammar: gram, strGrammar: strGram, grammarDef: grammarDef, epegjs: epegjs, tokenDef: tokenDef, generateModule: generateModule, generateCode: generateCode, generateExports: generateExports
 };
 

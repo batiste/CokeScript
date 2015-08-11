@@ -2,6 +2,8 @@
 # Implemented using EPEG.JS
 
 epegjs = require("epegjs")
+virtual = require("virtual-dom")
+h = virtual.create
 
 depth = 0
 forLoopCount = 1
@@ -467,7 +469,7 @@ backend = {
       str += generateCode(node.children.block)
       popCN()
 
-    str += '\n' + sp() + CN() + '.push(virtualDom.h("#{name}", {attributes: #{params}}, #{sub}))'
+    str += '\n' + sp() + CN() + '.push(cokescript.h("#{name}", {attributes: #{params}}, #{sub}))'
     return str
   ,
   CLASS: def(node)
@@ -828,6 +830,11 @@ def generateModule(input, opts)
 gram = epegjs.compileGrammar(grammarDef, tokenDef)
 
 module.exports = {
+  v: virtual,
+  h: virtual.h,
+  create: virtual.create,
+  diff: virtual.diff,
+  patch: virtual.patch,
   grammar: gram,
   strGrammar: strGram,
   grammarDef: grammarDef,

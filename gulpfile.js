@@ -32,7 +32,7 @@ gulp.task("jshint", function() {
     .pipe(jshint.reporter(stylish));
 });
 
-gulp.task("release", function() {
+gulp.task("release", ['build'], function() {
   return browserify("./cokescript.js", {
       debug: false,
       standalone: "cokescript"

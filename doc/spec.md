@@ -276,9 +276,9 @@ function generateVirtualDom(links) {
       content = links[__keys1[__index1]];
       __c3 = [];
         __tmp = content; __tmp instanceof Array ? (__c3 = __c3.concat(__tmp)) : __c3.push(String(__tmp));
-      __c2.push(virtualDom.h("li", {attributes: {className: "cls" + index + ""}}, __c3));
+      __c2.push(virtual.h("li", {attributes: {className: "cls" + index + ""}}, __c3));
     }
-  __c1.push(virtualDom.h("ul", {attributes: {className: "nav"}}, __c2));
+  __c1.push(virtual.h("ul", {attributes: {className: "nav"}}, __c2));
   return __c1;
 }
 ```
