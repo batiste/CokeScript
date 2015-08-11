@@ -20,6 +20,9 @@ describe("CokeScript features test suite", def()
 
     code = gen("def test(a=41 + 1)\n  return a\ntest()")
     assert.equal(exe(code), 42)
+
+    code = gen("def test() a = 1")
+    assert.equal(code, "function test() { return a = 1; }")
   )
 
   it("If doesn't have ;", def()
@@ -213,7 +216,7 @@ b.a")
     code = gen("dom makeDom(list)
       for item in list
         <input enabled>
-        <li className=\"cls\#{item}\" dummy=\"1\">
+        <li className=\"cls\#{item}\" data-dummy=\"1\">
           =item")
 
   )
@@ -222,15 +225,13 @@ b.a")
     virtualDom = {h: def h(n, p, c) {n: n, p: p, c: c}}
     dom makeDom(list)
       for item in list
-        <li className="cls#{item}">
+        <li className="cls#{item}" data-dummy="1">
           =item
-    assert.deepEqual(makeDom([1, 2, 3])[0], 
-      {
-        n: "li",
-        c: ["1"], 
-        p: {attributes: {className: "cls1"}}
-      }
-    )
+    first_li = makeDom([1, 2, 3])[0]
+    assert.equal(first_li.tagName, 'LI')
+    assert.deepEqual(first_li.children, [{text: '1' }])
+    assert.deepEqual(first_li.properties.attributes.className, "cls1")
+    assert.deepEqual(first_li.properties.attributes['data-dummy'], '1')
   )
   
   it("Function call accept function def", def()

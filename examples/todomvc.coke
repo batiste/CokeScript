@@ -1,57 +1,123 @@
 
-dom todoMVC(list)
-  <section id="todoapp">
-    <header id="header">
-      <h1>
-        ="todos"
-      <input id="new-todo" placeholder="What needs to be done?" autofocus>
-      <section id="main">
-        <input id="toggle-all" type="checkbox">
-        <label for="toggle-all">
-           ="Mark all as complete"
-        <ul id="todo-list">
-          for item in list
-            =listItem(item)
-    =footer()
-
-dom footer()
-  <footer id="footer">
-    <span id="todo-count">
-      <strong>
-        ="2"
-      " item left"
-    <ul id="filters">
-      <li>
-        <a href="#/" class="selected">
-          ="All"
-      <li>
-        <a href="#/active">
-          ="Active"
-      <li>
-        <a href="#/completed">
-          ="Completed"
-      <button id="clear-completed">
-        ="Clear completed"
-
-dom listItem(item)
-  <li class="completed">
-    <div class="view">
-      <input class="toggle" type="checkbox" checked="">
-      <label>
-        =item
-      <button class="destroy">
-      <input class="edit" value="#{item}">
-
-
 window.onload = def()
-  virtual_dom = virtualDom.h("div", todoMVC([1, 2, 3]))
-  real_dom = virtualDom.create(virtual_dom)
-  target = document.body
-  target.innerHTML = ""
-  target.appendChild(real_dom)
+
+  STORAGE_KEY = 'cokestore'
+
+  def itemClass(item)
+    cls = []
+    if item.complete
+      cls.push('completed')
+    if editItem == item
+      cls.push('editing')
+    return cls.join(' ')
+
+  dom todoMVC(items)
+    <section id="todoapp">
+      <header id="header">
+        <h1>
+          ="todos"
+        <input id="new-todo" placeholder="What needs to be done?" autofocus>
+        <section id="main">
+          <input id="toggle-all" type="checkbox">
+          <label for="toggle-all">
+             ="Mark all as complete"
+          i = 0
+          <ul id="todo-list">
+            for item in items
+              =listItem(item, i)
+              i++
+      =footer()
+
+  dom footer()
+    <footer id="footer">
+      <span id="todo-count">
+        <strong>
+          ="2"
+        " item left"
+      <ul id="filters">
+        <li>
+          <a href="#/" class="selected">
+            ="All"
+        <li>
+          <a href="#/active">
+            ="Active"
+        <li>
+          <a href="#/completed">
+            ="Completed"
+        <button id="clear-completed">
+          ="Clear completed"
+
+  dom listItem(item, index)
+    <li class=itemClass(item)>
+      <div class="view">
+        if item.complete
+          <input class="toggle" type="checkbox" checked value="checked" data-index="#{index}">
+        else
+          <input class="toggle" type="checkbox" data-index="#{index}">
+        <label data-index="#{index}">
+          =item.value
+        <button class="destroy" data-index="#{index}">
+      <input class="edit" value="#{item.value}" data-index="#{index}">
+
+  items = JSON.parse(localStorage.getItem(STORAGE_KEY)) or []
+  editItem = false
+
+  virtual_dom = cokescript.h("div", todoMVC(items))
+  real_dom = cokescript.create(virtual_dom)
+  document.body.appendChild(real_dom)
 
   def get(id)
     return document.getElementById(id)
 
-  get("new-todo").onkeypress = def(e)
-    return 1
+  def update()
+    new_virtual_dom = cokescript.h("div", todoMVC(items))
+    patches = cokescript.diff(virtual_dom, new_virtual_dom)
+    cokescript.patch(real_dom, patches)
+    virtual_dom := new_virtual_dom
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+
+  new_todo = get("new-todo")
+
+  new_todo.onkeypress = def(e)
+    v = new_todo.value
+    if e.which == 13 and v
+      items.push({value: v, completed: false})
+      update()
+
+  def hasClass(dom, cls)
+    if not dom.className
+      return false
+    m = new RegExp("\\b" + cls + "\\b")
+    return dom.className.match(m) != null
+
+  def getIndex(dom) parseInt(dom.getAttribute('data-index'), 10)
+
+  get('todoapp').addEventListener("click", def(e)
+    if e.target
+      if hasClass(e.target, 'destroy')
+        items.splice(getIndex(e.target), 1)
+        update()
+      if e.target.tagName == 'LABEL'
+        editItem := items[getIndex(e.target)]
+        update()
+      if e.target.id == 'toggle-all'
+        items.map(def(el) el.complete = e.target.checked)
+        update()
+      if hasClass(e.target, 'toggle')
+        item = items[getIndex(e.target)]
+        item.complete = not item.complete
+        update()
+  )
+
+  get('todoapp').addEventListener("keydown", def(e)
+    if e.target
+      if hasClass(e.target, 'edit')
+        if e.which == 13
+          items[getIndex(e.target)].value = e.target.value
+          editItem := false
+          update()
+        if e.which == 27
+          e.target.value = editItem.value
+          editItem := false
+          update()
+  )

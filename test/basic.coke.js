@@ -24,6 +24,9 @@ describe("CokeScript features test suite", function () {
     
     code = gen("def test(a=41 + 1)\n  return a\ntest()");
     assert.equal(exe(code), 42);
+    
+    code = gen("def test() a = 1");
+    assert.equal(code, "function test() { return a = 1; }");
   }
   );
   
@@ -234,13 +237,13 @@ describe("CokeScript features test suite", function () {
   
   it("DOM gen", function () {
     var code;
-    code = gen("dom makeDom(list)\n      for item in list\n        <input enabled>\n        <li className=\"cls\#{item}\" dummy=\"1\">\n          =item");
+    code = gen("dom makeDom(list)\n      for item in list\n        <input enabled>\n        <li className=\"cls\#{item}\" data-dummy=\"1\">\n          =item");
   }
   
   );
   
   it("DOM", function () {
-    var virtualDom;
+    var virtualDom, first_li;
     virtualDom = {h: function h(n,p,c) { return {n: n, p: p, c: c}; }};
     function makeDom(list) {
       var __c1 = [];
@@ -250,15 +253,15 @@ describe("CokeScript features test suite", function () {
         item = list[__keys1[__index1]];
         __c2 = [];
           __tmp = item; __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
-        __c1.push(virtualDom.h("li", {attributes: {className: "cls" + item + ""}}, __c2));
+        __c1.push(cokescript.h("li", {attributes: {"className": "cls" + item + "", "data-dummy": "1"}}, __c2));
       }
       return __c1;
     }
-    assert.deepEqual(makeDom([1, 2, 3])[0], 
-      {
-        n: "li", c: ["1"], p: {attributes: {className: "cls1"}}
-      }
-    );
+    first_li = makeDom([1, 2, 3])[0];
+    assert.equal(first_li.tagName, 'LI');
+    assert.deepEqual(first_li.children, [{text: '1' }]);
+    assert.deepEqual(first_li.properties.attributes.className, "cls1");
+    assert.deepEqual(first_li.properties.attributes['data-dummy'], '1');
   }
   );
   

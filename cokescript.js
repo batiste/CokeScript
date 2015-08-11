@@ -60,7 +60,7 @@ tokenDef = [
   {key: "for_loop", reg: /^for /, verbose: "for loop"},
   {key: "in", reg: /^in /},
   {key: "not", reg: /^not /, verbose: "not"},
-  {key: "name", reg: /^[a-zA-Z_$][0-9a-zA-Z_$]{0,29}/},
+  {key: "name", reg: /^[a-zA-Z_$]([0-9a-zA-Z_$\-]{0,28}[0-9a-zA-Z_$])?/},
   {key: "regexp", func: regExpDef, verbose: "regular expression"},
   {key: "math_operators", reg: /^(\+\+|\-\-)/, verbose: "math operator"},
   {key: "binary_operators", reg: /^(\&\&|\|\||\&|\||<<|\>\>)/, verbose: "binary operator"},
@@ -256,10 +256,10 @@ grammarDef = {
     "p1:name assign e:EXPR",
     "p1:name"
     ], verbose: "def parameters"
-  }, LAMBDA: {rules: [
-    "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
-    "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par W block:EXPR",
-    "fd:function_def W block:EXPR"
+  }, LAMBDA_BODY: {rules: ["ASSIGN", "EXPR"]}, LAMBDA: {rules: [
+    "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par W block:LAMBDA_BODY",
+    "fd:function_def W fn:name open_par params:FUNC_DEF_PARAMS? close_par W block:LAMBDA_BODY",
+    "fd:function_def W block:LAMBDA_BODY"
     ], hooks: reflect
   }, FUNC_DEF: {rules: [
     "fd:function_def open_par params:FUNC_DEF_PARAMS? close_par block:BLOCK",
@@ -453,9 +453,9 @@ backend = {
     name = node.children.n.value;
     
     if(node.children.e) {
-      return name + ': ' + generateCode(node.children.e);
+      return '"' + name + '": ' + generateCode(node.children.e);
     } else {
-      return name + ': true';
+      return '"' + name + '": true';
     }
   }, 
   TAG: function (node) {
@@ -883,6 +883,9 @@ backend = {
   }, 
   comment: function (node) {
     return node.value.replace(/^#/g, "//");
+  }, 
+  name: function (node) {
+    return node.value.replace('-', '_');
   }, 
   pazz: function (node) {
     return '';
