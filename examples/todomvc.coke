@@ -18,7 +18,10 @@ window.onload = def()
           ="todos"
         <input id="new-todo" placeholder="What needs to be done?" autofocus>
         <section id="main">
-          <input id="toggle-all" type="checkbox">
+          if all_checked
+            <input id="toggle-all" type="checkbox" checked="checked">
+          else
+            <input id="toggle-all" type="checkbox">
           <label for="toggle-all">
              ="Mark all as complete"
           i = 0
@@ -51,7 +54,7 @@ window.onload = def()
     <li class=itemClass(item)>
       <div class="view">
         if item.complete
-          <input class="toggle" type="checkbox" checked value="checked" data-index="#{index}">
+          <input class="toggle" type="checkbox" checked data-index="#{index}">
         else
           <input class="toggle" type="checkbox" data-index="#{index}">
         <label data-index="#{index}">
@@ -60,6 +63,8 @@ window.onload = def()
       <input class="edit" value="#{item.value}" data-index="#{index}">
 
   items = JSON.parse(localStorage.getItem(STORAGE_KEY)) or []
+  all_checked = true
+  items.map(def(el) all_checked := false if not el.complete)
   editItem = false
 
   virtual_dom = cokescript.h("div", todoMVC(items))
@@ -106,6 +111,8 @@ window.onload = def()
       if hasClass(e.target, 'toggle')
         item = items[getIndex(e.target)]
         item.complete = not item.complete
+        all_checked := true
+        items.map(def(el) all_checked := false if not el.complete)
         update()
   )
 

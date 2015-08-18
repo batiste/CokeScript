@@ -243,13 +243,16 @@ test(1, def toto()
     assert.equal(exe(code, context), 42)
   )
 
-  it("Object function def", def()
+  it("Object function def 1", def()
     code = gen("
 a = {a: def test()
   return 42
 }
 a.a()")
     assert.equal(exe(code), 42)
+  )
+
+  it("Object function def 2", def()
     code = gen("
 a = {
   a: def test()
@@ -257,6 +260,9 @@ a = {
 }
 a.a()")
     assert.equal(exe(code), 43)
+  )
+
+  it("Object function def 3", def()
     code = gen("
 a = {
     a: def test()

@@ -479,7 +479,7 @@ backend = {
       popCN();
     }
     
-    str += '\n' + sp() + CN() + '.push(cokescript.h("' + name + '", {attributes: ' + params + '}, ' + sub + '))';
+    str += '\n' + sp() + CN() + '.push(cokescript.h("' + name + '", ' + params + ', ' + sub + '))';
     return str;
   }, 
   CLASS: function (node) {
@@ -967,7 +967,29 @@ function generateModule(input,opts) {
 
 gram = epegjs.compileGrammar(grammarDef, tokenDef);
 
+function createVNode(name,attrs,children) {
+  var props, attributes, __index21, __keys21, key, value;
+  // this could be done at compile time
+  if(attrs.constructor === Array) {
+    return virtual.h(name, attrs, children);
+  }
+  props = {};
+  attributes = {};
+  __keys21 = Object.keys(attrs);
+  for(__index21 = 0; __index21 < __keys21.length; __index21++) {
+    key = __keys21[__index21];
+    value = attrs[__keys21[__index21]];
+    if(key.match(/^(checked|value|selected)$/)) {
+      props[key] = value;
+    } else {
+      attributes[key] = value;
+    }
+  }
+  props.attributes = attributes;
+  return virtual.h(name, props, children);
+}
+
 module.exports = {
-  v: virtual, h: virtual.h, create: virtual.create, diff: virtual.diff, patch: virtual.patch, grammar: gram, strGrammar: strGram, grammarDef: grammarDef, epegjs: epegjs, tokenDef: tokenDef, generateModule: generateModule, generateCode: generateCode, generateExports: generateExports
+  v: virtual, h: createVNode, create: virtual.create, diff: virtual.diff, patch: virtual.patch, grammar: gram, strGrammar: strGram, grammarDef: grammarDef, epegjs: epegjs, tokenDef: tokenDef, generateModule: generateModule, generateCode: generateCode, generateExports: generateExports
 };
 

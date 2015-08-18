@@ -1,6 +1,6 @@
 
 window.onload = function () {
-  var STORAGE_KEY, items, editItem, virtual_dom, real_dom, new_todo;
+  var STORAGE_KEY, items, all_checked, editItem, virtual_dom, real_dom, new_todo;
   STORAGE_KEY = 'cokestore';
   
   function itemClass(item) {
@@ -22,15 +22,20 @@ window.onload = function () {
       __c3 = [];
         __c4 = [];
           __tmp = "todos"; __tmp instanceof Array ? (__c4 = __c4.concat(__tmp)) : __c4.push(String(__tmp));
-        __c3.push(cokescript.h("h1", {attributes: {}}, __c4));
+        __c3.push(cokescript.h("h1", {}, __c4));
         
-        __c3.push(cokescript.h("input", {attributes: {"id": "new-todo", "placeholder": "What needs to be done?", "autofocus": true}}, []));
+        __c3.push(cokescript.h("input", {"id": "new-todo", "placeholder": "What needs to be done?", "autofocus": true}, []));
         __c4 = [];
-          
-          __c4.push(cokescript.h("input", {attributes: {"id": "toggle-all", "type": "checkbox"}}, []));
+          if(all_checked) {
+            
+            __c4.push(cokescript.h("input", {"id": "toggle-all", "type": "checkbox", "checked": "checked"}, []));
+          } else {
+            
+            __c4.push(cokescript.h("input", {"id": "toggle-all", "type": "checkbox"}, []));
+          }
           __c5 = [];
             __tmp = "Mark all as complete"; __tmp instanceof Array ? (__c5 = __c5.concat(__tmp)) : __c5.push(String(__tmp));
-          __c4.push(cokescript.h("label", {attributes: {"for": "toggle-all"}}, __c5));
+          __c4.push(cokescript.h("label", {"for": "toggle-all"}, __c5));
           i = 0;
           __c5 = [];
             __keys1 = Object.keys(items);
@@ -39,11 +44,11 @@ window.onload = function () {
               __tmp = listItem(item, i); __tmp instanceof Array ? (__c5 = __c5.concat(__tmp)) : __c5.push(String(__tmp));
               i++;
             }
-          __c4.push(cokescript.h("ul", {attributes: {"id": "todo-list"}}, __c5));
-        __c3.push(cokescript.h("section", {attributes: {"id": "main"}}, __c4));
-      __c2.push(cokescript.h("header", {attributes: {"id": "header"}}, __c3));
+          __c4.push(cokescript.h("ul", {"id": "todo-list"}, __c5));
+        __c3.push(cokescript.h("section", {"id": "main"}, __c4));
+      __c2.push(cokescript.h("header", {"id": "header"}, __c3));
       __tmp = footer(); __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
-    __c1.push(cokescript.h("section", {attributes: {"id": "todoapp"}}, __c2));
+    __c1.push(cokescript.h("section", {"id": "todoapp"}, __c2));
     return __c1;
   }
   
@@ -54,30 +59,30 @@ window.onload = function () {
       __c3 = [];
         __c4 = [];
           __tmp = "2"; __tmp instanceof Array ? (__c4 = __c4.concat(__tmp)) : __c4.push(String(__tmp));
-        __c3.push(cokescript.h("strong", {attributes: {}}, __c4));
+        __c3.push(cokescript.h("strong", {}, __c4));
         " item left";
-      __c2.push(cokescript.h("span", {attributes: {"id": "todo-count"}}, __c3));
+      __c2.push(cokescript.h("span", {"id": "todo-count"}, __c3));
       __c3 = [];
         __c4 = [];
           __c5 = [];
             __tmp = "All"; __tmp instanceof Array ? (__c5 = __c5.concat(__tmp)) : __c5.push(String(__tmp));
-          __c4.push(cokescript.h("a", {attributes: {"href": "#/", "class": "selected"}}, __c5));
-        __c3.push(cokescript.h("li", {attributes: {}}, __c4));
+          __c4.push(cokescript.h("a", {"href": "#/", "class": "selected"}, __c5));
+        __c3.push(cokescript.h("li", {}, __c4));
         __c4 = [];
           __c5 = [];
             __tmp = "Active"; __tmp instanceof Array ? (__c5 = __c5.concat(__tmp)) : __c5.push(String(__tmp));
-          __c4.push(cokescript.h("a", {attributes: {"href": "#/active"}}, __c5));
-        __c3.push(cokescript.h("li", {attributes: {}}, __c4));
+          __c4.push(cokescript.h("a", {"href": "#/active"}, __c5));
+        __c3.push(cokescript.h("li", {}, __c4));
         __c4 = [];
           __c5 = [];
             __tmp = "Completed"; __tmp instanceof Array ? (__c5 = __c5.concat(__tmp)) : __c5.push(String(__tmp));
-          __c4.push(cokescript.h("a", {attributes: {"href": "#/completed"}}, __c5));
-        __c3.push(cokescript.h("li", {attributes: {}}, __c4));
+          __c4.push(cokescript.h("a", {"href": "#/completed"}, __c5));
+        __c3.push(cokescript.h("li", {}, __c4));
         __c4 = [];
           __tmp = "Clear completed"; __tmp instanceof Array ? (__c4 = __c4.concat(__tmp)) : __c4.push(String(__tmp));
-        __c3.push(cokescript.h("button", {attributes: {"id": "clear-completed"}}, __c4));
-      __c2.push(cokescript.h("ul", {attributes: {"id": "filters"}}, __c3));
-    __c1.push(cokescript.h("footer", {attributes: {"id": "footer"}}, __c2));
+        __c3.push(cokescript.h("button", {"id": "clear-completed"}, __c4));
+      __c2.push(cokescript.h("ul", {"id": "filters"}, __c3));
+    __c1.push(cokescript.h("footer", {"id": "footer"}, __c2));
     return __c1;
   }
   
@@ -88,24 +93,26 @@ window.onload = function () {
       __c3 = [];
         if(item.complete) {
           
-          __c3.push(cokescript.h("input", {attributes: {"class": "toggle", "type": "checkbox", "checked": true, "value": "checked", "data-index": "" + index + ""}}, []));
+          __c3.push(cokescript.h("input", {"class": "toggle", "type": "checkbox", "checked": true, "data-index": "" + index + ""}, []));
         } else {
           
-          __c3.push(cokescript.h("input", {attributes: {"class": "toggle", "type": "checkbox", "data-index": "" + index + ""}}, []));
+          __c3.push(cokescript.h("input", {"class": "toggle", "type": "checkbox", "data-index": "" + index + ""}, []));
         }
         __c4 = [];
           __tmp = item.value; __tmp instanceof Array ? (__c4 = __c4.concat(__tmp)) : __c4.push(String(__tmp));
-        __c3.push(cokescript.h("label", {attributes: {"data-index": "" + index + ""}}, __c4));
+        __c3.push(cokescript.h("label", {"data-index": "" + index + ""}, __c4));
         
-        __c3.push(cokescript.h("button", {attributes: {"class": "destroy", "data-index": "" + index + ""}}, []));
-      __c2.push(cokescript.h("div", {attributes: {"class": "view"}}, __c3));
+        __c3.push(cokescript.h("button", {"class": "destroy", "data-index": "" + index + ""}, []));
+      __c2.push(cokescript.h("div", {"class": "view"}, __c3));
       
-      __c2.push(cokescript.h("input", {attributes: {"class": "edit", "value": "" + item.value + "", "data-index": "" + index + ""}}, []));
-    __c1.push(cokescript.h("li", {attributes: {"class": itemClass(item)}}, __c2));
+      __c2.push(cokescript.h("input", {"class": "edit", "value": "" + item.value + "", "data-index": "" + index + ""}, []));
+    __c1.push(cokescript.h("li", {"class": itemClass(item)}, __c2));
     return __c1;
   }
   
   items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  all_checked = true;
+  items.map(function (el) { return all_checked = !el.complete ? false : true; });
   editItem = false;
   
   virtual_dom = cokescript.h("div", todoMVC(items));
@@ -165,6 +172,8 @@ window.onload = function () {
       if(hasClass(e.target, 'toggle')) {
         item = items[getIndex(e.target)];
         item.complete = !item.complete;
+        all_checked = true;
+        items.map(function (el) { return all_checked = !el.complete ? false : undefined; });
         update();
       }
     }

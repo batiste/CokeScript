@@ -470,7 +470,7 @@ backend = {
       str += generateCode(node.children.block)
       popCN()
 
-    str += '\n' + sp() + CN() + '.push(cokescript.h("#{name}", {attributes: #{params}}, #{sub}))'
+    str += '\n' + sp() + CN() + '.push(cokescript.h("#{name}", #{params}, #{sub}))'
     return str
   ,
   CLASS: def(node)
@@ -833,9 +833,23 @@ def generateModule(input, opts)
 
 gram = epegjs.compileGrammar(grammarDef, tokenDef)
 
+def createVNode(name, attrs, children)
+  # this could be done at compile time
+  if attrs.constructor == Array
+    return virtual.h(name, attrs, children)
+  props = {}
+  attributes = {}
+  for key, value in attrs
+    if key.match(/^(checked|value|selected)$/)
+      props[key] = value
+    else
+      attributes[key] = value
+  props.attributes = attributes
+  return virtual.h(name, props, children)
+
 module.exports = {
   v: virtual,
-  h: virtual.h,
+  h: createVNode,
   create: virtual.create,
   diff: virtual.diff,
   patch: virtual.patch,

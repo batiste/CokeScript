@@ -253,7 +253,7 @@ describe("CokeScript features test suite", function () {
         item = list[__keys1[__index1]];
         __c2 = [];
           __tmp = item; __tmp instanceof Array ? (__c2 = __c2.concat(__tmp)) : __c2.push(String(__tmp));
-        __c1.push(cokescript.h("li", {attributes: {"className": "cls" + item + "", "data-dummy": "1"}}, __c2));
+        __c1.push(cokescript.h("li", {"className": "cls" + item + "", "data-dummy": "1"}, __c2));
       }
       return __c1;
     }
@@ -273,12 +273,22 @@ describe("CokeScript features test suite", function () {
   }
   );
   
-  it("Object function def", function () {
+  it("Object function def 1", function () {
     var code;
     code = gen("\na = {a: def test()\n  return 42\n}\na.a()");
     assert.equal(exe(code), 42);
+  }
+  );
+  
+  it("Object function def 2", function () {
+    var code;
     code = gen("\na = {\n  a: def test()\n    return 43\n}\na.a()");
     assert.equal(exe(code), 43);
+  }
+  );
+  
+  it("Object function def 3", function () {
+    var code;
     code = gen("\na = {\n    a: def test()\n      return 44\n    , c: 1\n}\na.a()");
     assert.equal(exe(code), 44);
   }
