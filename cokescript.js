@@ -1,6 +1,6 @@
 var epegjs, virtual, h, depth, forLoopCount, unpacking, namespaces, levelStack, prefix, tokenDef, strInterpolationTokenDef, strInterpolationGrammarDef, strGram, grammarDef, nc, backend, gram;
 // CokeScript language by Batiste Bieler 2015
-// Implemented using EPEG.JS
+// Implemented using EPEG.JS, v0.0.8
 
 epegjs = require("epegjs");
 virtual = require("virtual-dom");

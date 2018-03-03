@@ -1,5 +1,5 @@
 # CokeScript language by Batiste Bieler 2015
-# Implemented using EPEG.JS
+# Implemented using EPEG.JS, v0.0.8
 
 epegjs = require("epegjs")
 virtual = require("virtual-dom")
