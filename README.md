@@ -13,6 +13,11 @@ How does it compare against CoffeeScript:
 
 ![Style matters](https://raw.githubusercontent.com/batiste/CokeScript/master/css/eg-coke.png)
 
+## Atom support
+
+ - Syntax highlighting for Atom https://atom.io/packages/language-cokescript 
+ - A linter for Atom https://atom.io/packages/linter-cokescript
+
 ## API
 
 ### Import CokeScript
