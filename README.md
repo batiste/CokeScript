@@ -13,6 +13,11 @@ How does it compare against CoffeeScript:
 
 ![Style matters](https://raw.githubusercontent.com/batiste/CokeScript/master/css/eg-coke.png)
 
+## Examples
+
+ - Consuming a REST API, build with webpack https://github.com/batiste/cokescript-pets
+ - Simple frontend consuming a CRUD REST API https://github.com/batiste/cokescript-frontend
+
 ## Atom support
 
  - Syntax highlighting for Atom https://atom.io/packages/language-cokescript 
