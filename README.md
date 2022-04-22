@@ -9,7 +9,7 @@ How does it compare against CoffeeScript:
   - Virtual Dom support within the language
   - The source code of the language is rather simple and short
   - [Language specification](/doc/spec.md)
-  - [Interactive demo](http://batiste.info/CokeScript)
+  - [Interactive demo](http://batiste.github.io/CokeScript)
 
 ![Style matters](https://raw.githubusercontent.com/batiste/CokeScript/master/css/eg-coke.png)
 
