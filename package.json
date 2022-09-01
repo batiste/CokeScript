@@ -1,6 +1,6 @@
 {
   "name": "cokescript",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "CokeScript is a whitespace sensitive language that compile to JavaScript",
   "main": "cokescript.js",
   "scripts": {
